@@ -9,13 +9,18 @@ $demoEmail = $demoAccounts[(string) ($_GET['demo'] ?? '')] ?? '';
 <main class="internal-login">
     <section class="internal-login-panel" aria-labelledby="loginTitle">
         <aside class="internal-login-visual">
-            <img src="assets/img/cmc-connect-hero.png" alt="Minh họa cộng đồng sinh viên số CMC University">
+            <img src="assets/img/cmc-connect-hero.png" width="1536" height="1024" fetchpriority="high" alt="Minh họa cộng đồng sinh viên số CMC University">
             <div class="internal-login-overlay">
                 <img class="login-logo" src="assets/img/cmc-university-horizontal.png" alt="CMC University">
                 <div>
                     <p class="login-context">Student Connect</p>
                     <h2>Một hệ thống cho toàn bộ hành trình đại sứ.</h2>
                     <p>Nhận brief, sáng tạo nội dung, tư vấn P2P và theo dõi ghi nhận trong cùng một nơi.</p>
+                    <div class="login-signal-grid" aria-label="Năng lực của hệ thống">
+                        <div><i class="bi bi-stars"></i><span><strong>Creative Intelligence</strong><small>Copilot và brand voice</small></span></div>
+                        <div><i class="bi bi-diagram-3"></i><span><strong>P2P Network</strong><small>Kết nối đúng đại sứ</small></span></div>
+                        <div><i class="bi bi-graph-up-arrow"></i><span><strong>Impact Engine</strong><small>Đo lường và ghi nhận</small></span></div>
+                    </div>
                 </div>
                 <div class="login-security"><i class="bi bi-shield-check"></i><span><strong>Không gian nội bộ</strong><small>Dữ liệu được phân quyền theo vai trò</small></span></div>
             </div>

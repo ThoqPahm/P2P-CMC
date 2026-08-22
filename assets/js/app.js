@@ -25,6 +25,23 @@
         }
     });
 
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const revealTargets = $$('.app-content > *, .internal-login-panel');
+    if (!reduceMotion && 'IntersectionObserver' in window) {
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('cmci-visible');
+                observer.unobserve(entry.target);
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -28px' });
+        revealTargets.forEach((element, index) => {
+            element.classList.add('cmci-reveal');
+            element.style.setProperty('--cmci-delay', `${Math.min(index, 4) * 55}ms`);
+            revealObserver.observe(element);
+        });
+    }
+
     $$('[data-password-toggle]').forEach((button) => {
         button.addEventListener('click', () => {
             const input = document.getElementById(button.dataset.passwordToggle);
@@ -143,7 +160,7 @@
                     <div><span><i class="bi bi-clock"></i> Thời điểm thử nghiệm</span><p>${escapeHtml(output.schedule)}</p></div>
                     <div><span><i class="bi bi-shield-check"></i> Kiểm tra an toàn</span><ul>${output.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join('')}</ul></div>
                 </div>`;
-            result.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+            result.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
         } catch (error) {
             result.classList.add('empty');
             result.innerHTML = `<i class="bi bi-exclamation-circle"></i><h3>Chưa thể tạo gợi ý</h3><p>${escapeHtml(error.message)}</p>`;
