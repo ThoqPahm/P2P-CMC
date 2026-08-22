@@ -1,0 +1,120 @@
+<?php
+
+declare(strict_types=1);
+
+function e(?string $value): string
+{
+    return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
+}
+
+function user(): ?array
+{
+    if (empty($_SESSION['user_id'])) {
+        return null;
+    }
+
+    static $cachedUser = false;
+    if ($cachedUser === false) {
+        $statement = Database::connection()->prepare('SELECT * FROM users WHERE id = ?');
+        $statement->execute([(int) $_SESSION['user_id']]);
+        $cachedUser = $statement->fetch() ?: null;
+    }
+
+    return $cachedUser ?: null;
+}
+
+function require_auth(array $roles = []): void
+{
+    $current = user();
+    if (!$current) {
+        flash('warning', 'Vui lòng đăng nhập để tiếp tục.');
+        redirect('index.php?page=login');
+    }
+    if ($roles && !in_array($current['role'], $roles, true)) {
+        http_response_code(403);
+        exit('Bạn không có quyền truy cập trang này.');
+    }
+}
+
+function redirect(string $url): never
+{
+    header('Location: ' . $url);
+    exit;
+}
+
+function csrf_token(): string
+{
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function csrf_field(): string
+{
+    return '<input type="hidden" name="csrf_token" value="' . e(csrf_token()) . '">';
+}
+
+function verify_csrf(): void
+{
+    $token = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    if (!is_string($token) || !hash_equals(csrf_token(), $token)) {
+        http_response_code(419);
+        exit('Phiên làm việc đã hết hạn. Vui lòng tải lại trang.');
+    }
+}
+
+function flash(string $type, string $message): void
+{
+    $_SESSION['flash'][] = ['type' => $type, 'message' => $message];
+}
+
+function pull_flashes(): array
+{
+    $flashes = $_SESSION['flash'] ?? [];
+    unset($_SESSION['flash']);
+    return $flashes;
+}
+
+function scalar(string $sql, array $params = []): mixed
+{
+    $statement = Database::connection()->prepare($sql);
+    $statement->execute($params);
+    return $statement->fetchColumn();
+}
+
+function rows(string $sql, array $params = []): array
+{
+    $statement = Database::connection()->prepare($sql);
+    $statement->execute($params);
+    return $statement->fetchAll();
+}
+
+function initials(string $name): string
+{
+    $parts = preg_split('/\s+/u', trim($name)) ?: [];
+    $letters = array_map(static fn(string $part): string => mb_substr($part, 0, 1), array_slice($parts, -2));
+    return mb_strtoupper(implode('', $letters));
+}
+
+function status_badge(string $status): string
+{
+    return match ($status) {
+        'active', 'approved', 'qualified', 'open' => 'success',
+        'pending', 'new' => 'warning',
+        'draft' => 'secondary',
+        'rejected', 'closed' => 'danger',
+        default => 'primary',
+    };
+}
+
+function role_label(string $role): string
+{
+    return match ($role) {
+        'admin' => 'Quản trị viên',
+        'ambassador' => 'Đại sứ sinh viên',
+        'student' => 'Sinh viên',
+        'prospect' => 'Học sinh THPT',
+        default => $role,
+    };
+}
