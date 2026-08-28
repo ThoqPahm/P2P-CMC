@@ -40,7 +40,7 @@ if (!isset($routes[$page])) {
 }
 
 $isPublic = in_array($page, $publicPages, true) || $page === 'not-found';
-$pageTitle = 'CMC Connect';
+$pageTitle = 'eAmbassador';
 
 ob_start();
 if ($page === 'not-found') {

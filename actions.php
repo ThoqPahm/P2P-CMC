@@ -10,7 +10,6 @@ if ($action === 'logout') {
     $_SESSION = [];
     session_destroy();
     session_start();
-    flash('success', 'Bạn đã đăng xuất an toàn.');
     redirect('index.php?page=login');
 }
 
@@ -34,7 +33,6 @@ try {
             }
             session_regenerate_id(true);
             $_SESSION['user_id'] = (int) $account['id'];
-            flash('success', 'Chào mừng ' . $account['name'] . ' quay lại!');
             redirect('index.php?page=dashboard');
 
         case 'create_campaign':

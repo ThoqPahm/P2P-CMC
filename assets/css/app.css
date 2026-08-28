@@ -81,6 +81,10 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .brand img { display: block; max-width: 100%; }
 .cmc-brand img { width: 168px; }
 .brand-product { padding-left: .75rem; border-left: 1px solid var(--line-strong); color: var(--cmc-navy); font-size: .75rem; }
+.eambassador-wordmark { color: var(--cmc-navy); font-family: "Syne", "Trebuchet MS", sans-serif; font-weight: 700; letter-spacing: -.04em; text-transform: none; }
+.eambassador-wordmark > span { color: var(--cmc-blue); }
+.sidebar-brand .eambassador-wordmark, .footer-brand .eambassador-wordmark { color: #fff; }
+.sidebar-brand .eambassador-wordmark > span, .footer-brand .eambassador-wordmark > span { color: var(--cmc-cyan); }
 .public-nav .nav-link { color: #48657a; font-weight: 650; }
 .public-nav .nav-link:hover { color: var(--cmc-blue-dark); }
 .public-footer { padding: 3.5rem 0; color: #c8d8e4; background: var(--cmc-navy); }

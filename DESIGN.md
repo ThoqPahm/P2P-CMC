@@ -1,5 +1,5 @@
 ---
-name: CMC Connect
+name: eAmbassador
 description: Campus wayfinding for student progress and university operations.
 colors:
   cmc-navy: "#002757"
@@ -101,13 +101,13 @@ components:
     padding: "0.32rem 0.5rem"
 ---
 
-# Design System: CMC Connect
+# Design System: eAmbassador
 
 ## Overview
 
 **Creative North Star: "Campus Wayfinding"**
 
-CMC Connect treats operational work as a route through a campus: users should see where they are, what comes next, what is blocked, and which destination matters now. The signature composition is **Route + Status Rail**—one dominant work surface for sequence and handoffs, paired with a narrow live rail for verified metrics, priority signals, and secondary actions.
+eAmbassador treats operational work as a route through a campus: users should see where they are, what comes next, what is blocked, and which destination matters now. The signature composition is **Route + Status Rail**—one dominant work surface for sequence and handoffs, paired with a narrow live rail for verified metrics, priority signals, and secondary actions.
 
 The system is clean, cool, precise, and dense enough for real work. Brand character comes from CMC navy, blue, and cyan; thin route lines; compact directories; tabular numbers; and stateful wayfinding markers—not ornamental graphics or a collection of interchangeable KPI cards. Student and admin surfaces share this visual grammar while presenting different operational stories.
 
@@ -158,7 +158,7 @@ CMC navy anchors the shell and hierarchy; CMC blue indicates progress and primar
 
 **Display and Body Font:** Segoe UI Variable, with Aptos and Segoe UI fallbacks.
 
-**Product Mark Font:** Syne, reserved for the eAmbassador wordmark on authentication surfaces. It is not used for headings, controls, labels, or body copy.
+**Product Mark Font:** Syne, reserved for the eAmbassador wordmark across authentication, public navigation, the application sidebar, footer, and notification headers. On light surfaces, `e` uses CMC blue and `Ambassador` uses navy; on navy surfaces, `e` shifts to cyan and `Ambassador` to white for contrast. Syne is not used for headings, controls, labels, or ordinary body copy.
 
 **Character:** a compact system sans that feels institutional, direct, and legible in Vietnamese. Hierarchy comes from weight, scale, and spacing; the single Syne product-mark exception provides identity without entering content typography. Headings use slightly tightened tracking; data uses tabular numerals so columns and status changes remain stable.
 

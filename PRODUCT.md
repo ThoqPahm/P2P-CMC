@@ -15,7 +15,7 @@ web
 
 ## Product Purpose
 
-CMC Connect vận hành hệ sinh thái đại sứ sinh viên số và truyền thông ngang hàng của Trường Đại học CMC. Thành công là giúp sinh viên hoàn thành nhiệm vụ rõ ràng, giúp admin kiểm soát vận hành nhanh, và giúp học sinh THPT tiếp cận trải nghiệm học tập đáng tin cậy từ người đang học.
+eAmbassador vận hành hệ sinh thái đại sứ sinh viên số và truyền thông ngang hàng của Trường Đại học CMC. Thành công là giúp sinh viên hoàn thành nhiệm vụ rõ ràng, giúp admin kiểm soát vận hành nhanh, và giúp học sinh THPT tiếp cận trải nghiệm học tập đáng tin cậy từ người đang học.
 
 ## Positioning
 
@@ -38,7 +38,7 @@ Nền tảng nối liền nội dung UGC, affiliate, hội thoại P2P, kiểm d
 
 ## Brand Commitments
 
-- Tên sản phẩm: CMC Connect / Student Connect thuộc CMC University.
+- Tên sản phẩm: eAmbassador thuộc CMC University.
 - Giữ nguyên logo CMC University hiện có.
 - Palette bắt buộc: CMC Navy `#002757`, CMC Blue `#008FD5`, CMC Cyan `#00DEDF`, trắng và hệ neutral lạnh.
 - Không dùng cam, coral, beige, warm cream hoặc near-black làm màu nhận diện.

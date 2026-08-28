@@ -1,6 +1,6 @@
-# CMC Connect
+# eAmbassador
 
-CMC Connect là nền tảng vận hành nội bộ cho hệ sinh thái đại sứ sinh viên số và truyền thông ngang hàng của Trường Đại học CMC. Khi mở hệ thống, người dùng đi thẳng vào cổng đăng nhập được phân quyền cho Quản trị viên, Sinh viên và Đại sứ.
+eAmbassador là nền tảng vận hành nội bộ cho hệ sinh thái đại sứ sinh viên số và truyền thông ngang hàng của Trường Đại học CMC. Khi mở hệ thống, người dùng đi thẳng vào cổng đăng nhập được phân quyền cho Quản trị viên, Sinh viên và Đại sứ.
 
 ## Công nghệ
 

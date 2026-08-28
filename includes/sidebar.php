@@ -23,12 +23,12 @@ if ($currentUser['role'] === 'ambassador') {
 ?>
 <aside class="app-sidebar" id="appSidebar">
     <div class="sidebar-head">
-        <a class="brand brand-light sidebar-brand" href="index.php?page=dashboard" aria-label="CMC University Student Connect"><img src="assets/img/cmc-university.svg" alt="CMC University"><span>Student Connect</span></a>
+        <a class="brand brand-light sidebar-brand" href="index.php?page=dashboard" aria-label="CMC University eAmbassador"><img src="assets/img/cmc-university.svg" alt="CMC University"><span class="eambassador-wordmark"><span>e</span>Ambassador</span></a>
         <button class="btn text-white d-xl-none ms-auto" id="sidebarClose" type="button" aria-label="Đóng menu"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="sidebar-context">
         <span class="context-icon"><i class="bi <?= $isAdmin ? 'bi-building' : 'bi-mortarboard' ?>"></i></span>
-        <div><small><?= $isAdmin ? 'Không gian' : 'Mã sinh viên' ?></small><strong><?= $isAdmin ? 'CMC University' : e($currentUser['student_code'] ?? 'CMC Connect') ?></strong></div>
+        <div><small><?= $isAdmin ? 'Không gian' : 'Mã sinh viên' ?></small><strong><?= $isAdmin ? 'CMC University' : e($currentUser['student_code'] ?? 'eAmbassador') ?></strong></div>
     </div>
     <nav class="sidebar-nav">
         <p class="sidebar-label">Điều hướng</p>

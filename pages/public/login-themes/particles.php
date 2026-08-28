@@ -16,7 +16,7 @@
             <div class="login-form-content">
                 <div class="login-mobile-brand"><img src="assets/img/cmc-university-horizontal.png" alt="CMC University"></div>
                 <div class="login-form-head">
-                    <p class="login-product-mark"><span>e</span>Ambassador</p>
+                    <p class="login-product-mark eambassador-wordmark"><span>e</span>Ambassador</p>
                     <h1 id="loginTitle">Đăng nhập</h1>
                     <p>Chào mừng bạn trở lại <span class="login-welcome-brand"><span>e</span>Ambassador</span>.</p>
                 </div>
