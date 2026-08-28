@@ -16,7 +16,8 @@
             .launcher { position: fixed; ${position}: 24px; bottom: 24px; z-index: 2147483000; display: flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 18px 0 13px; color: #fff; background: #008fd5; border: 0; border-radius: 16px; box-shadow: 0 15px 34px rgba(0,39,87,.24); cursor: pointer; font: 700 14px/1.2 "Segoe UI Variable", Aptos, "Segoe UI", sans-serif; transition: transform .18s ease, background .18s ease; }
             .launcher:hover { background: #006eaa; transform: translateY(-2px); }
             .launcher:focus-visible { outline: 3px solid rgba(0,143,213,.3); outline-offset: 3px; }
-            .launcher-icon { display: grid; width: 34px; height: 34px; place-items: center; color: #008fd5; background: #fff; border-radius: 10px; }
+            .launcher-icon { position: relative; display: grid; width: 34px; height: 34px; place-items: center; color: #008fd5; background: #fff; border-radius: 10px; }
+            .launcher-icon::after { position: absolute; top: -2px; right: -2px; width: 9px; height: 9px; content: ''; background: #14725b; border: 2px solid #008fd5; border-radius: 50%; }
             .launcher-icon svg { width: 19px; height: 19px; fill: currentColor; }
             .panel { position: fixed; ${position}: 24px; bottom: 90px; z-index: 2147483001; width: min(430px, calc(100vw - 32px)); height: min(720px, calc(100vh - 116px)); overflow: hidden; background: #fff; border-radius: 18px; box-shadow: 0 28px 72px rgba(0,39,87,.28); opacity: 0; transform: translateY(18px) scale(.98); visibility: hidden; transition: opacity .2s ease, transform .24s cubic-bezier(.16,1,.3,1), visibility .2s; }
             .panel.open { opacity: 1; transform: none; visibility: visible; }

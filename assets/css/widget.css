@@ -5,6 +5,7 @@
     --widget-cyan: #00dedf;
     --widget-ink: #102a43;
     --widget-muted: #60788d;
+    --widget-subtle: #5d7487;
     --widget-line: #dce8ef;
     --widget-soft: #f2f8fb;
     --widget-white: #fff;
@@ -135,9 +136,16 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .widget-success h1 { font-size: 1.7rem; }
 .widget-success p { max-width: 430px; margin: 10px auto 0; color: var(--widget-muted); line-height: 1.6; }
 .widget-success button { margin-top: 24px; padding: 10px 14px; color: var(--widget-blue-strong); background: #fff; border: 1px solid #acd0e2; border-radius: 10px; font-weight: 700; }
-.widget-footer { position: absolute; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; color: #7890a1; background: rgba(255,255,255,.96); border-top: 1px solid var(--widget-line); font-size: .64rem; }
-.widget-footer i { color: var(--widget-success); }
-.widget-footer strong { color: var(--widget-navy); }
+.widget-footer { position: absolute; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 0 18px; color: var(--widget-subtle); background: rgba(255,255,255,.98); border-top: 1px solid var(--widget-line); font-size: .64rem; }
+.widget-trust { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.widget-trust i { color: var(--widget-success); font-size: .72rem; }
+.widget-powered { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.widget-powered small { color: #748a9a; font-size: .56rem; font-weight: 600; }
+.cmc-mini { display: inline-flex; align-items: center; gap: 4px; color: var(--widget-navy); font-size: .62rem; font-weight: 800; letter-spacing: .025em; }
+.cmc-mini img { width: 18px; height: 13px; object-fit: contain; }
+.widget-powered > i { width: 1px; height: 16px; background: var(--widget-line); }
+.widget-powered > strong { color: var(--widget-navy); font-family: Syne, "Trebuchet MS", sans-serif; font-size: .7rem; letter-spacing: -.025em; }
+.widget-powered > strong b { color: var(--widget-blue); }
 .widget-toast { position: fixed; right: 18px; bottom: 58px; left: 18px; z-index: 20; padding: 11px 13px; color: #fff; background: var(--widget-navy); border-radius: 10px; box-shadow: var(--widget-shadow); font-size: .76rem; text-align: center; }
 
 @media (max-width: 620px) {
@@ -156,6 +164,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     .ambassador-availability .availability { display: none; }
     .profile-cover { min-height: 160px; margin: 0 -15px; }
     .widget-chat { height: calc(100vh - 62px); }
+    .widget-footer { padding: 0 12px; }
+    .widget-trust { font-size: 0; }
+    .widget-trust i { font-size: .78rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

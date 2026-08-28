@@ -27,13 +27,13 @@ $widgetData = array_map(static fn(array $item): array => [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/widget.css?v=1" rel="stylesheet">
+    <link href="assets/css/widget.css?v=2" rel="stylesheet">
 </head>
 <body class="widget-body">
 <main class="widget-shell" id="widgetShell">
     <header class="widget-header">
         <button class="widget-back is-hidden" id="widgetBack" type="button" aria-label="Quay lại"><i class="bi bi-arrow-left"></i></button>
-        <a class="widget-brand" href="#" aria-label="eAmbassador"><img src="assets/img/cmc-university-horizontal.png" alt="CMC University"><span><b>e</b>Ambassador</span></a>
+        <div class="widget-brand" aria-label="CMC University eAmbassador"><img src="assets/img/cmc-university-horizontal.png" alt="CMC University"><span><b>e</b>Ambassador</span></div>
         <button class="widget-close" id="widgetClose" type="button" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg"></i></button>
     </header>
 
@@ -76,12 +76,15 @@ $widgetData = array_map(static fn(array $item): array => [
     </section>
 
     <section class="widget-view widget-success is-hidden" id="successView"><span><i class="bi bi-check-lg"></i></span><h1>Đã ghi nhận lịch của bạn</h1><p>Đội ngũ eAmbassador sẽ xác nhận thời gian tư vấn qua email.</p><button type="button" id="backToDirectory">Tiếp tục khám phá đại sứ</button></section>
-    <footer class="widget-footer"><i class="bi bi-shield-lock"></i> Tư vấn an toàn bởi <strong>eAmbassador</strong></footer>
+    <footer class="widget-footer">
+        <span class="widget-trust"><i class="bi bi-shield-check"></i> Kết nối an toàn</span>
+        <span class="widget-powered"><small>Powered by</small><span class="cmc-mini"><img src="assets/img/cmc-university.svg" alt=""><b>CMC</b></span><i aria-hidden="true"></i><strong><b>e</b>Ambassador</strong></span>
+    </footer>
     <div class="widget-toast is-hidden" id="widgetToast" role="status"></div>
  </main>
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=1"></script>
+<script src="assets/js/widget.js?v=2"></script>
 </body>
 </html>
