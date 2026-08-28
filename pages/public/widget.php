@@ -4,6 +4,7 @@ $statement = $db->prepare("INSERT INTO widget_access_tokens (token, expires_at) 
 $statement->execute([$widgetToken]);
 $db->exec("DELETE FROM widget_access_tokens WHERE expires_at <= datetime('now')");
 $ambassadors = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM users WHERE role = 'ambassador' AND status = 'active' ORDER BY is_online DESC, name");
+$answeredQuestions = (int) scalar("SELECT COUNT(*) FROM messages m JOIN users u ON u.id = m.sender_id WHERE u.role = 'ambassador'");
 $widgetData = array_map(static fn(array $item): array => [
     'id' => (int) $item['id'],
     'name' => $item['name'],
@@ -27,7 +28,7 @@ $widgetData = array_map(static fn(array $item): array => [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/widget.css?v=2" rel="stylesheet">
+    <link href="assets/css/widget.css?v=3" rel="stylesheet">
 </head>
 <body class="widget-body">
 <main class="widget-shell" id="widgetShell">
@@ -37,8 +38,17 @@ $widgetData = array_map(static fn(array $item): array => [
         <button class="widget-close" id="widgetClose" type="button" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg"></i></button>
     </header>
 
+    <nav class="widget-navigation" aria-label="Cách kết nối với đại sứ">
+        <button class="is-active" type="button" data-availability="all"><i class="bi bi-people"></i><span>Tất cả đại sứ</span></button>
+        <button type="button" data-availability="online"><i class="bi bi-chat-dots"></i><span>Chat ngay</span></button>
+        <button type="button" data-availability="offline"><i class="bi bi-calendar2-check"></i><span>Đặt lịch</span></button>
+    </nav>
+
     <section class="widget-view widget-directory" id="directoryView">
-        <div class="widget-intro"><div><h1>Hỏi người đang học.</h1><p>Chọn một đại sứ phù hợp để nghe trải nghiệm thật tại CMC.</p></div><span class="verified-pill"><i class="bi bi-patch-check-fill"></i> Đã xác minh</span></div>
+        <div class="widget-intro">
+            <div><h1>Chọn đại sứ để trò chuyện</h1><p><strong><?= count($ambassadors) ?> đại sứ đã xác minh</strong> · <?= number_format($answeredQuestions, 0, ',', '.') ?> câu trả lời đã được ghi nhận.</p></div>
+            <span class="widget-powered"><small>Powered by</small><span class="cmc-mini"><img src="assets/img/cmc-university.svg" alt=""><b>CMC</b></span><i aria-hidden="true"></i><strong><b>e</b>Ambassador</strong></span>
+        </div>
         <div class="widget-filters" aria-label="Lọc đại sứ">
             <label class="widget-search"><i class="bi bi-search"></i><input id="widgetSearch" type="search" placeholder="Tên hoặc điều bạn quan tâm..."></label>
             <div class="widget-filter-row">
@@ -46,7 +56,6 @@ $widgetData = array_map(static fn(array $item): array => [
                 <label><span>Quê quán</span><select id="hometownFilter"><option value="">Tất cả tỉnh thành</option></select></label>
                 <label><span>Khóa / năm</span><select id="yearFilter"><option value="">Tất cả</option></select></label>
             </div>
-            <div class="availability-filter" role="group" aria-label="Trạng thái hoạt động"><button class="is-active" type="button" data-availability="all">Tất cả</button><button type="button" data-availability="online"><i></i> Đang online</button><button type="button" data-availability="offline">Có thể đặt lịch</button></div>
         </div>
         <div class="widget-results-head"><strong id="resultCount">0 đại sứ phù hợp</strong><span>Ưu tiên người đang online</span></div>
         <div class="ambassador-list" id="ambassadorList"></div>
@@ -76,15 +85,12 @@ $widgetData = array_map(static fn(array $item): array => [
     </section>
 
     <section class="widget-view widget-success is-hidden" id="successView"><span><i class="bi bi-check-lg"></i></span><h1>Đã ghi nhận lịch của bạn</h1><p>Đội ngũ eAmbassador sẽ xác nhận thời gian tư vấn qua email.</p><button type="button" id="backToDirectory">Tiếp tục khám phá đại sứ</button></section>
-    <footer class="widget-footer">
-        <span class="widget-trust"><i class="bi bi-shield-check"></i> Kết nối an toàn</span>
-        <span class="widget-powered"><small>Powered by</small><span class="cmc-mini"><img src="assets/img/cmc-university.svg" alt=""><b>CMC</b></span><i aria-hidden="true"></i><strong><b>e</b>Ambassador</strong></span>
-    </footer>
+    <footer class="widget-footer"><span class="widget-trust"><i class="bi bi-shield-check"></i> Kết nối an toàn · Thông tin được bảo vệ</span></footer>
     <div class="widget-toast is-hidden" id="widgetToast" role="status"></div>
  </main>
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=2"></script>
+<script src="assets/js/widget.js?v=3"></script>
 </body>
 </html>

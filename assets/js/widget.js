@@ -66,9 +66,10 @@
         $('#resultCount').textContent = `${filtered.length} đại sứ phù hợp`;
         $('#ambassadorList').innerHTML = filtered.map((item) => `
             <button class="widget-ambassador" type="button" data-ambassador-id="${item.id}">
-                <span class="ambassador-avatar">${escapeHtml(item.initials)}</span>
-                <span class="ambassador-copy"><strong>${escapeHtml(item.name)} <i class="bi bi-patch-check-fill"></i></strong><span>${escapeHtml(item.major)} · Năm ${item.study_year}</span><span class="ambassador-meta"><span><i class="bi bi-geo-alt"></i> ${escapeHtml(item.hometown)}</span><span><i class="bi bi-stars"></i> ${escapeHtml((item.interests || [])[0] || 'Đời sống CMC')}</span></span></span>
-                <span class="ambassador-availability"><span class="availability ${item.online ? 'online' : 'offline'}"><i></i>${item.online ? 'Online' : 'Offline'}</span><i class="bi bi-chevron-right"></i></span>
+                <span class="ambassador-card-head"><span class="ambassador-avatar">${escapeHtml(item.initials)}</span><span class="ambassador-copy"><strong>${escapeHtml(item.name)} <i class="bi bi-patch-check-fill"></i></strong><span>${escapeHtml(item.major)} · Năm ${item.study_year}</span></span><span class="availability ${item.online ? 'online' : 'offline'}"><i></i>${item.online ? 'Online' : 'Offline'}</span></span>
+                <span class="ambassador-bio">${escapeHtml(item.bio || 'Sẵn sàng chia sẻ trải nghiệm học tập và đời sống tại CMC.')}</span>
+                <span class="ambassador-facts"><span><small>Quê quán</small><strong>${escapeHtml(item.hometown)}</strong></span><span><small>Có thể chia sẻ</small><strong>${escapeHtml((item.interests || []).slice(0, 2).join(', ') || 'Đời sống CMC')}</strong></span></span>
+                <span class="ambassador-cta">${item.online ? `Chat với ${escapeHtml(item.name)}` : 'Xem hồ sơ và đặt lịch'} <i class="bi bi-arrow-right"></i></span>
             </button>`).join('');
         $('#widgetEmpty').classList.toggle('is-hidden', filtered.length > 0);
         $$('.widget-ambassador').forEach((button) => button.addEventListener('click', () => openProfile(Number(button.dataset.ambassadorId))));
@@ -206,6 +207,8 @@
         availability = button.dataset.availability;
         $$('[data-availability]').forEach((item) => item.classList.toggle('is-active', item === button));
         renderAmbassadors();
+        if (currentView === 'chatView' && messagePoll) window.clearInterval(messagePoll);
+        if (currentView !== 'directoryView') showView('directoryView');
     }));
     $('#clearFilters').addEventListener('click', () => {
         $('#widgetSearch').value = '';
