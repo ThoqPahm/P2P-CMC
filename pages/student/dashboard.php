@@ -1,26 +1,167 @@
 <?php
 require_auth(['student', 'ambassador']);
 $current = user();
-$pageTitle = 'Chào ' . explode(' ', $current['name'])[count(explode(' ', $current['name'])) - 1] . '!';
+$nameParts = explode(' ', $current['name']);
+$pageTitle = 'Chào ' . end($nameParts) . '!';
 $balance = (int) scalar("SELECT COALESCE(SUM(CASE WHEN type='credit' THEN points ELSE -points END),0) FROM wallet_transactions WHERE user_id = ?", [$current['id']]);
-$campaigns = rows("SELECT * FROM campaigns WHERE status = 'active' ORDER BY deadline LIMIT 3");
-$transactions = rows('SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY id DESC LIMIT 4', [$current['id']]);
+$submissionCount = (int) scalar('SELECT COUNT(*) FROM submissions WHERE user_id = ?', [$current['id']]);
+$campaigns = rows("SELECT * FROM campaigns WHERE status = 'active' ORDER BY deadline ASC LIMIT 3");
+$userCampaignRows = rows(<<<'SQL'
+    SELECT c.*, s.status AS submission_status, s.submitted_at
+    FROM submissions s
+    JOIN campaigns c ON c.id = s.campaign_id
+    WHERE s.user_id = ? AND c.status = 'active'
+    ORDER BY s.id DESC
+    LIMIT 1
+SQL, [$current['id']]);
+$recommendedCampaignRows = rows(<<<'SQL'
+    SELECT c.*
+    FROM campaigns c
+    WHERE c.status = 'active'
+      AND NOT EXISTS (
+          SELECT 1 FROM submissions s WHERE s.campaign_id = c.id AND s.user_id = ?
+      )
+    ORDER BY c.deadline ASC
+    LIMIT 1
+SQL, [$current['id']]);
+$userCampaign = $userCampaignRows[0] ?? null;
+$activeCampaign = $userCampaign ?? ($recommendedCampaignRows[0] ?? ($campaigns[0] ?? null));
+$routeStatus = (string) ($userCampaign['submission_status'] ?? 'not_started');
+$routeProgressByStatus = ['not_started' => 0, 'rejected' => 25, 'pending' => 75, 'approved' => 100];
+$journeyProgress = $routeProgressByStatus[$routeStatus] ?? 0;
+$completedMilestones = (int) floor($journeyProgress / 25);
+$transactions = rows('SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY id DESC LIMIT 5', [$current['id']]);
 $clicks = (int) scalar('SELECT COALESCE(SUM(clicks),0) FROM affiliate_links WHERE user_id = ?', [$current['id']]);
 $leads = (int) scalar('SELECT COALESCE(SUM(leads),0) FROM affiliate_links WHERE user_id = ?', [$current['id']]);
-$conversionRate = $clicks > 0 ? round(($leads / $clicks) * 100, 1) : 0;
+$conversionRate = $clicks > 0 ? ($leads / $clicks) * 100 : 0;
 $leaderboard = rows(<<<'SQL'
-    SELECT u.id, u.name, u.ambassador_tier,
-        COALESCE((SELECT SUM(al.leads) FROM affiliate_links al WHERE al.user_id = u.id), 0) AS leads,
-        COALESCE((SELECT SUM(CASE WHEN wt.type = 'credit' THEN wt.points ELSE -wt.points END) FROM wallet_transactions wt WHERE wt.user_id = u.id), 0) AS points
+    SELECT u.id, u.name, u.ambassador_tier, COALESCE(w.points,0) AS points, COALESCE(a.leads,0) AS leads
     FROM users u
-    WHERE u.role IN ('student','ambassador') AND u.status = 'active'
-    ORDER BY points DESC, leads DESC, u.name
+    LEFT JOIN (
+        SELECT user_id, SUM(points) AS points
+        FROM wallet_transactions
+        WHERE type = 'credit'
+        GROUP BY user_id
+    ) w ON w.user_id = u.id
+    LEFT JOIN (
+        SELECT user_id, SUM(leads) AS leads
+        FROM affiliate_links
+        GROUP BY user_id
+    ) a ON a.user_id = u.id
+    WHERE u.role IN ('student','ambassador')
+    ORDER BY points DESC
     LIMIT 5
 SQL);
 ?>
-<div class="student-hero"><div><span class="hero-kicker"><i class="bi bi-stars"></i> HÀNH TRÌNH ĐẠI SỨ SỐ</span><h2>Chia sẻ điều thật,<br><span>tạo nên ảnh hưởng thật.</span></h2><p>Khám phá nhiệm vụ mới, kể câu chuyện CMC theo cách của bạn và nhận phần thưởng xứng đáng.</p><a class="btn btn-light btn-lg" href="index.php?page=campaigns">Khám phá nhiệm vụ <i class="bi bi-arrow-right"></i></a></div><div class="student-hero-art"><span class="orbit orbit-one"><i class="bi bi-camera-reels-fill"></i></span><span class="orbit orbit-two"><i class="bi bi-heart-fill"></i></span><span class="hero-avatar"><?= e(initials($current['name'])) ?></span></div></div>
-<div class="row g-4 metric-grid mt-1"><div class="col-sm-6 col-xl-3"><article class="metric-card"><span class="metric-icon coral"><i class="bi bi-wallet2"></i></span><div><p>Ví điểm</p><h3><?= number_format($balance) ?></h3><small>Sẵn sàng quy đổi</small></div></article></div><div class="col-sm-6 col-xl-3"><article class="metric-card"><span class="metric-icon violet"><i class="bi bi-camera-video-fill"></i></span><div><p>Bài đã nộp</p><h3><?= (int) scalar('SELECT COUNT(*) FROM submissions WHERE user_id = ?', [$current['id']]) ?></h3><small>Nội dung UGC</small></div></article></div><div class="col-sm-6 col-xl-3"><article class="metric-card"><span class="metric-icon blue"><i class="bi bi-cursor-fill"></i></span><div><p>Lượt click</p><h3><?= (int) scalar('SELECT COALESCE(SUM(clicks),0) FROM affiliate_links WHERE user_id = ?', [$current['id']]) ?></h3><small>Từ link cá nhân</small></div></article></div><div class="col-sm-6 col-xl-3"><article class="metric-card"><span class="metric-icon green"><i class="bi bi-person-check-fill"></i></span><div><p>Leads hợp lệ</p><h3><?= (int) scalar('SELECT COALESCE(SUM(leads),0) FROM affiliate_links WHERE user_id = ?', [$current['id']]) ?></h3><small>Đã ghi nhận</small></div></article></div></div>
-<section class="section-block"><div class="panel-head"><div><p class="eyebrow">CƠ HỘI DÀNH CHO BẠN</p><h3>Nhiệm vụ đang diễn ra</h3></div><a href="index.php?page=campaigns">Xem tất cả <i class="bi bi-arrow-right"></i></a></div><div class="row g-4"><?php foreach ($campaigns as $i => $campaign): ?><div class="col-lg-4"><article class="mission-card theme-<?= ($i%3)+1 ?>"><div class="mission-visual"><span><i class="bi <?= $i === 1 ? 'bi-laptop' : 'bi-camera-reels-fill' ?>"></i></span><em><?= e($campaign['platform']) ?></em></div><div class="mission-body"><span class="deadline"><i class="bi bi-clock"></i> Còn <?= max(0, (int) ((strtotime($campaign['deadline']) - time()) / 86400)) ?> ngày</span><h3><?= e($campaign['title']) ?></h3><p><?= e($campaign['description']) ?></p><div class="mission-footer"><strong><i class="bi bi-gift-fill"></i> +<?= (int) $campaign['reward_points'] ?> điểm</strong><a href="index.php?page=campaigns&campaign=<?= (int) $campaign['id'] ?>">Xem brief</a></div></div></article></div><?php endforeach; ?></div></section>
-<div class="row g-4"><div class="col-xl-7"><section class="panel-card h-100"><div class="panel-head"><div><p class="eyebrow">THÀNH TÍCH GẦN ĐÂY</p><h3>Dòng điểm thưởng</h3></div><a href="index.php?page=wallet">Xem ví</a></div><div class="transaction-list"><?php foreach ($transactions as $transaction): ?><div><span class="transaction-icon"><i class="bi bi-stars"></i></span><p><strong><?= e($transaction['description']) ?></strong><small><?= date('d/m/Y | H:i', strtotime($transaction['created_at'])) ?></small></p><b class="<?= $transaction['type'] === 'credit' ? 'positive' : 'negative' ?>"><?= $transaction['type'] === 'credit' ? '+' : '-' ?><?= (int) $transaction['points'] ?></b></div><?php endforeach; ?><?php if (!$transactions): ?><div class="empty-state compact">Chưa có giao dịch điểm.</div><?php endif; ?></div></section></div><div class="col-xl-5"><section class="panel-card h-100"><div class="panel-head"><div><p class="eyebrow">LINK CỦA BẠN</p><h3>Biến chia sẻ thành leads</h3></div><span class="metric-icon blue"><i class="bi bi-link-45deg"></i></span></div><div class="mini-affiliate"><p>Mỗi link có mã riêng để hệ thống tự động ghi nhận lượt click và đăng ký.</p><div class="mini-number"><span>Tỷ lệ chuyển đổi</span><strong><?= number_format($conversionRate, 1) ?>%</strong><em><?= $leads ?> leads từ <?= $clicks ?> clicks</em></div><a class="btn btn-brand w-100" href="index.php?page=my-affiliate">Quản lý link Affiliate</a></div></section></div></div>
 
-<section class="panel-card section-block leaderboard-panel"><div class="panel-head"><div><p class="eyebrow">BẢNG XẾP HẠNG THÁNG</p><h3>Những người tạo ảnh hưởng tích cực</h3></div><span class="panel-chip"><i class="bi bi-shield-check"></i> Xếp theo điểm đã xác minh</span></div><div class="leaderboard-list"><?php foreach ($leaderboard as $rank => $member): ?><div class="leaderboard-row <?= (int) $member['id'] === (int) $current['id'] ? 'is-me' : '' ?>"><span class="rank-number"><?= $rank + 1 ?></span><span class="avatar avatar-sm"><?= e(initials($member['name'])) ?></span><p><strong><?= e($member['name']) ?><?= (int) $member['id'] === (int) $current['id'] ? ' (Bạn)' : '' ?></strong><small><span class="tier-badge tier-<?= e($member['ambassador_tier']) ?>"><?= e(ucfirst($member['ambassador_tier'])) ?></span> <?= (int) $member['leads'] ?> leads</small></p><b><?= number_format((int) $member['points']) ?> điểm</b></div><?php endforeach; ?></div></section>
+<div class="route-dashboard route-dashboard-student">
+    <section class="journey-board" aria-labelledby="journeyTitle">
+        <header class="route-board-head">
+            <div><h2 id="journeyTitle">Lộ trình hôm nay</h2><p><?= date('d/m/Y') ?> · Ưu tiên một nhiệm vụ quan trọng</p></div>
+            <a class="btn btn-brand" href="index.php?page=campaigns">Tìm nhiệm vụ <i class="bi bi-arrow-right"></i></a>
+        </header>
+
+        <div class="route-progress" aria-label="Tiến độ hành trình <?= $journeyProgress ?> phần trăm">
+            <span style="--progress: <?= $journeyProgress ?>%"></span>
+            <p><strong><?= $journeyProgress ?>%</strong> · <?= $completedMilestones ?>/4 mốc hoạt động đã hoàn thành</p>
+        </div>
+
+        <div class="route-track">
+            <article class="route-stop <?= $routeStatus === 'not_started' ? 'is-active' : 'is-complete' ?>">
+                <span class="route-marker"><i class="bi <?= $routeStatus === 'not_started' ? 'bi-compass' : 'bi-check-lg' ?>"></i></span>
+                <div class="route-stop-copy">
+                    <small><?= $routeStatus === 'not_started' ? 'Bước hiện tại' : 'Đã hoàn thành' ?></small>
+                    <h3><?= $routeStatus === 'not_started' ? 'Chọn nhiệm vụ phù hợp' : 'Nhiệm vụ đã được chọn' ?></h3>
+                    <p><?= $routeStatus === 'not_started' ? e($activeCampaign['title'] ?? 'Khám phá brief đang mở') : 'Brief và yêu cầu đã được kiểm tra.' ?></p>
+                </div>
+                <?php if ($routeStatus === 'not_started'): ?>
+                    <a class="btn btn-brand" href="index.php?page=campaigns<?= $activeCampaign ? '&campaign=' . (int) $activeCampaign['id'] : '' ?>">Xem brief <i class="bi bi-arrow-up-right"></i></a>
+                <?php else: ?>
+                    <span class="status-label status-success">Đã xác minh</span>
+                <?php endif; ?>
+            </article>
+            <article class="route-stop <?= $routeStatus === 'rejected' ? 'is-active' : (in_array($routeStatus, ['pending', 'approved'], true) ? 'is-complete' : 'is-next') ?>">
+                <span class="route-marker"><i class="bi <?= in_array($routeStatus, ['pending', 'approved'], true) ? 'bi-check-lg' : 'bi-camera-reels' ?>"></i></span>
+                <div class="route-stop-copy">
+                    <small><?= $routeStatus === 'rejected' ? 'Cần chỉnh sửa' : (in_array($routeStatus, ['pending', 'approved'], true) ? 'Đã hoàn thành' : 'Bước tiếp theo') ?></small>
+                    <h3><?= e($activeCampaign['title'] ?? 'Khám phá nhiệm vụ mới') ?></h3>
+                    <p><?= $routeStatus === 'rejected' ? 'Nội dung cần được cập nhật theo phản hồi trước khi gửi lại.' : e($activeCampaign['description'] ?? 'Chọn một brief để bắt đầu hành trình nội dung của bạn.') ?></p>
+                    <?php if ($activeCampaign): ?><span class="route-meta"><i class="bi bi-clock"></i> Còn <?= max(0, (int) ((strtotime($activeCampaign['deadline']) - time()) / 86400)) ?> ngày · +<?= (int) $activeCampaign['reward_points'] ?> điểm</span><?php endif; ?>
+                </div>
+                <?php if ($routeStatus === 'rejected'): ?>
+                    <a class="btn btn-brand" href="index.php?page=campaigns<?= $activeCampaign ? '&campaign=' . (int) $activeCampaign['id'] : '' ?>">Chỉnh sửa <i class="bi bi-arrow-up-right"></i></a>
+                <?php elseif (in_array($routeStatus, ['pending', 'approved'], true)): ?>
+                    <span class="status-label status-success">Đã nộp</span>
+                <?php endif; ?>
+            </article>
+            <article class="route-stop <?= $routeStatus === 'pending' ? 'is-active' : ($routeStatus === 'approved' ? 'is-complete' : 'is-locked') ?>">
+                <span class="route-marker"><i class="bi <?= $routeStatus === 'approved' ? 'bi-check-lg' : 'bi-upload' ?>"></i></span>
+                <div class="route-stop-copy">
+                    <small><?= $routeStatus === 'pending' ? 'Đang xử lý' : ($routeStatus === 'approved' ? 'Đã hoàn thành' : 'Chưa mở khóa') ?></small>
+                    <h3><?= $routeStatus === 'pending' ? 'Nội dung đang chờ duyệt' : ($routeStatus === 'approved' ? 'Nội dung đã được duyệt' : 'Gửi nội dung để duyệt') ?></h3>
+                    <p><?= $routeStatus === 'pending' ? 'CMC đang kiểm tra nội dung và sẽ phản hồi trên bài nộp.' : 'Hệ thống lưu trạng thái và phản hồi ngay trên bài nộp.' ?></p>
+                </div>
+                <?php if ($routeStatus === 'pending'): ?><a class="text-link" href="index.php?page=my-submissions">Xem bài nộp</a><?php endif; ?>
+            </article>
+            <article class="route-stop <?= $routeStatus === 'approved' ? 'is-complete' : 'is-locked' ?>">
+                <span class="route-marker"><i class="bi <?= $routeStatus === 'approved' ? 'bi-check-lg' : 'bi-gift' ?>"></i></span>
+                <div class="route-stop-copy"><small><?= $routeStatus === 'approved' ? 'Đã hoàn tất' : 'Kết quả' ?></small><h3>Nhận điểm và ghi nhận leads</h3><p><?= $routeStatus === 'approved' ? 'Nhiệm vụ hiện tại đã được xác minh và ghi nhận.' : 'Mở khóa sau khi nội dung của nhiệm vụ hiện tại được duyệt.' ?></p></div>
+                <?php if ($routeStatus === 'approved'): ?><span class="status-label status-success">Đã ghi nhận</span><?php endif; ?>
+            </article>
+        </div>
+
+        <section class="route-table-block" aria-labelledby="missionsTitle">
+            <div class="section-title-row"><div><h3 id="missionsTitle">Nhiệm vụ đang chạy</h3><p>Brief phù hợp với vai trò và tiến độ của bạn.</p></div><a href="index.php?page=campaigns">Xem tất cả</a></div>
+            <div class="route-table" role="table" aria-label="Nhiệm vụ đang chạy">
+                <?php foreach ($campaigns as $campaign): ?>
+                    <a class="route-table-row" role="row" href="index.php?page=campaigns&campaign=<?= (int) $campaign['id'] ?>">
+                        <span class="route-item-icon"><i class="bi bi-megaphone"></i></span>
+                        <span><small>Chiến dịch</small><strong><?= e($campaign['title']) ?></strong></span>
+                        <span><small>Nền tảng</small><strong><?= e($campaign['platform']) ?></strong></span>
+                        <span><small>Hạn hoàn thành</small><strong><?= date('d/m/Y', strtotime($campaign['deadline'])) ?></strong></span>
+                        <span><small>Phần thưởng</small><strong>+<?= (int) $campaign['reward_points'] ?> điểm</strong></span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                <?php endforeach; ?>
+                <?php if (!$campaigns): ?><div class="empty-state compact"><h3>Chưa có nhiệm vụ mới</h3><p>Quay lại sau để xem brief tiếp theo.</p></div><?php endif; ?>
+            </div>
+        </section>
+    </section>
+
+    <aside class="status-rail" aria-label="Trạng thái của bạn">
+        <section class="rail-section rail-summary">
+            <div class="rail-heading"><h2>Tiến độ của bạn</h2><span><?= $journeyProgress ?>%</span></div>
+            <div class="rail-progress"><span style="--progress: <?= $journeyProgress ?>%"></span></div>
+            <dl class="rail-stats">
+                <div><dt>Ví điểm</dt><dd><?= number_format($balance) ?></dd></div>
+                <div><dt>Bài đã nộp</dt><dd><?= $submissionCount ?></dd></div>
+                <div><dt>Lượt click</dt><dd><?= number_format($clicks) ?></dd></div>
+                <div><dt>Leads hợp lệ</dt><dd><?= number_format($leads) ?></dd></div>
+            </dl>
+        </section>
+
+        <section class="rail-section">
+            <div class="rail-heading"><h2>Affiliate của bạn</h2><span class="status-label status-info">Đang hoạt động</span></div>
+            <div class="rail-key-number"><strong><?= number_format($conversionRate, 1) ?>%</strong><span>Tỷ lệ chuyển đổi</span></div>
+            <div class="rail-list"><p><span>Tổng lượt click</span><strong><?= number_format($clicks) ?> clicks</strong></p><p><span>Leads đã ghi nhận</span><strong><?= number_format($leads) ?></strong></p></div>
+            <a class="rail-link" href="index.php?page=my-affiliate">Quản lý link <i class="bi bi-arrow-right"></i></a>
+        </section>
+
+        <section class="rail-section">
+            <div class="rail-heading"><h2>Điểm gần đây</h2><a href="index.php?page=wallet">Xem ví</a></div>
+            <div class="rail-transactions">
+                <?php foreach (array_slice($transactions, 0, 3) as $transaction): ?>
+                    <div><span class="transaction-icon"><i class="bi bi-stars"></i></span><p><strong><?= e($transaction['description']) ?></strong><small><?= date('d/m', strtotime($transaction['created_at'])) ?></small></p><b class="<?= $transaction['type'] === 'credit' ? 'positive' : 'negative' ?>"><?= $transaction['type'] === 'credit' ? '+' : '-' ?><?= (int) $transaction['points'] ?></b></div>
+                <?php endforeach; ?>
+                <?php if (!$transactions): ?><p class="text-muted mb-0">Chưa có giao dịch điểm.</p><?php endif; ?>
+            </div>
+        </section>
+    </aside>
+</div>
+
+<section class="panel-card leaderboard-panel section-block">
+    <div class="section-title-row"><div><h2>Bảng xếp hạng tích lũy</h2><p>Xếp theo tổng điểm đã được hệ thống xác minh.</p></div><span class="status-label status-neutral"><i class="bi bi-shield-check"></i> Dữ liệu đã kiểm tra</span></div>
+    <div class="leaderboard-list">
+        <?php foreach ($leaderboard as $rank => $member): ?><div class="leaderboard-row <?= (int) $member['id'] === (int) $current['id'] ? 'is-me' : '' ?>"><span class="rank-number"><?= $rank + 1 ?></span><span class="avatar avatar-sm"><?= e(initials($member['name'])) ?></span><p><strong><?= e($member['name']) ?><?= (int) $member['id'] === (int) $current['id'] ? ' (Bạn)' : '' ?></strong><small><?= e(ucfirst($member['ambassador_tier'])) ?> · <?= (int) $member['leads'] ?> leads</small></p><b><?= number_format((int) $member['points']) ?> điểm</b></div><?php endforeach; ?>
+    </div>
+</section>

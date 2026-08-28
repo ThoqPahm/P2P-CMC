@@ -12,9 +12,9 @@ CMC Connect là nền tảng vận hành nội bộ cho hệ sinh thái đại s
 
 - Nhận diện CMC University: primary `#008FD5`, navy `#002757`, cyan `#00DEDF`
 - Logo ngang CMC University dùng tại login; logo vector SVG dùng trong app shell
-- Design system nền nằm ở `assets/css/cmc-brand.css`; lớp visual “digital innovation campus” nằm ở `assets/css/cmc-innovation.css`
+- Design system dùng chung nằm ở `assets/css/app.css`, theo hướng Campus Wayfinding với một nguồn token duy nhất cho toàn bộ public, student và admin
 - Visual hero gốc nằm ở `assets/img/cmc-connect-hero.png`; ảnh Humans of CMCU nằm cùng thư mục
-- Có breakpoint desktop/mobile, focus state, chuyển động nhẹ và chế độ giảm chuyển động theo thiết bị
+- Có breakpoint mobile/tablet/desktop, sidebar off-canvas có quản lý focus, chuyển động trạng thái nhẹ và chế độ giảm chuyển động theo thiết bị
 
 ## Chạy dự án
 

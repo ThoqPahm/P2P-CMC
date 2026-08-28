@@ -13,11 +13,17 @@ $isLogin = ($page ?? '') === 'login';
     <title><?= e($pageTitle) ?> · CMC Connect</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/app.css?v=2" rel="stylesheet">
-    <link href="assets/css/cmc-brand.css?v=2" rel="stylesheet">
-    <link href="assets/css/cmc-innovation.css?v=2" rel="stylesheet">
+    <link href="assets/css/app.css?v=35" rel="stylesheet">
 </head>
 <body class="<?= $isLogin ? 'login-layout' : ($isPublic ? 'public-layout' : 'app-layout') ?>">
+<!--
+THESIS: Campus wayfinding turns work into routes and destinations; it refuses the generic KPI-card dashboard.
+OWN-WORLD: CMC navy, blue and cyan on cool white surfaces; precise route rails, compact directories and one 12px corner system.
+STORY: Students see the next useful action and its reward. Admins see queues, handoffs and exceptions without changing visual language.
+FIRST VIEWPORT: A compact directory sidebar, 72px utility bar, dominant route workspace and a narrow status rail with the primary action inside the active route.
+FORM: Campus Wayfinding, grounded candidate 5 of 7, seed afc7323e.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+-->
 <?php if ($isPublic && !$isLogin): ?>
     <nav class="navbar navbar-expand-lg public-nav sticky-top">
         <div class="container">
@@ -25,7 +31,7 @@ $isLogin = ($page ?? '') === 'login';
                 <img src="assets/img/cmc-university-horizontal.png" alt="CMC University">
                 <span class="brand-product">Student Connect</span>
             </a>
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavbar"><span class="navbar-toggler-icon"></span></button>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavbar" aria-controls="publicNavbar" aria-expanded="false" aria-label="Mở điều hướng"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="publicNavbar">
                 <div class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                     <a class="nav-link" href="index.php?page=home#about">Về nền tảng</a>
@@ -46,11 +52,12 @@ $isLogin = ($page ?? '') === 'login';
     <?php require __DIR__ . '/sidebar.php'; ?>
     <main class="app-main">
         <header class="app-topbar">
-            <button class="btn icon-btn d-lg-none" id="sidebarToggle" aria-label="Mở menu"><i class="bi bi-list"></i></button>
-            <div>
+            <button class="btn icon-btn d-xl-none" id="sidebarToggle" type="button" aria-label="Mở menu" aria-controls="appSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
+            <div class="topbar-heading">
                 <p class="topbar-context mb-1"><?= $currentUser['role'] === 'admin' ? 'Trung tâm vận hành' : 'Không gian của bạn' ?></p>
                 <h1 class="topbar-title"><?= e($pageTitle) ?></h1>
             </div>
+            <div class="topbar-route d-none d-xl-flex" aria-label="Vị trí hiện tại"><i class="bi bi-signpost-split"></i><span><?= $currentUser['role'] === 'admin' ? 'Operations' : 'Student' ?></span><i class="bi bi-chevron-right"></i><strong><?= e($pageTitle) ?></strong></div>
             <div class="topbar-actions ms-auto">
                 <button class="btn icon-btn position-relative" aria-label="Thông báo"><i class="bi bi-bell"></i><span class="notification-dot"></span></button>
                 <div class="user-chip d-none d-sm-flex">

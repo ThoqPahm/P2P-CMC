@@ -24,6 +24,7 @@ $routes = [
     'admin-leads' => 'pages/admin/leads.php',
     'admin-moderation' => 'pages/admin/moderation.php',
     'admin-rewards' => 'pages/admin/rewards.php',
+    'appearance-studio' => 'pages/admin/appearance.php',
     'student-dashboard' => 'pages/student/dashboard.php',
     'campaigns' => 'pages/student/campaigns.php',
     'my-submissions' => 'pages/student/submissions.php',

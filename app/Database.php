@@ -147,6 +147,12 @@ final class Database
                 FOREIGN KEY(user_id) REFERENCES users(id),
                 FOREIGN KEY(campaign_id) REFERENCES campaigns(id)
             );
+
+            CREATE TABLE IF NOT EXISTS ui_settings (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
         SQL);
 
         self::addColumn($db, 'users', 'ambassador_tier', "TEXT NOT NULL DEFAULT 'junior'");

@@ -51,6 +51,21 @@ try {
             flash('success', 'Đã tạo chiến dịch mới.');
             redirect('index.php?page=admin-campaigns');
 
+        case 'set_login_theme':
+            require_auth(['admin']);
+            $theme = (string) ($_POST['login_theme'] ?? '');
+            if (!array_key_exists($theme, login_theme_registry())) {
+                throw new InvalidArgumentException('Giao diện đăng nhập không hợp lệ.');
+            }
+            $statement = $db->prepare(<<<'SQL'
+                INSERT INTO ui_settings (key, value, updated_at)
+                VALUES ('login_theme', ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
+            SQL);
+            $statement->execute([$theme]);
+            flash('success', 'Đã đổi giao diện đăng nhập.');
+            redirect('index.php?page=appearance-studio');
+
         case 'submit_content':
             require_auth(['student', 'ambassador']);
             $campaignId = (int) ($_POST['campaign_id'] ?? 0);

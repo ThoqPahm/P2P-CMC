@@ -12,6 +12,15 @@
     </footer>
 <?php endif; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/app.js?v=6"></script>
+<script src="assets/js/app.js?v=41"></script>
+<?php
+$loginThemeScript = null;
+if ($isLogin ?? false) {
+    $loginThemeScript = login_theme_registry()[active_login_theme()]['script'] ?? null;
+}
+?>
+<?php if ($loginThemeScript): ?>
+<script defer src="<?= e($loginThemeScript) ?>"></script>
+<?php endif; ?>
 </body>
 </html>

@@ -7,16 +7,35 @@
 
     const sidebar = $('#appSidebar');
     const overlay = $('#sidebarOverlay');
-    const closeSidebar = () => {
+    const sidebarToggle = $('#sidebarToggle');
+    const compactSidebar = window.matchMedia('(max-width: 1199.98px)');
+    const sidebarFocusable = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const syncSidebarState = () => {
+        const isOpen = sidebar?.classList.contains('open') ?? false;
+        sidebarToggle?.setAttribute('aria-expanded', String(isOpen));
+        if (compactSidebar.matches) sidebar?.setAttribute('aria-hidden', String(!isOpen));
+        else sidebar?.removeAttribute('aria-hidden');
+    };
+    const closeSidebar = (restoreFocus = false) => {
+        if (restoreFocus) sidebarToggle?.focus();
         sidebar?.classList.remove('open');
         overlay?.classList.remove('open');
+        syncSidebarState();
     };
-    $('#sidebarToggle')?.addEventListener('click', () => {
+    sidebarToggle?.addEventListener('click', () => {
         sidebar?.classList.add('open');
         overlay?.classList.add('open');
+        syncSidebarState();
+        requestAnimationFrame(() => $('#sidebarClose')?.focus());
     });
-    $('#sidebarClose')?.addEventListener('click', closeSidebar);
-    overlay?.addEventListener('click', closeSidebar);
+    $('#sidebarClose')?.addEventListener('click', () => closeSidebar(true));
+    overlay?.addEventListener('click', () => closeSidebar(true));
+    compactSidebar.addEventListener('change', () => {
+        sidebar?.classList.remove('open');
+        overlay?.classList.remove('open');
+        syncSidebarState();
+    });
+    syncSidebarState();
 
     $$('.toast').forEach((element) => {
         if (window.bootstrap) {
@@ -26,21 +45,7 @@
     });
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const revealTargets = $$('.app-content > *, .internal-login-panel');
-    if (!reduceMotion && 'IntersectionObserver' in window) {
-        const revealObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                entry.target.classList.add('cmci-visible');
-                observer.unobserve(entry.target);
-            });
-        }, { threshold: 0.08, rootMargin: '0px 0px -28px' });
-        revealTargets.forEach((element, index) => {
-            element.classList.add('cmci-reveal');
-            element.style.setProperty('--cmci-delay', `${Math.min(index, 4) * 55}ms`);
-            revealObserver.observe(element);
-        });
-    }
+
 
     $$('[data-password-toggle]').forEach((button) => {
         button.addEventListener('click', () => {
@@ -48,8 +53,10 @@
             if (!input) return;
             const show = input.type === 'password';
             input.type = show ? 'text' : 'password';
-            button.innerHTML = `<i class="bi ${show ? 'bi-eye-slash' : 'bi-eye'}"></i> ${show ? 'Ẩn' : 'Hiện'}`;
-            button.setAttribute('aria-label', show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+            const label = show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+            button.innerHTML = `<i class="bi ${show ? 'bi-eye-slash' : 'bi-eye'}" aria-hidden="true"></i><span class="visually-hidden">${label}</span>`;
+            button.setAttribute('aria-label', label);
+            button.setAttribute('title', label);
         });
     });
 
@@ -97,7 +104,25 @@
     $$('.chat-trigger').forEach((button) => button.addEventListener('click', () => openChat(button)));
     $('#chatClose')?.addEventListener('click', closeChat);
     chatOverlay?.addEventListener('click', closeChat);
-    document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeChat(); });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeSidebar(sidebar?.classList.contains('open') ?? false);
+            closeChat();
+            return;
+        }
+        if (event.key !== 'Tab' || !compactSidebar.matches || !sidebar?.classList.contains('open')) return;
+        const focusable = $$(sidebarFocusable, sidebar).filter((element) => element.getClientRects().length > 0);
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    });
 
     if (window.autoOpenAmbassador) {
         const button = $(`.chat-trigger[data-ambassador-id="${window.autoOpenAmbassador}"]`);

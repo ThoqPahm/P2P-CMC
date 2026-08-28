@@ -118,3 +118,44 @@ function role_label(string $role): string
         default => $role,
     };
 }
+
+function ui_setting_defaults(): array
+{
+    return [
+        'login_theme' => 'eyes',
+    ];
+}
+
+function ui_settings(): array
+{
+    static $settings = null;
+    if ($settings !== null) {
+        return $settings;
+    }
+
+    $settings = ui_setting_defaults();
+    foreach (rows('SELECT key, value FROM ui_settings') as $row) {
+        if (array_key_exists($row['key'], $settings)) {
+            $settings[$row['key']] = (string) $row['value'];
+        }
+    }
+    return $settings;
+}
+
+function login_theme_registry(): array
+{
+    return [
+        'eyes' => [
+            'name' => 'Eyes Follow Mouse',
+            'description' => 'Bốn nhân vật phẳng phản ứng theo chuột và trạng thái mật khẩu.',
+            'file' => 'pages/public/login-themes/eyes.php',
+            'script' => 'assets/js/login-eyes.js?v=4',
+        ],
+    ];
+}
+
+function active_login_theme(): string
+{
+    $selected = ui_settings()['login_theme'];
+    return array_key_exists($selected, login_theme_registry()) ? $selected : 'eyes';
+}
