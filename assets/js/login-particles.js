@@ -47,6 +47,9 @@
     let animationFrame = 0;
     let particleReady = false;
     let particleVisible = true;
+    let pointerActive = false;
+    let pointerX = 0;
+    let pointerY = 0;
 
     const seededRandom = (() => {
         let seed = 23082026;
@@ -57,7 +60,7 @@
     })();
 
     const drawParticles = () => {
-        if (!particleReady || canvasWidth < 20 || canvasHeight < 20) return;
+        if (!particleReady || canvasWidth < 20 || canvasHeight < 20) return true;
         particleContext.clearRect(0, 0, canvasWidth, canvasHeight);
 
         rotationVelocityX = (rotationVelocityX + (targetRotationX - rotationX) * .045) * .79;
@@ -81,6 +84,8 @@
         const cosZ = Math.cos(rotationZ);
         const sinZ = Math.sin(rotationZ);
         const focalLength = 620;
+        const interactionRadius = Math.max(84, Math.min(132, Math.min(canvasWidth, canvasHeight) * .22));
+        let hoverSettled = true;
 
         particleContext.textAlign = 'center';
         particleContext.textBaseline = 'middle';
@@ -96,35 +101,61 @@
             const tiltedX = rotatedX * cosZ - rotatedY * sinZ;
             const tiltedY = rotatedX * sinZ + rotatedY * cosZ;
             const perspective = focalLength / Math.max(410, focalLength + depth);
-            const screenX = centerX + tiltedX * perspective;
-            const screenY = centerY + tiltedY * perspective;
+            const baseScreenX = centerX + tiltedX * perspective;
+            const baseScreenY = centerY + tiltedY * perspective;
             const depthRatio = Math.max(0, Math.min(1, (90 - depth) / 210));
-            const minimumSize = particle.layer === 'feature' ? 6.4 : 3.8;
+            const minimumSize = particle.layer === 'feature' ? 7 : 4.4;
             const fontSize = Math.max(minimumSize, particle.size * scale * perspective);
-            const fontWeight = particle.layer === 'feature' ? 800 : (particle.layer === 'fill' ? 750 : 700);
+            const fontWeight = particle.layer === 'feature' ? 850 : (particle.layer === 'fill' ? 800 : 750);
+            let hoverTargetX = 0;
+            let hoverTargetY = 0;
+
+            if (pointerActive) {
+                const deltaX = baseScreenX - pointerX;
+                const deltaY = baseScreenY - pointerY;
+                const distance = Math.hypot(deltaX, deltaY);
+                if (distance < interactionRadius) {
+                    const directionX = distance > .01 ? deltaX / distance : Math.cos(particle.tone * Math.PI * 2);
+                    const directionY = distance > .01 ? deltaY / distance : Math.sin(particle.tone * Math.PI * 2);
+                    const strength = (1 - distance / interactionRadius) ** 2;
+                    const maximumPush = particle.layer === 'feature' ? 15 : (particle.layer === 'fill' ? 10 : 7);
+                    hoverTargetX = directionX * strength * maximumPush;
+                    hoverTargetY = directionY * strength * maximumPush;
+                }
+            }
+
+            particle.hoverX = (particle.hoverX || 0) + (hoverTargetX - (particle.hoverX || 0)) * .18;
+            particle.hoverY = (particle.hoverY || 0) + (hoverTargetY - (particle.hoverY || 0)) * .18;
+            if (Math.abs(hoverTargetX - particle.hoverX) > .06 || Math.abs(hoverTargetY - particle.hoverY) > .06) {
+                hoverSettled = false;
+            }
+
+            const screenX = baseScreenX + particle.hoverX;
+            const screenY = baseScreenY + particle.hoverY;
 
             particleContext.font = `${fontWeight} ${fontSize}px "Segoe UI Variable", "Segoe UI", sans-serif`;
             if (particle.layer === 'feature') {
-                particleContext.globalAlpha = (.88 + depthRatio * .1) * particle.opacity;
-                particleContext.fillStyle = particle.tone > .76 ? '#ffffff' : '#dffaff';
+                particleContext.globalAlpha = (.96 + depthRatio * .04) * (.98 + particle.opacity * .02);
+                particleContext.fillStyle = particle.tone > .76 ? '#ffffff' : '#e8fbff';
             } else if (particle.layer === 'fill') {
-                particleContext.globalAlpha = (.64 + depthRatio * .2) * particle.opacity;
-                particleContext.fillStyle = particle.tone > .68 ? '#eafcff' : '#a6eff7';
+                particleContext.globalAlpha = (.78 + depthRatio * .18) * (.96 + particle.opacity * .04);
+                particleContext.fillStyle = particle.tone > .68 ? '#ffffff' : '#c9f6fb';
             } else {
-                particleContext.globalAlpha = (.24 + depthRatio * .22) * particle.opacity;
-                particleContext.fillStyle = depthRatio > .58 ? '#65d2e5' : '#005b99';
+                particleContext.globalAlpha = (.38 + depthRatio * .18) * (.9 + particle.opacity * .1);
+                particleContext.fillStyle = depthRatio > .58 ? '#a7eef5' : '#0874ad';
             }
             particleContext.fillText(particle.label, screenX, screenY);
         }
 
         particleContext.globalAlpha = 1;
+        return hoverSettled;
     };
 
     const resizeParticles = () => {
         const bounds = particleHost.getBoundingClientRect();
         canvasWidth = Math.max(1, Math.round(bounds.width));
         canvasHeight = Math.max(1, Math.round(bounds.height));
-        pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+        pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
         particleCanvas.width = Math.round(canvasWidth * pixelRatio);
         particleCanvas.height = Math.round(canvasHeight * pixelRatio);
         particleContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
@@ -134,7 +165,7 @@
     const animateParticles = () => {
         animationFrame = 0;
         if (!particleVisible || document.hidden || reduceMotion) return;
-        drawParticles();
+        const hoverSettled = drawParticles();
         const settled = Math.abs(targetRotationX - rotationX) < .0008
             && Math.abs(targetRotationY - rotationY) < .0008
             && Math.abs(targetRotationZ - rotationZ) < .0008
@@ -142,7 +173,8 @@
             && Math.abs(rotationVelocityY) < .0005
             && Math.abs(rotationVelocityZ) < .0005
             && Math.abs(targetOffsetX - sceneOffsetX) < .08
-            && Math.abs(targetOffsetY - sceneOffsetY) < .08;
+            && Math.abs(targetOffsetY - sceneOffsetY) < .08
+            && hoverSettled;
         if (!settled) animationFrame = window.requestAnimationFrame(animateParticles);
     };
 
@@ -260,6 +292,9 @@
             const bounds = particleHost.getBoundingClientRect();
             const normalizedX = (event.clientX - bounds.left) / bounds.width;
             const normalizedY = (event.clientY - bounds.top) / bounds.height;
+            pointerActive = true;
+            pointerX = event.clientX - bounds.left;
+            pointerY = event.clientY - bounds.top;
             targetRotationY = baseRotationY + (normalizedX - .5) * .8;
             targetRotationX = baseRotationX + (.5 - normalizedY) * .5;
             targetRotationZ = baseRotationZ + (normalizedX - .5) * .11;
@@ -268,6 +303,7 @@
             startParticleAnimation();
         }, { passive: true });
         particleHost.addEventListener('pointerleave', () => {
+            pointerActive = false;
             targetRotationX = baseRotationX;
             targetRotationY = baseRotationY;
             targetRotationZ = baseRotationZ;
