@@ -23,6 +23,12 @@ colors:
   danger-soft: "#FDECEF"
   info-soft: "#E2F4FB"
 typography:
+  productMark:
+    fontFamily: '"Syne", "Trebuchet MS", sans-serif'
+    fontSize: "2rem"
+    fontWeight: 700
+    lineHeight: 1
+    letterSpacing: "-0.04em"
   headline:
     fontFamily: '"Segoe UI Variable", Aptos, "Segoe UI", sans-serif'
     fontSize: "1.35rem"
@@ -152,7 +158,9 @@ CMC navy anchors the shell and hierarchy; CMC blue indicates progress and primar
 
 **Display and Body Font:** Segoe UI Variable, with Aptos and Segoe UI fallbacks.
 
-**Character:** a compact system sans that feels institutional, direct, and legible in Vietnamese. Hierarchy comes from weight, scale, and spacing—not from mixing typefaces. Headings use slightly tightened tracking; data uses tabular numerals so columns and status changes remain stable.
+**Product Mark Font:** Syne, reserved for the eAmbassador wordmark on authentication surfaces. It is not used for headings, controls, labels, or body copy.
+
+**Character:** a compact system sans that feels institutional, direct, and legible in Vietnamese. Hierarchy comes from weight, scale, and spacing; the single Syne product-mark exception provides identity without entering content typography. Headings use slightly tightened tracking; data uses tabular numerals so columns and status changes remain stable.
 
 ### Hierarchy
 

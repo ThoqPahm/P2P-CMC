@@ -238,6 +238,51 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .login-theme-particles .login-field-head .form-label { margin-bottom: .45rem; }
 .login-theme-particles #loginPassword { padding-right: .8rem; }
 .login-theme-particles .password-toggle { position: static; z-index: auto; width: auto; height: 36px; min-height: 36px; display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .55rem; border-radius: var(--radius-sm); font-size: .78rem; transform: none; }
+.login-theme-particles .internal-login-form { position: relative; overflow: hidden; padding: clamp(2.25rem, 5vw, 4.75rem); background: #f8fbfd; }
+.login-theme-particles .internal-login-form::before { content: ""; position: absolute; top: 0; right: 0; width: 132px; height: 6px; background: var(--cmc-cyan); pointer-events: none; }
+.login-theme-particles .login-form-content { position: relative; z-index: 1; width: min(100%, 430px); margin-inline: auto; }
+.login-theme-particles .login-form-head { margin-bottom: 1.6rem; }
+.login-theme-particles .login-product-mark { margin: 0 0 1.8rem; color: var(--cmc-navy); font-family: "Syne", "Trebuchet MS", sans-serif; font-size: clamp(1.65rem, 2.4vw, 2.05rem); font-weight: 700; letter-spacing: -.04em; line-height: 1; }
+.login-theme-particles .login-product-mark span { color: var(--cmc-blue); }
+.login-theme-particles .login-form-head h1 { margin-bottom: .55rem; font-size: clamp(2.35rem, 3.4vw, 3.15rem); letter-spacing: -.04em; }
+.login-theme-particles .login-form-head > p:last-child { color: #526a7d; font-size: .88rem; }
+.login-theme-particles .login-form { gap: 1rem; }
+.login-theme-particles .login-field { gap: .5rem; }
+.login-theme-particles .login-field .form-label { color: var(--cmc-navy); font-size: .76rem; font-weight: 700; }
+.login-theme-particles .input-icon > i { left: 1rem; color: #58738a; font-size: 1rem; }
+.login-theme-particles .input-icon .form-control { height: 56px; padding-left: 3rem; color: var(--cmc-ink); background: #fff; border: 1px solid #c5d8e5; border-radius: 12px; font-size: .92rem; box-shadow: 0 3px 12px rgba(0,39,87,.035); transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease; }
+.login-theme-particles .input-icon .form-control:hover { border-color: #9dbdce; }
+.login-theme-particles .input-icon .form-control:focus { background: #fff; border-color: var(--cmc-blue); box-shadow: 0 0 0 4px rgba(0,143,213,.12); }
+.login-theme-particles .login-submit { min-height: 56px; display: flex; align-items: center; justify-content: space-between; margin-top: .35rem; padding-inline: 1.25rem; background: var(--cmc-navy); border-color: var(--cmc-navy); border-radius: 12px; box-shadow: 0 12px 24px rgba(0,39,87,.16); font-size: .9rem; }
+.login-theme-particles .login-submit:hover { background: var(--cmc-blue-dark); border-color: var(--cmc-blue-dark); box-shadow: 0 14px 26px rgba(0,39,87,.2); }
+.login-theme-particles .login-submit i { transition: transform .18s ease; }
+.login-theme-particles .login-submit:hover i { transform: translateX(3px); }
+.login-theme-particles .login-divider { position: relative; display: flex; align-items: center; gap: .85rem; margin: 1.1rem 0; color: #71879a; font-size: .7rem; text-transform: lowercase; }
+.login-theme-particles .login-divider::before, .login-theme-particles .login-divider::after { content: ""; height: 1px; flex: 1; background: #d8e4eb; }
+.login-theme-particles .microsoft-login { width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: center; gap: .75rem; padding: .8rem 1rem; color: var(--cmc-navy); background: #fff; border: 1px solid #bfd1dd; border-radius: 12px; font-size: .84rem; font-weight: 700; box-shadow: 0 3px 12px rgba(0,39,87,.035); transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
+.login-theme-particles .microsoft-login:hover { color: var(--cmc-blue-dark); background: #f3f9fc; border-color: #8eb9cf; box-shadow: 0 8px 18px rgba(0,39,87,.08); transform: translateY(-1px); }
+.login-theme-particles .microsoft-login:active { transform: translateY(0); }
+.login-theme-particles .microsoft-login svg { flex: 0 0 auto; }
+.login-theme-particles .internal-login-form .demo-accounts { margin-top: 1.35rem; padding: .85rem 0 0; background: transparent; border: 0; border-top: 1px solid #d8e4eb; border-radius: 0; }
+.login-theme-particles .internal-login-form .demo-accounts > div { margin-top: .65rem; }
+.login-theme-particles .internal-login-form .demo-accounts a { border-radius: 7px; }
+
+@media (min-width: 992px) and (max-height: 760px) {
+    .login-theme-particles .internal-login-form { padding-block: 2rem; }
+    .login-theme-particles .login-product-mark { margin-bottom: 1.15rem; font-size: 1.65rem; }
+    .login-theme-particles .login-form-head { margin-bottom: 1.15rem; }
+    .login-theme-particles .login-form-head h1 { font-size: 2.55rem; }
+    .login-theme-particles .login-form { gap: .8rem; }
+    .login-theme-particles .input-icon .form-control, .login-theme-particles .login-submit { height: 52px; min-height: 52px; }
+    .login-theme-particles .login-divider { margin-block: .75rem; }
+    .login-theme-particles .microsoft-login { min-height: 50px; }
+    .login-theme-particles .internal-login-form .demo-accounts { margin-top: .9rem; padding-top: .7rem; }
+}
+
+@media (max-width: 991.98px) {
+    .login-theme-particles .internal-login-form { padding: clamp(1.5rem, 6vw, 2.75rem); }
+    .login-theme-particles .login-product-mark { margin-bottom: 1.35rem; }
+}
 
 /* Hidden admin: login theme selector */
 .login-theme-admin { max-width: 980px; margin: 0 auto; overflow: hidden; }
