@@ -1,11 +1,10 @@
 <main class="internal-login login-theme-particles">
     <section class="internal-login-panel" aria-labelledby="loginTitle">
         <aside class="internal-login-visual" data-cmc-particles aria-label="Biểu trưng CMC tạo từ các từ khóa của CMC University chuyển động theo con trỏ">
-            <svg class="login-particle-scenery" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-                <path class="particle-scenery-top" d="M42 0H100V34C86 24 74 20 61 22C51 24 45 17 42 0Z"></path>
-                <path class="particle-scenery-middle" d="M0 23C13 16 25 17 34 28C43 39 43 54 30 63C19 71 8 69 0 77Z"></path>
-                <path class="particle-scenery-bottom" d="M0 73C15 64 29 66 43 78C59 92 81 91 100 74V100H0Z"></path>
-            </svg>
+            <div class="login-particle-atmosphere" aria-hidden="true">
+                <span>SÁNG TẠO</span>
+                <span>KẾT NỐI</span>
+            </div>
             <img class="login-particle-fallback" src="assets/img/cmc-university.svg" width="540" height="360" alt="">
             <canvas class="login-particle-canvas" id="cmcParticleCanvas" aria-hidden="true"></canvas>
             <div class="internal-login-overlay">

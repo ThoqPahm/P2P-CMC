@@ -222,14 +222,14 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .lead-form-card { padding: 2rem; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
 
 /* Login theme: CMC Particle Logo */
-.login-theme-particles .internal-login-visual { background: linear-gradient(145deg, #087fc3 0%, #259fd9 58%, #8fd8ec 100%); cursor: grab; }
+.login-theme-particles .internal-login-visual { background: radial-gradient(ellipse 88% 20% at 50% 91%, rgba(0,39,87,.17), transparent 76%), radial-gradient(ellipse 92% 70% at 54% 45%, rgba(255,255,255,.23), rgba(255,255,255,.08) 48%, transparent 74%), linear-gradient(145deg, #087fc3 0%, #259fd9 58%, #8fd8ec 100%); cursor: grab; }
 .login-theme-particles .internal-login-visual:active { cursor: grabbing; }
-.login-theme-particles .internal-login-visual::before { z-index: 0; inset: 8% 4% 7%; background: radial-gradient(ellipse at 54% 45%, rgba(255,255,255,.3), rgba(255,255,255,.1) 43%, transparent 71%); background-size: auto; opacity: .95; }
-.login-theme-particles .internal-login-visual::after { z-index: 3; inset: 0; width: auto; height: auto; aspect-ratio: auto; background: none; border-radius: 0; filter: none; box-shadow: inset 0 0 72px rgba(0,39,87,.12); }
-.login-theme-particles .login-particle-scenery { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.login-theme-particles .particle-scenery-top { fill: rgba(255,255,255,.16); }
-.login-theme-particles .particle-scenery-middle { fill: rgba(169,234,247,.2); }
-.login-theme-particles .particle-scenery-bottom { fill: rgba(0,39,87,.2); }
+.login-theme-particles .internal-login-visual::before { z-index: 0; inset: -12%; background: radial-gradient(ellipse 58% 46% at 10% 12%, rgba(255,255,255,.2), transparent 74%), radial-gradient(ellipse 74% 58% at 94% 88%, rgba(0,39,87,.16), transparent 76%); background-size: auto; filter: blur(28px); opacity: .9; }
+.login-theme-particles .internal-login-visual::after { z-index: 3; inset: 0; width: auto; height: auto; aspect-ratio: auto; background: none; border-radius: 0; filter: none; box-shadow: inset 0 0 96px rgba(0,39,87,.14); }
+.login-theme-particles .login-particle-atmosphere { position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; }
+.login-theme-particles .login-particle-atmosphere span { position: absolute; color: rgba(255,255,255,.09); font-size: clamp(4.5rem, 10vw, 8rem); font-weight: 800; letter-spacing: -.04em; line-height: .82; white-space: nowrap; }
+.login-theme-particles .login-particle-atmosphere span:first-child { top: 18%; left: -5%; }
+.login-theme-particles .login-particle-atmosphere span:last-child { right: -8%; bottom: 10%; }
 .login-theme-particles .login-particle-fallback { position: absolute; z-index: 1; inset: 50% auto auto 50%; width: min(74%, 460px); height: auto; opacity: .26; filter: brightness(0) invert(1); transform: translate(-50%, -43%); transition: opacity .3s ease; }
 .login-theme-particles .internal-login-visual.is-particle-ready .login-particle-fallback { opacity: 0; }
 .login-theme-particles .login-particle-canvas { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; }
@@ -258,7 +258,7 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .theme-preview-eyes i:nth-child(2) { left: 45%; width: 18%; height: 56%; background: #2d2d2d; }
 .theme-preview-eyes i:nth-child(3) { left: 5%; width: 38%; height: 34%; background: #ff9b6b; border-radius: 999px 999px 0 0; }
 .theme-preview-eyes i:nth-child(4) { left: 58%; width: 23%; height: 42%; background: #e8d754; border-radius: 999px 999px 0 0; }
-.theme-preview-particles { background: radial-gradient(ellipse 90% 38% at 52% 98%, rgba(0,39,87,.22), transparent 72%), linear-gradient(145deg, #087fc3, #259fd9 58%, #8fd8ec); }
+.theme-preview-particles { background: radial-gradient(ellipse 90% 34% at 50% 96%, rgba(0,39,87,.2), transparent 74%), radial-gradient(ellipse 92% 76% at 54% 44%, rgba(255,255,255,.22), transparent 72%), linear-gradient(145deg, #087fc3, #259fd9 58%, #8fd8ec); }
 .theme-preview-particles::before { content: "AI  CMCU  SÁNG TẠO  AI NATIVE  CÔNG NGHỆ  CMCU  TRI THỨC"; position: absolute; z-index: 1; left: 50%; top: 50%; width: 72%; color: rgba(255,255,255,.76); font-size: .72rem; font-weight: 800; line-height: 1.5; text-align: center; transform: translate(-50%, -45%) rotate(-6deg); }
 .theme-preview-particles::after { content: ""; position: absolute; inset: 22% 18%; z-index: 2; background: url('../img/cmc-university.svg') center / contain no-repeat; opacity: .18; filter: brightness(0) invert(1); }
 .theme-preview-particles i { display: none; }
