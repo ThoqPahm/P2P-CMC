@@ -295,6 +295,8 @@
             pointerActive = true;
             pointerX = event.clientX - bounds.left;
             pointerY = event.clientY - bounds.top;
+            particleHost.style.setProperty('--particle-ambient-x', `${(.5 - normalizedX) * 9}px`);
+            particleHost.style.setProperty('--particle-ambient-y', `${(.5 - normalizedY) * 7}px`);
             targetRotationY = baseRotationY + (normalizedX - .5) * .8;
             targetRotationX = baseRotationX + (.5 - normalizedY) * .5;
             targetRotationZ = baseRotationZ + (normalizedX - .5) * .11;
@@ -304,6 +306,8 @@
         }, { passive: true });
         particleHost.addEventListener('pointerleave', () => {
             pointerActive = false;
+            particleHost.style.setProperty('--particle-ambient-x', '0px');
+            particleHost.style.setProperty('--particle-ambient-y', '0px');
             targetRotationX = baseRotationX;
             targetRotationY = baseRotationY;
             targetRotationZ = baseRotationZ;
