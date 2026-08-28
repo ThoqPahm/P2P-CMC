@@ -38,10 +38,10 @@ Tất cả tài khoản dùng mật khẩu `123456`.
 
 ## Chức năng chính
 
-- Admin: quản lý sinh viên, đại sứ, chiến dịch/brief, kho UGC, chỉ số views/likes/tương tác, tính bonus, phân hạng Junior/Senior, chính sách và kiểm duyệt hội thoại.
+- Admin: quản lý sinh viên, đại sứ, chiến dịch/brief, kho UGC, chỉ số views/likes/tương tác, tính bonus, phân hạng Junior/Senior, chính sách, kiểm duyệt hội thoại và lịch tư vấn từ widget website.
 - Sinh viên: nhận nhiệm vụ, dùng AI Copilot tạo ba hướng kịch bản và kiểm tra brand voice, nộp TikTok/Reels/Shorts, theo dõi hiệu quả nội dung, bảng xếp hạng và ví điểm.
 - Đại sứ: toàn bộ chức năng sinh viên, cộng thêm inbox P2P, quality score hội thoại và trạng thái hỗ trợ.
-- Học sinh THPT: lọc hồ sơ theo ngành/quê quán/sở thích, đăng ký nhanh và trò chuyện trực tiếp với đại sứ.
+- Học sinh THPT: dùng widget nhúng trên website chính thức để lọc đại sứ theo ngành, quê quán, khóa và trạng thái; chat với người đang online hoặc đặt lịch với người đang offline.
 - Hiệu quả UGC: tập trung lượt xem, lượt thích, bình luận và chia sẻ theo bài đăng, chiến dịch và nền tảng.
 
 ## Cấu trúc
@@ -54,7 +54,7 @@ pages/admin/         Màn hình quản trị
 pages/student/       Màn hình sinh viên và đại sứ
 pages/public/        Landing page, danh bạ đại sứ và đăng nhập
 actions.php          Xử lý form nghiệp vụ
-api.php              API JSON cho chat thời gian gần thực và AI Copilot
+api.php              API JSON cho chat widget, lịch tư vấn, inbox và AI Copilot
 index.php            Front controller
 router.php           Router cho PHP development server
 ```

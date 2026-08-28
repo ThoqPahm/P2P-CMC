@@ -6,6 +6,12 @@ require_once __DIR__ . '/app/bootstrap.php';
 
 $page = (string) ($_GET['page'] ?? (user() ? 'dashboard' : 'login'));
 $page = $page === 'home' ? (user() ? 'dashboard' : 'login') : $page;
+
+if ($page === 'widget') {
+    require __DIR__ . '/pages/public/widget.php';
+    exit;
+}
+
 $publicPages = ['home', 'ambassadors', 'login'];
 
 if ($page === 'dashboard' && user()) {
@@ -21,6 +27,7 @@ $routes = [
     'admin-submissions' => 'pages/admin/submissions.php',
     'admin-ambassadors' => 'pages/admin/ambassadors.php',
     'admin-performance' => 'pages/admin/performance.php',
+    'admin-widget' => 'pages/admin/widget.php',
     'admin-moderation' => 'pages/admin/moderation.php',
     'admin-rewards' => 'pages/admin/rewards.php',
     'appearance-studio' => 'pages/admin/appearance.php',

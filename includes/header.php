@@ -17,6 +17,7 @@ $isLogin = ($page ?? '') === 'login';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="assets/css/app.css?v=61" rel="stylesheet">
+    <?php if (($page ?? '') === 'admin-widget'): ?><link href="assets/css/widget-admin.css?v=1" rel="stylesheet"><?php endif; ?>
 </head>
 <body class="<?= $isLogin ? 'login-layout' : ($isPublic ? 'public-layout' : 'app-layout') ?>">
 <!--

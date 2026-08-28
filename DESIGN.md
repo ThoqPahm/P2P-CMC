@@ -174,6 +174,10 @@ On narrow screens, body copy steps down to 13px and the sticky topbar title trun
 
 **The Scan-Before-Read Rule.** A user should understand title, state, value, and next action before reading explanatory copy.
 
+### Embedded consultation widget
+
+The public widget is a compact extension of the same system, isolated in an iframe so the host website cannot alter its layout. It uses the documented body typography and brand palette; Syne remains limited to the eAmbassador product mark. On desktop it opens as a focused side panel, while narrow screens use the full viewport. Directory filters, availability, profile details, chat and appointment states must remain usable by keyboard and preserve visible focus treatment.
+
 ## Layout
 
 The internal shell uses a fixed 244px navy directory and a sticky 72px utility bar. The centered content canvas may grow to 1660px and uses 24px outer padding on desktop. The main dashboard grid is a fluid route board plus a 304px status rail, narrowing the rail to 272px below 1280px. Panels use a 16px gap and align to the top.

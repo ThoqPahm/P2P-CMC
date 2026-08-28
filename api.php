@@ -14,16 +14,113 @@ function json_response(array $data, int $status = 200): never
     exit;
 }
 
+function verify_widget_access(): string
+{
+    $token = (string) ($_POST['widget_token'] ?? $_GET['widget_token'] ?? ($_SERVER['HTTP_X_WIDGET_TOKEN'] ?? ''));
+    if ($token === '' || !(int) scalar('SELECT COUNT(*) FROM widget_access_tokens WHERE token = ? AND expires_at > CURRENT_TIMESTAMP', [$token])) {
+        json_response(['ok' => false, 'message' => 'Phiên widget đã hết hạn. Vui lòng tải lại cửa sổ tư vấn.'], 419);
+    }
+    return $token;
+}
+
 try {
+    $widgetActions = ['widget_start_chat', 'widget_send_message', 'widget_schedule'];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $payload = json_decode((string) file_get_contents('php://input'), true);
         if (is_array($payload)) {
             $_POST = array_merge($_POST, $payload);
         }
-        verify_csrf();
+        if (in_array($action, $widgetActions, true)) {
+            verify_widget_access();
+        } else {
+            verify_csrf();
+        }
     }
 
     switch ($action) {
+        case 'widget_start_chat':
+            $ambassadorId = (int) ($_POST['ambassador_id'] ?? 0);
+            $ambassador = rows("SELECT id FROM users WHERE id = ? AND role = 'ambassador' AND status = 'active' AND is_online = 1", [$ambassadorId])[0] ?? null;
+            if (!$ambassador) {
+                throw new InvalidArgumentException('Đại sứ hiện đang offline. Bạn có thể đặt lịch tư vấn thay thế.');
+            }
+            $name = trim((string) ($_POST['name'] ?? ''));
+            $email = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
+            if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                throw new InvalidArgumentException('Vui lòng nhập tên và email hợp lệ.');
+            }
+            $prospect = rows('SELECT id, role FROM users WHERE email = ?', [$email])[0] ?? null;
+            if (!$prospect) {
+                $statement = $db->prepare("INSERT INTO users (role, name, email, password, major, is_online) VALUES ('prospect', ?, ?, ?, ?, 0)");
+                $statement->execute([$name, $email, password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT), trim((string) ($_POST['major'] ?? ''))]);
+                $prospectId = (int) $db->lastInsertId();
+            } elseif ($prospect['role'] === 'prospect') {
+                $prospectId = (int) $prospect['id'];
+            } else {
+                throw new InvalidArgumentException('Email này thuộc tài khoản nội bộ. Vui lòng dùng email cá nhân.');
+            }
+            $conversationId = (int) (scalar("SELECT id FROM conversations WHERE prospect_id = ? AND ambassador_id = ? AND status = 'open' ORDER BY id DESC LIMIT 1", [$prospectId, $ambassadorId]) ?: 0);
+            $conversationToken = bin2hex(random_bytes(24));
+            if (!$conversationId) {
+                $statement = $db->prepare('INSERT INTO conversations (prospect_id, ambassador_id, public_token) VALUES (?, ?, ?)');
+                $statement->execute([$prospectId, $ambassadorId, $conversationToken]);
+                $conversationId = (int) $db->lastInsertId();
+            } else {
+                $statement = $db->prepare('UPDATE conversations SET public_token = ? WHERE id = ?');
+                $statement->execute([$conversationToken, $conversationId]);
+            }
+            $firstMessage = trim((string) ($_POST['message'] ?? ''));
+            if ($firstMessage !== '') {
+                $flagged = preg_match('/\b(lừa đảo|chửi|ngu ngốc)\b/ui', $firstMessage) ? 1 : 0;
+                $statement = $db->prepare('INSERT INTO messages (conversation_id, sender_id, content, is_flagged) VALUES (?, ?, ?, ?)');
+                $statement->execute([$conversationId, $prospectId, mb_substr($firstMessage, 0, 1000), $flagged]);
+                $db->prepare('UPDATE conversations SET last_message_at = CURRENT_TIMESTAMP, quality_score = ? WHERE id = ?')->execute([$flagged ? 34 : 64, $conversationId]);
+            }
+            json_response(['ok' => true, 'conversation_id' => $conversationId, 'conversation_token' => $conversationToken, 'current_user_id' => $prospectId]);
+
+        case 'widget_messages':
+            verify_widget_access();
+            $conversationId = (int) ($_GET['conversation_id'] ?? 0);
+            $conversationToken = (string) ($_GET['conversation_token'] ?? '');
+            $conversation = rows('SELECT prospect_id FROM conversations WHERE id = ? AND public_token = ? AND status = ?', [$conversationId, $conversationToken, 'open'])[0] ?? null;
+            if (!$conversation) {
+                json_response(['ok' => false, 'message' => 'Cuộc trò chuyện không còn khả dụng.'], 403);
+            }
+            $messages = rows('SELECT m.id, m.content, m.created_at, m.sender_id, u.name AS sender_name, u.role AS sender_role FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.conversation_id = ? ORDER BY m.id', [$conversationId]);
+            json_response(['ok' => true, 'messages' => $messages, 'current_user_id' => (int) $conversation['prospect_id']]);
+
+        case 'widget_send_message':
+            $conversationId = (int) ($_POST['conversation_id'] ?? 0);
+            $conversationToken = (string) ($_POST['conversation_token'] ?? '');
+            $content = trim((string) ($_POST['content'] ?? ''));
+            $conversation = rows('SELECT prospect_id FROM conversations WHERE id = ? AND public_token = ? AND status = ?', [$conversationId, $conversationToken, 'open'])[0] ?? null;
+            if (!$conversation || $content === '') {
+                throw new InvalidArgumentException('Tin nhắn không hợp lệ.');
+            }
+            $flagged = preg_match('/\b(lừa đảo|chửi|ngu ngốc)\b/ui', $content) ? 1 : 0;
+            $db->beginTransaction();
+            $statement = $db->prepare('INSERT INTO messages (conversation_id, sender_id, content, is_flagged) VALUES (?, ?, ?, ?)');
+            $statement->execute([$conversationId, (int) $conversation['prospect_id'], mb_substr($content, 0, 1000), $flagged]);
+            $messageCount = (int) scalar('SELECT COUNT(*) FROM messages WHERE conversation_id = ?', [$conversationId]);
+            $flaggedCount = (int) scalar('SELECT COUNT(*) FROM messages WHERE conversation_id = ? AND is_flagged = 1', [$conversationId]);
+            $qualityScore = max(0, min(100, 58 + ($messageCount * 6) - ($flaggedCount * 24)));
+            $db->prepare('UPDATE conversations SET last_message_at = CURRENT_TIMESTAMP, quality_score = ? WHERE id = ?')->execute([$qualityScore, $conversationId]);
+            $db->commit();
+            json_response(['ok' => true, 'quality_score' => $qualityScore]);
+
+        case 'widget_schedule':
+            $ambassadorId = (int) ($_POST['ambassador_id'] ?? 0);
+            $name = trim((string) ($_POST['name'] ?? ''));
+            $email = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
+            $preferredAt = trim((string) ($_POST['preferred_at'] ?? ''));
+            $ambassadorExists = (int) scalar("SELECT COUNT(*) FROM users WHERE id = ? AND role = 'ambassador' AND status = 'active'", [$ambassadorId]);
+            if (!$ambassadorExists || $name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || strtotime($preferredAt) <= time()) {
+                throw new InvalidArgumentException('Vui lòng kiểm tra lại thông tin và chọn thời gian trong tương lai.');
+            }
+            $statement = $db->prepare('INSERT INTO consultation_appointments (ambassador_id, student_name, email, phone, preferred_at, question) VALUES (?, ?, ?, ?, ?, ?)');
+            $statement->execute([$ambassadorId, $name, $email, trim((string) ($_POST['phone'] ?? '')), $preferredAt, mb_substr(trim((string) ($_POST['question'] ?? '')), 0, 1000)]);
+            json_response(['ok' => true, 'message' => 'Yêu cầu đã được ghi nhận. Đội ngũ sẽ xác nhận lịch qua email.']);
+
         case 'start_chat':
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 json_response(['ok' => false, 'message' => 'Method not allowed'], 405);

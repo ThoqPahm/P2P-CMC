@@ -159,6 +159,15 @@ try {
             flash('success', 'Đã cập nhật trạng thái hỗ trợ.');
             redirect('index.php?page=admin-moderation&conversation=' . $conversationId);
 
+        case 'update_appointment_status':
+            require_auth(['admin']);
+            $appointmentId = (int) ($_POST['appointment_id'] ?? 0);
+            $status = in_array($_POST['status'] ?? '', ['pending', 'confirmed', 'completed', 'cancelled'], true) ? (string) $_POST['status'] : 'pending';
+            $statement = $db->prepare('UPDATE consultation_appointments SET status = ? WHERE id = ?');
+            $statement->execute([$status, $appointmentId]);
+            flash('success', 'Đã cập nhật lịch tư vấn.');
+            redirect('index.php?page=admin-widget');
+
         case 'flag_message':
             require_auth(['admin']);
             $id = (int) ($_POST['message_id'] ?? 0);

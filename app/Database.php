@@ -109,6 +109,25 @@ final class Database
                 FOREIGN KEY(sender_id) REFERENCES users(id)
             );
 
+            CREATE TABLE IF NOT EXISTS consultation_appointments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ambassador_id INTEGER NOT NULL,
+                student_name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                phone TEXT,
+                preferred_at TEXT NOT NULL,
+                question TEXT,
+                status TEXT NOT NULL DEFAULT 'pending',
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(ambassador_id) REFERENCES users(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS widget_access_tokens (
+                token TEXT PRIMARY KEY,
+                expires_at TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+
             CREATE TABLE IF NOT EXISTS ai_requests (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
@@ -144,6 +163,7 @@ final class Database
         self::addColumn($db, 'submissions', 'bonus_points', 'INTEGER NOT NULL DEFAULT 0');
         self::addColumn($db, 'conversations', 'quality_score', 'INTEGER NOT NULL DEFAULT 0');
         self::addColumn($db, 'conversations', 'crm_status', "TEXT NOT NULL DEFAULT 'new'");
+        self::addColumn($db, 'conversations', 'public_token', 'TEXT');
         self::addColumn($db, 'messages', 'is_ai', 'INTEGER NOT NULL DEFAULT 0');
 
         $count = (int) $db->query('SELECT COUNT(*) FROM users')->fetchColumn();

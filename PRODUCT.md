@@ -26,7 +26,7 @@ Nền tảng tập trung nội dung UGC, chỉ số đa nền tảng, hội tho�
 - Người dùng nội bộ đăng nhập theo vai trò và làm việc trong app shell trên desktop hoặc mobile web.
 - Sinh viên thường xuyên xem nhiệm vụ, brief, trạng thái bài nộp, lượt xem, lượt thích, tương tác và ví điểm.
 - Admin cần quét nhanh trạng thái hệ thống, xử lý danh sách, đánh giá nội dung và điều phối chính sách.
-- Học sinh THPT dùng bề mặt công khai để tìm người phù hợp và trò chuyện.
+- Học sinh THPT dùng widget nhúng trên website chính thức để tìm người phù hợp, trò chuyện khi đại sứ online hoặc đặt lịch khi đại sứ offline.
 
 ## Capabilities and Constraints
 
@@ -35,6 +35,7 @@ Nền tảng tập trung nội dung UGC, chỉ số đa nền tảng, hội tho�
 - Giữ phân quyền và dữ liệu người dùng ổn định; cho phép cập nhật route, chỉ số và nhãn điều hướng theo mô hình vận hành UGC.
 - Giao diện phải responsive từ mobile web đến desktop rộng; motion phục vụ phản hồi và chuyển trạng thái, không chặn nội dung.
 - Hai luồng chuẩn của app nội bộ là sinh viên và admin, có cùng design system nhưng khác cấu trúc thông tin theo công việc.
+- Widget tư vấn chạy độc lập trong iframe để không xung đột giao diện website chính; mã nhúng phải có thể sao chép trực tiếp từ trang quản trị.
 
 ## Brand Commitments
 
