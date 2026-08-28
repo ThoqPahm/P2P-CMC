@@ -64,6 +64,25 @@
         };
     })();
 
+    const createHoverColorRamp = (hexColor, steps = 8) => {
+        const value = Number.parseInt(hexColor.slice(1), 16);
+        const red = value >> 16;
+        const green = (value >> 8) & 255;
+        const blue = value & 255;
+        return Array.from({ length: steps + 1 }, (_, index) => {
+            const mix = index / steps;
+            const channel = (start) => Math.round(start + (255 - start) * mix).toString(16).padStart(2, '0');
+            return `#${channel(red)}${channel(green)}${channel(blue)}`;
+        });
+    };
+    const hoverColorRamps = {
+        white: createHoverColorRamp('#ffffff'),
+        feature: createHoverColorRamp('#e8fbff'),
+        fill: createHoverColorRamp('#c9f6fb'),
+        depthLight: createHoverColorRamp('#a7eef5'),
+        depthDark: createHoverColorRamp('#0874ad')
+    };
+
     let lastDrawTime = 0;
 
     const drawParticles = (frameTime = window.performance.now()) => {
@@ -119,6 +138,7 @@
             const fontWeight = particle.layer === 'feature' ? 850 : (particle.layer === 'fill' ? 800 : 750);
             let hoverTargetX = 0;
             let hoverTargetY = 0;
+            let hoverStrength = 0;
 
             if (pointerActive) {
                 const deltaX = baseScreenX - pointerX;
@@ -127,33 +147,41 @@
                 if (distance < interactionRadius) {
                     const directionX = distance > .01 ? deltaX / distance : Math.cos(particle.tone * Math.PI * 2);
                     const directionY = distance > .01 ? deltaY / distance : Math.sin(particle.tone * Math.PI * 2);
-                    const strength = (1 - distance / interactionRadius) ** 2;
+                    hoverStrength = (1 - distance / interactionRadius) ** 2;
                     const maximumPush = particle.layer === 'feature' ? 18 : (particle.layer === 'fill' ? 12.5 : 8.5);
-                    hoverTargetX = directionX * strength * maximumPush;
-                    hoverTargetY = directionY * strength * maximumPush;
+                    hoverTargetX = directionX * hoverStrength * maximumPush;
+                    hoverTargetY = directionY * hoverStrength * maximumPush;
                 }
             }
 
             particle.hoverX = (particle.hoverX || 0) + (hoverTargetX - (particle.hoverX || 0)) * hoverEase;
             particle.hoverY = (particle.hoverY || 0) + (hoverTargetY - (particle.hoverY || 0)) * hoverEase;
-            if (Math.abs(hoverTargetX - particle.hoverX) > .1 || Math.abs(hoverTargetY - particle.hoverY) > .1) {
+            particle.hoverStrength = (particle.hoverStrength || 0) + (hoverStrength - (particle.hoverStrength || 0)) * hoverEase;
+            if (Math.abs(hoverTargetX - particle.hoverX) > .1
+                || Math.abs(hoverTargetY - particle.hoverY) > .1
+                || Math.abs(hoverStrength - particle.hoverStrength) > .008) {
                 hoverSettled = false;
             }
 
             const screenX = baseScreenX + particle.hoverX;
             const screenY = baseScreenY + particle.hoverY;
 
+            const hoverColorStep = Math.min(8, Math.round(Math.sqrt(particle.hoverStrength) * 8));
+            let baseAlpha;
+            let colorRamp;
             particleContext.font = `${fontWeight} ${fontSize}px "Segoe UI Variable", "Segoe UI", sans-serif`;
             if (particle.layer === 'feature') {
-                particleContext.globalAlpha = (.96 + depthRatio * .04) * (.98 + particle.opacity * .02);
-                particleContext.fillStyle = particle.tone > .76 ? '#ffffff' : '#e8fbff';
+                baseAlpha = (.96 + depthRatio * .04) * (.98 + particle.opacity * .02);
+                colorRamp = particle.tone > .76 ? hoverColorRamps.white : hoverColorRamps.feature;
             } else if (particle.layer === 'fill') {
-                particleContext.globalAlpha = (.78 + depthRatio * .18) * (.96 + particle.opacity * .04);
-                particleContext.fillStyle = particle.tone > .68 ? '#ffffff' : '#c9f6fb';
+                baseAlpha = (.78 + depthRatio * .18) * (.96 + particle.opacity * .04);
+                colorRamp = particle.tone > .68 ? hoverColorRamps.white : hoverColorRamps.fill;
             } else {
-                particleContext.globalAlpha = (.38 + depthRatio * .18) * (.9 + particle.opacity * .1);
-                particleContext.fillStyle = depthRatio > .58 ? '#a7eef5' : '#0874ad';
+                baseAlpha = (.38 + depthRatio * .18) * (.9 + particle.opacity * .1);
+                colorRamp = depthRatio > .58 ? hoverColorRamps.depthLight : hoverColorRamps.depthDark;
             }
+            particleContext.globalAlpha = Math.min(1, baseAlpha + particle.hoverStrength * .34);
+            particleContext.fillStyle = colorRamp[hoverColorStep];
             particleContext.fillText(particle.label, screenX, screenY);
         }
 
