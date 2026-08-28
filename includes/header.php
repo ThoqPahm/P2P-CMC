@@ -18,7 +18,7 @@ $isLogin = ($page ?? '') === 'login';
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <?php endif; ?>
-    <link href="assets/css/app.css?v=56" rel="stylesheet">
+    <link href="assets/css/app.css?v=57" rel="stylesheet">
 </head>
 <body class="<?= $isLogin ? 'login-layout' : ($isPublic ? 'public-layout' : 'app-layout') ?>">
 <!--

@@ -239,7 +239,6 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .login-theme-particles #loginPassword { padding-right: .8rem; }
 .login-theme-particles .password-toggle { position: static; z-index: auto; width: auto; height: 36px; min-height: 36px; display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .55rem; border-radius: var(--radius-sm); font-size: .78rem; transform: none; }
 .login-theme-particles .internal-login-form { position: relative; overflow: hidden; padding: clamp(2.25rem, 5vw, 4.75rem); background: #f8fbfd; }
-.login-theme-particles .internal-login-form::before { content: ""; position: absolute; top: 0; right: 0; width: 132px; height: 6px; background: var(--cmc-cyan); pointer-events: none; }
 .login-theme-particles .login-form-content { position: relative; z-index: 1; width: min(100%, 430px); margin-inline: auto; }
 .login-theme-particles .login-form-head { margin-bottom: 1.6rem; }
 .login-theme-particles .login-product-mark { margin: 0 0 1.8rem; color: var(--cmc-navy); font-family: "Syne", "Trebuchet MS", sans-serif; font-size: clamp(2.2rem, 3vw, 2.75rem); font-weight: 700; letter-spacing: -.04em; line-height: 1; text-align: center; }
@@ -264,7 +263,7 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .login-theme-particles .microsoft-login:active { transform: translateY(0); }
 .login-theme-particles .microsoft-login svg { flex: 0 0 auto; }
 .login-theme-particles .internal-login-form .demo-accounts { margin-top: 1.35rem; padding: .85rem 0 0; background: transparent; border: 0; border-top: 1px solid #d8e4eb; border-radius: 0; }
-.login-theme-particles .internal-login-form .demo-accounts > strong { text-align: center; }
+.login-theme-particles .internal-login-form .demo-accounts > strong { color: var(--danger); text-align: center; }
 .login-theme-particles .internal-login-form .demo-accounts > div { width: min(100%, 300px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin: .65rem auto 0; }
 .login-theme-particles .internal-login-form .demo-accounts a { justify-content: center; border-radius: 7px; }
 
