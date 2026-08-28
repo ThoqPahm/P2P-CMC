@@ -12,7 +12,7 @@
     </footer>
 <?php endif; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/app.js?v=41"></script>
+<script src="assets/js/app.js?v=43"></script>
 <?php
 $loginThemeScript = null;
 if ($isLogin ?? false) {

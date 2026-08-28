@@ -54,7 +54,10 @@
             const show = input.type === 'password';
             input.type = show ? 'text' : 'password';
             const label = show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
-            button.innerHTML = `<i class="bi ${show ? 'bi-eye-slash' : 'bi-eye'}" aria-hidden="true"></i><span class="visually-hidden">${label}</span>`;
+            const showLabel = button.dataset.toggleLabel === 'visible';
+            const labelClass = showLabel ? '' : ' class="visually-hidden"';
+            const labelText = showLabel ? (show ? 'Ẩn' : 'Hiện') : label;
+            button.innerHTML = `<i class="bi ${show ? 'bi-eye-slash' : 'bi-eye'}" aria-hidden="true"></i><span${labelClass}>${labelText}</span>`;
             button.setAttribute('aria-label', label);
             button.setAttribute('title', label);
         });

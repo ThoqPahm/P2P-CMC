@@ -151,6 +151,12 @@ function login_theme_registry(): array
             'file' => 'pages/public/login-themes/eyes.php',
             'script' => 'assets/js/login-eyes.js?v=4',
         ],
+        'particles' => [
+            'name' => 'CMC Particle Logo',
+            'description' => 'Biểu trưng CMC tạo từ các từ khóa chuyển động theo con trỏ.',
+            'file' => 'pages/public/login-themes/particles.php',
+            'script' => 'assets/js/login-particles.js?v=1',
+        ],
     ];
 }
 
