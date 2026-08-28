@@ -243,7 +243,7 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .login-theme-particles .login-form-head { margin-bottom: 1.6rem; }
 .login-theme-particles .login-product-mark { margin: 0 0 1.8rem; color: var(--cmc-navy); font-family: "Syne", "Trebuchet MS", sans-serif; font-size: clamp(2.2rem, 3vw, 2.75rem); font-weight: 700; letter-spacing: -.04em; line-height: 1; text-align: center; }
 .login-theme-particles .login-product-mark span { color: var(--cmc-blue); }
-.login-theme-particles .login-form-head h1 { margin-bottom: .55rem; font-size: clamp(2.35rem, 3.4vw, 3.15rem); letter-spacing: -.04em; }
+.login-theme-particles .login-form-head h1 { margin-bottom: .55rem; font-size: clamp(2.15rem, 3.1vw, 2.9rem); letter-spacing: -.04em; }
 .login-theme-particles .login-form-head > p:last-child { color: #526a7d; font-size: .88rem; }
 .login-theme-particles .login-form { gap: 1rem; }
 .login-theme-particles .login-field { gap: .5rem; }
@@ -271,7 +271,7 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
     .login-theme-particles .internal-login-form { padding-block: 2rem; }
     .login-theme-particles .login-product-mark { margin-bottom: 1.15rem; font-size: 2.2rem; }
     .login-theme-particles .login-form-head { margin-bottom: 1.15rem; }
-    .login-theme-particles .login-form-head h1 { font-size: 2.55rem; }
+    .login-theme-particles .login-form-head h1 { font-size: 2.3rem; }
     .login-theme-particles .login-form { gap: .8rem; }
     .login-theme-particles .input-icon .form-control, .login-theme-particles .login-submit { height: 52px; min-height: 52px; }
     .login-theme-particles .login-divider { margin-block: .75rem; }

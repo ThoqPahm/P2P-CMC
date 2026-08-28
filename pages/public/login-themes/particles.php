@@ -18,7 +18,7 @@
                 <div class="login-form-head">
                     <p class="login-product-mark"><span>e</span>Ambassador</p>
                     <h1 id="loginTitle">Đăng nhập</h1>
-                    <p>Chào mừng bạn trở lại CMC Connect.</p>
+                    <p>Chào mừng bạn trở lại.</p>
                 </div>
                 <form method="post" action="actions.php?action=login" class="login-form" novalidate>
                     <?= csrf_field() ?>
