@@ -13,15 +13,16 @@
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const particles = [];
     const cmcKeywords = [
-        'CMCU', 'AI', 'CAINLE', 'AI Native', 'AI University', 'CMC Uni', 'Trợ giảng', 'Sinh viên',
-        'Giảng viên', 'Học liệu', 'Dữ liệu', 'Tri thức', 'Sáng tạo', 'Đổi mới', 'Nghiên cứu',
-        'Công nghệ', 'Khai phóng', 'Nhân sinh', 'Chủ động', 'Tự học', 'Thực hành', 'Phản hồi',
-        'Học bổng', 'Khởi nghiệp', 'Thực tập', 'Hướng nghiệp', 'Kết nối', 'Doanh nghiệp',
-        'Quốc tế', 'Hội nhập', 'Tương lai', 'C-Future', 'Khoa học', 'Máy tính', 'Phần mềm',
-        'An ninh', 'Thiết kế', 'Kinh doanh', 'Truyền thông', 'Ngôn ngữ', 'Việc làm', 'Học tập',
-        'Trải nghiệm', 'Kỹ năng', 'Đồng hành', 'Tiên phong', 'Ước mơ', 'Bứt phá'
+        'CMCU', 'AI', 'AI Native', 'CMC Uni', 'Sáng tạo', 'Đổi mới', 'Tiên phong', 'Hiện đại',
+        'Năng động', 'Khác biệt', 'Bản lĩnh', 'Tự tin', 'Đột phá', 'Thực chiến', 'Toàn cầu',
+        'Hội nhập', 'Khai phóng', 'Chất lượng', 'Uy tín', 'Thân thiện', 'Cởi mở', 'Linh hoạt',
+        'Chủ động', 'Dẫn đầu', 'Tử tế', 'Thông minh', 'Nhiệt huyết', 'Tận tâm', 'Gần gũi',
+        'Sẵn sàng', 'Vững vàng', 'Bền bỉ', 'Đa năng', 'Cá tính', 'Trẻ trung', 'Chuyên nghiệp',
+        'Thiết thực', 'Thực tiễn', 'Tương lai', 'Công nghệ', 'Kết nối', 'Bứt phá', 'Vươn xa',
+        'Tỏa sáng', 'Khám phá', 'Dám nghĩ', 'Dám làm', 'Dám khác', 'Xứng tầm', 'Hữu ích',
+        'Rộng mở', 'Sắc bén', 'Mạnh mẽ', 'Tinh gọn', 'Cầu tiến'
     ];
-    const fillerKeywords = ['AI', 'AI', 'AI', 'CMCU', 'AI', 'CMCU', 'CAINLE'];
+    const fillerKeywords = ['AI', 'AI', 'CMC', 'CMCU', 'AI', 'CMC', 'CMCU'];
     const baseRotationX = -.17;
     const baseRotationY = -.42;
     const baseRotationZ = -.075;
