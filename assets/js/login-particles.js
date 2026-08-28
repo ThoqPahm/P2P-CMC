@@ -74,8 +74,8 @@
         sceneOffsetX += offsetVelocityX;
         sceneOffsetY += offsetVelocityY;
 
-        const scale = Math.min(canvasWidth / 640, canvasHeight / 480);
-        const centerX = canvasWidth * .54 + sceneOffsetX;
+        const scale = Math.min(canvasWidth / 640, canvasHeight / 480) * .94;
+        const centerX = canvasWidth * .52 + sceneOffsetX;
         const centerY = canvasHeight * .54 + sceneOffsetY;
         const cosX = Math.cos(rotationX);
         const sinX = Math.sin(rotationX);

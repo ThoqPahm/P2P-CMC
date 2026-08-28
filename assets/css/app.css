@@ -226,8 +226,8 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .login-theme-particles .internal-login-visual:active { cursor: grabbing; }
 .login-theme-particles .internal-login-visual::before { z-index: 0; inset: 0; background: none; filter: none; opacity: 1; }
 .login-theme-particles .internal-login-visual::after { z-index: 3; inset: 0; width: auto; height: auto; aspect-ratio: auto; background: none; border-radius: 0; filter: none; box-shadow: none; }
-.login-theme-particles .login-particle-atmosphere { position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; }
-.login-theme-particles .login-particle-atmosphere span { position: absolute; color: rgba(255,255,255,.09); font-size: clamp(4.5rem, 10vw, 8rem); font-weight: 800; letter-spacing: -.04em; line-height: .95; white-space: nowrap; }
+.login-theme-particles .login-particle-atmosphere { position: absolute; z-index: 0; inset: 0; overflow: hidden; container-type: inline-size; pointer-events: none; }
+.login-theme-particles .login-particle-atmosphere span { position: absolute; color: rgba(255,255,255,.09); font-size: clamp(4.5rem, 10vw, 7.25rem); font-size: clamp(4.5rem, 20cqw, 7.25rem); font-weight: 800; letter-spacing: -.04em; line-height: .95; white-space: nowrap; }
 .login-theme-particles .login-particle-atmosphere span:first-child { top: 18%; left: -5%; }
 .login-theme-particles .login-particle-atmosphere span:last-child { right: 3%; bottom: 5%; }
 .login-theme-particles .login-particle-fallback { position: absolute; z-index: 1; inset: 50% auto auto 50%; width: min(74%, 460px); height: auto; opacity: .26; filter: brightness(0) invert(1); transform: translate(-50%, -43%); transition: opacity .3s ease; }
