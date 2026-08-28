@@ -5,10 +5,15 @@
     if (!particleCanvas) return;
 
     const particleHost = particleCanvas.closest('[data-cmc-particles]');
+    if (!particleHost) return;
+
     const particleContext = particleCanvas.getContext('2d', { alpha: true, desynchronized: true });
     const maskCanvas = document.createElement('canvas');
     const maskContext = maskCanvas.getContext('2d', { willReadFrequently: true });
-    if (!particleHost || !particleContext || !maskContext) return;
+    if (!particleContext || !maskContext) {
+        particleHost.classList.add('is-particle-failed');
+        return;
+    }
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const particles = [];
@@ -59,9 +64,14 @@
         };
     })();
 
-    const drawParticles = () => {
+    let lastDrawTime = 0;
+
+    const drawParticles = (frameTime = window.performance.now()) => {
         if (!particleReady || canvasWidth < 20 || canvasHeight < 20) return true;
         particleContext.clearRect(0, 0, canvasWidth, canvasHeight);
+        const frameDelta = lastDrawTime ? Math.min(34, frameTime - lastDrawTime) : 16.67;
+        const hoverEase = 1 - Math.exp(-frameDelta / 72);
+        lastDrawTime = frameTime;
 
         rotationVelocityX = (rotationVelocityX + (targetRotationX - rotationX) * .045) * .79;
         rotationVelocityY = (rotationVelocityY + (targetRotationY - rotationY) * .045) * .79;
@@ -118,15 +128,15 @@
                     const directionX = distance > .01 ? deltaX / distance : Math.cos(particle.tone * Math.PI * 2);
                     const directionY = distance > .01 ? deltaY / distance : Math.sin(particle.tone * Math.PI * 2);
                     const strength = (1 - distance / interactionRadius) ** 2;
-                    const maximumPush = particle.layer === 'feature' ? 15 : (particle.layer === 'fill' ? 10 : 7);
+                    const maximumPush = particle.layer === 'feature' ? 18 : (particle.layer === 'fill' ? 12.5 : 8.5);
                     hoverTargetX = directionX * strength * maximumPush;
                     hoverTargetY = directionY * strength * maximumPush;
                 }
             }
 
-            particle.hoverX = (particle.hoverX || 0) + (hoverTargetX - (particle.hoverX || 0)) * .18;
-            particle.hoverY = (particle.hoverY || 0) + (hoverTargetY - (particle.hoverY || 0)) * .18;
-            if (Math.abs(hoverTargetX - particle.hoverX) > .06 || Math.abs(hoverTargetY - particle.hoverY) > .06) {
+            particle.hoverX = (particle.hoverX || 0) + (hoverTargetX - (particle.hoverX || 0)) * hoverEase;
+            particle.hoverY = (particle.hoverY || 0) + (hoverTargetY - (particle.hoverY || 0)) * hoverEase;
+            if (Math.abs(hoverTargetX - particle.hoverX) > .1 || Math.abs(hoverTargetY - particle.hoverY) > .1) {
                 hoverSettled = false;
             }
 
@@ -155,17 +165,17 @@
         const bounds = particleHost.getBoundingClientRect();
         canvasWidth = Math.max(1, Math.round(bounds.width));
         canvasHeight = Math.max(1, Math.round(bounds.height));
-        pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
         particleCanvas.width = Math.round(canvasWidth * pixelRatio);
         particleCanvas.height = Math.round(canvasHeight * pixelRatio);
         particleContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
         if (particleReady) drawParticles();
     };
 
-    const animateParticles = () => {
+    const animateParticles = (frameTime) => {
         animationFrame = 0;
         if (!particleVisible || document.hidden || reduceMotion) return;
-        const hoverSettled = drawParticles();
+        const hoverSettled = drawParticles(frameTime);
         const settled = Math.abs(targetRotationX - rotationX) < .0008
             && Math.abs(targetRotationY - rotationY) < .0008
             && Math.abs(targetRotationZ - rotationZ) < .0008
@@ -282,8 +292,13 @@
         particles.sort((a, b) => b.z - a.z);
         particleReady = particles.length > 0;
         particleHost.classList.toggle('is-particle-ready', particleReady);
+        particleHost.classList.toggle('is-particle-failed', !particleReady);
         resizeParticles();
         drawParticles();
+    });
+    particleImage.addEventListener('error', () => {
+        particleHost.classList.remove('is-particle-ready');
+        particleHost.classList.add('is-particle-failed');
     });
     particleImage.src = 'assets/img/cmc-university.svg';
 
