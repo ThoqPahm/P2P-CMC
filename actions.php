@@ -71,8 +71,13 @@ try {
             if ($campaignId < 1 || !filter_var($url, FILTER_VALIDATE_URL)) {
                 throw new InvalidArgumentException('Vui lòng nhập đường dẫn nội dung hợp lệ.');
             }
-            $statement = $db->prepare('INSERT INTO submissions (campaign_id, user_id, content_url, caption) VALUES (?, ?, ?, ?)');
-            $statement->execute([$campaignId, user()['id'], $url, trim((string) ($_POST['caption'] ?? ''))]);
+            $campaign = rows('SELECT platform FROM campaigns WHERE id = ? AND status = ?', [$campaignId, 'active'])[0] ?? null;
+            if (!$campaign) {
+                throw new RuntimeException('Chiến dịch không còn hoạt động.');
+            }
+            $platform = trim((string) ($_POST['platform'] ?? '')) ?: (string) $campaign['platform'];
+            $statement = $db->prepare('INSERT INTO submissions (campaign_id, user_id, content_url, caption, platform) VALUES (?, ?, ?, ?, ?)');
+            $statement->execute([$campaignId, user()['id'], $url, trim((string) ($_POST['caption'] ?? '')), $platform]);
             flash('success', 'Bài của bạn đã được gửi và đang chờ duyệt.');
             redirect('index.php?page=my-submissions');
 
@@ -86,13 +91,15 @@ try {
             }
             $db->beginTransaction();
             $views = max(0, (int) ($_POST['views'] ?? 0));
+            $likes = max(0, (int) ($_POST['likes'] ?? 0));
             $comments = max(0, (int) ($_POST['comments'] ?? 0));
+            $shares = max(0, (int) ($_POST['shares'] ?? 0));
             $aiScore = max(0, min(100, (int) ($_POST['ai_score'] ?? 0)));
             $bonusPoints = ($views >= 10000 || $comments >= 100 || $aiScore >= 85) ? 40 : 0;
-            $statement = $db->prepare('UPDATE submissions SET status = ?, feedback = ?, views = ?, comments = ?, ai_score = ?, bonus_points = ? WHERE id = ?');
-            $statement->execute([$status, trim((string) ($_POST['feedback'] ?? '')), $views, $comments, $aiScore, $status === 'approved' ? $bonusPoints : 0, $submissionId]);
+            $statement = $db->prepare('UPDATE submissions SET status = ?, feedback = ?, views = ?, likes = ?, comments = ?, shares = ?, ai_score = ?, bonus_points = ? WHERE id = ?');
+            $statement->execute([$status, trim((string) ($_POST['feedback'] ?? '')), $views, $likes, $comments, $shares, $aiScore, $status === 'approved' ? $bonusPoints : 0, $submissionId]);
             if ($status === 'approved' && $submission['status'] !== 'approved') {
-                $multipliers = ['junior' => 1.0, 'senior' => 1.3, 'lead' => 1.5];
+                $multipliers = ['junior' => 1.0, 'senior' => 1.3];
                 $multiplier = $multipliers[$submission['ambassador_tier']] ?? 1.0;
                 $awardedPoints = (int) round(((int) $submission['reward_points'] + $bonusPoints) * $multiplier);
                 $wallet = $db->prepare("INSERT INTO wallet_transactions (user_id, type, points, description, reference_type, reference_id) VALUES (?, 'credit', ?, 'Bài nộp UGC được duyệt', 'submission', ?)");
@@ -102,18 +109,23 @@ try {
             flash('success', 'Đã cập nhật kết quả duyệt bài.');
             redirect('index.php?page=admin-submissions');
 
-        case 'create_affiliate':
-            require_auth(['student', 'ambassador']);
-            $campaignId = (int) ($_POST['campaign_id'] ?? 0);
-            $exists = (int) scalar('SELECT COUNT(*) FROM campaigns WHERE id = ? AND status = ?', [$campaignId, 'active']);
-            if (!$exists) {
-                throw new RuntimeException('Chiến dịch không còn hoạt động.');
+        case 'update_content_metrics':
+            require_auth(['admin']);
+            $submissionId = (int) ($_POST['submission_id'] ?? 0);
+            $statement = $db->prepare('UPDATE submissions SET views = ?, likes = ?, comments = ?, shares = ? WHERE id = ? AND status = ?');
+            $statement->execute([
+                max(0, (int) ($_POST['views'] ?? 0)),
+                max(0, (int) ($_POST['likes'] ?? 0)),
+                max(0, (int) ($_POST['comments'] ?? 0)),
+                max(0, (int) ($_POST['shares'] ?? 0)),
+                $submissionId,
+                'approved',
+            ]);
+            if ($statement->rowCount() < 1) {
+                throw new RuntimeException('Không tìm thấy nội dung đã duyệt.');
             }
-            $code = strtoupper(preg_replace('/[^A-Z0-9]/i', '', explode('@', user()['email'])[0])) . '-' . user()['id'] . '-' . $campaignId;
-            $statement = $db->prepare('INSERT OR IGNORE INTO affiliate_links (user_id, campaign_id, code) VALUES (?, ?, ?)');
-            $statement->execute([user()['id'], $campaignId, $code]);
-            flash('success', 'Link affiliate cá nhân đã sẵn sàng.');
-            redirect('index.php?page=my-affiliate');
+            flash('success', 'Đã cập nhật chỉ số nội dung.');
+            redirect('index.php?page=admin-performance');
 
         case 'update_ambassador':
             require_auth(['admin']);
@@ -128,7 +140,7 @@ try {
         case 'update_ambassador_profile':
             require_auth(['admin']);
             $id = (int) ($_POST['user_id'] ?? 0);
-            $tier = in_array($_POST['ambassador_tier'] ?? '', ['junior', 'senior', 'lead'], true) ? (string) $_POST['ambassador_tier'] : 'junior';
+            $tier = in_array($_POST['ambassador_tier'] ?? '', ['junior', 'senior'], true) ? (string) $_POST['ambassador_tier'] : 'junior';
             $policy = in_array($_POST['policy_status'] ?? '', ['pending', 'approved', 'suspended'], true) ? (string) $_POST['policy_status'] : 'pending';
             $violation = in_array($_POST['violation_level'] ?? '', ['none', 'yellow', 'orange', 'red'], true) ? (string) $_POST['violation_level'] : 'none';
             $gpa = max(0, min(4, (float) ($_POST['gpa'] ?? 0)));
@@ -138,13 +150,13 @@ try {
             flash('success', 'Đã cập nhật phân hạng và trạng thái chính sách.');
             redirect('index.php?page=admin-rewards');
 
-        case 'update_crm_status':
+        case 'update_support_status':
             require_auth(['admin']);
             $conversationId = (int) ($_POST['conversation_id'] ?? 0);
-            $crmStatus = in_array($_POST['crm_status'] ?? '', ['new', 'qualified', 'transferred'], true) ? (string) $_POST['crm_status'] : 'new';
+            $crmStatus = in_array($_POST['support_status'] ?? '', ['new', 'active', 'resolved'], true) ? (string) $_POST['support_status'] : 'new';
             $statement = $db->prepare('UPDATE conversations SET crm_status = ? WHERE id = ?');
             $statement->execute([$crmStatus, $conversationId]);
-            flash('success', 'Đã cập nhật trạng thái chuyển CRM.');
+            flash('success', 'Đã cập nhật trạng thái hỗ trợ.');
             redirect('index.php?page=admin-moderation&conversation=' . $conversationId);
 
         case 'flag_message':

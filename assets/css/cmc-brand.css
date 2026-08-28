@@ -273,11 +273,11 @@ h1, h2, h3 { letter-spacing: -.025em; }
 .notification-dot { background: var(--cmc-blue); }
 
 /* Dashboard components: denser, flatter and operational */
-.welcome-banner, .student-hero, .affiliate-hero { color: #fff; background: var(--cmc-navy); border-radius: 10px; }
-.welcome-banner:after, .student-hero:after, .affiliate-hero:after { border-color: rgba(0,222,223,.09); }
-.welcome-banner .eyebrow, .student-hero .hero-kicker, .affiliate-hero .hero-kicker { color: var(--cmc-cyan); background: transparent; border: 0; }
-.welcome-banner h2, .student-hero h2, .affiliate-hero h2 { color: #fff; }
-.student-hero h2 span, .affiliate-hero h2 span { color: var(--cmc-cyan); }
+.welcome-banner, .student-hero { color: #fff; background: var(--cmc-navy); border-radius: 10px; }
+.welcome-banner:after, .student-hero:after { border-color: rgba(0,222,223,.09); }
+.welcome-banner .eyebrow, .student-hero .hero-kicker { color: var(--cmc-cyan); background: transparent; border: 0; }
+.welcome-banner h2, .student-hero h2 { color: #fff; }
+.student-hero h2 span { color: var(--cmc-cyan); }
 .hero-avatar { background: var(--cmc-blue); border-radius: 10px; }
 .orbit { color: var(--cmc-blue); border-radius: 8px; }
 .orbit-two { color: var(--cmc-navy); }
@@ -285,8 +285,7 @@ h1, h2, h3 { letter-spacing: -.025em; }
 .metric-card:hover, .campaign-card:hover, .mission-card:hover, .link-card:hover { border-color: #a9cede; box-shadow: 0 12px 35px rgba(0,39,87,.07); }
 .metric-icon, .campaign-icon, .link-icon { color: var(--cmc-blue-dark); background: var(--cmc-soft); border-radius: 8px; }
 .metric-icon.coral, .metric-icon.blue, .metric-icon.violet, .metric-icon.green { color: var(--cmc-blue-dark); background: var(--cmc-soft); }
-.metric-card strong, .conversion-box strong, .affiliate-total strong { color: var(--cmc-navy); }
-.affiliate-total strong { color: #fff; }
+.metric-card strong, .conversion-box strong { color: var(--cmc-navy); }
 .bar-chart { background: repeating-linear-gradient(to bottom,#fff 0,#fff 54px,#eaf0f4 55px); }
 .bars span, .bars span:last-child, .funnel-list em:after { background: var(--cmc-blue); }
 .clean-table th { color: #718599; background: #f8fafc; }
@@ -383,7 +382,6 @@ h1, h2, h3 { letter-spacing: -.025em; }
 .tier-badge, .policy-status, .violation { display: inline-flex; align-items: center; width: fit-content; padding: .3rem .5rem; border-radius: 4px; font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
 .tier-junior { color: #52677a; background: #edf2f5; }
 .tier-senior { color: #075b91; background: #dff2fb; }
-.tier-lead { color: #705211; background: #fff1c9; }
 .policy-pending { color: #765815; background: #fff2cc; }
 .policy-approved { color: #12634e; background: #e1f5ef; }
 .policy-suspended { color: #9b2533; background: #fde8eb; }

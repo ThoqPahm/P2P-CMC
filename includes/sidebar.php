@@ -6,7 +6,7 @@ $navItems = $isAdmin ? [
     ['admin-campaigns', 'bi-megaphone-fill', 'Chiến dịch'],
     ['admin-submissions', 'bi-play-btn-fill', 'Bài nộp UGC'],
     ['admin-ambassadors', 'bi-people-fill', 'Đại sứ'],
-    ['admin-leads', 'bi-person-lines-fill', 'Leads'],
+    ['admin-performance', 'bi-bar-chart-line-fill', 'Hiệu quả UGC'],
     ['admin-rewards', 'bi-award-fill', 'Thưởng & phân hạng'],
     ['admin-moderation', 'bi-shield-check', 'Kiểm duyệt chat'],
 ] : [
@@ -14,7 +14,7 @@ $navItems = $isAdmin ? [
     ['campaigns', 'bi-compass-fill', 'Khám phá nhiệm vụ'],
     ['copilot', 'bi-stars', 'AI Copilot'],
     ['my-submissions', 'bi-camera-reels-fill', 'Bài nộp của tôi'],
-    ['my-affiliate', 'bi-link-45deg', 'Link Affiliate'],
+    ['my-performance', 'bi-bar-chart-line-fill', 'Hiệu quả nội dung'],
     ['wallet', 'bi-wallet2', 'Ví điểm thưởng'],
 ];
 if ($currentUser['role'] === 'ambassador') {

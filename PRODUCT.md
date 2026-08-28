@@ -8,9 +8,9 @@ web
 
 ## Users
 
-- Sinh viên CMC nhận nhiệm vụ truyền thông, tạo nội dung, nộp bài, theo dõi affiliate, điểm thưởng và tiến độ cá nhân.
+- Sinh viên CMC nhận nhiệm vụ truyền thông, tạo nội dung, nộp bài, theo dõi hiệu quả UGC, điểm thưởng và tiến độ cá nhân.
 - Đại sứ sinh viên dùng toàn bộ luồng sinh viên, đồng thời tư vấn học sinh THPT qua hội thoại P2P có kiểm soát chất lượng.
-- Quản trị viên tuyển sinh và vận hành theo dõi chiến dịch, UGC, đại sứ, leads, phần thưởng và an toàn hội thoại.
+- Quản trị viên vận hành theo dõi sinh viên, đại sứ, chiến dịch, kho UGC, hiệu quả nội dung, phần thưởng và an toàn hội thoại.
 - Học sinh THPT tìm đại sứ phù hợp, đọc trải nghiệm thật và bắt đầu cuộc trò chuyện hoặc đăng ký tư vấn.
 
 ## Product Purpose
@@ -19,12 +19,12 @@ eAmbassador vận hành hệ sinh thái đại sứ sinh viên số và truyền
 
 ## Positioning
 
-Nền tảng nối liền nội dung UGC, affiliate, hội thoại P2P, kiểm duyệt và điểm thưởng trong một vòng vận hành có thể theo dõi từ sinh viên đến tuyển sinh.
+Nền tảng tập trung nội dung UGC, chỉ số đa nền tảng, hội thoại P2P, kiểm duyệt và điểm thưởng trong một vòng vận hành thống nhất cho sinh viên và đại sứ.
 
 ## Operating Context
 
 - Người dùng nội bộ đăng nhập theo vai trò và làm việc trong app shell trên desktop hoặc mobile web.
-- Sinh viên thường xuyên xem nhiệm vụ, brief, trạng thái bài nộp, số liệu affiliate và ví điểm.
+- Sinh viên thường xuyên xem nhiệm vụ, brief, trạng thái bài nộp, lượt xem, lượt thích, tương tác và ví điểm.
 - Admin cần quét nhanh trạng thái hệ thống, xử lý danh sách, đánh giá nội dung và điều phối chính sách.
 - Học sinh THPT dùng bề mặt công khai để tìm người phù hợp và trò chuyện.
 
@@ -32,7 +32,7 @@ Nền tảng nối liền nội dung UGC, affiliate, hội thoại P2P, kiểm d
 
 - Backend PHP 8.1+, PDO và SQLite; frontend HTML5, Bootstrap 5.3, Bootstrap Icons, CSS riêng và JavaScript thuần.
 - Không dùng Node.js, Python hoặc Tailwind trong source/runtime của website.
-- Giữ nguyên URL, route slug, chức năng, dữ liệu, form field, phân quyền và nhãn điều hướng hiện có trong đợt redesign.
+- Giữ phân quyền và dữ liệu người dùng ổn định; cho phép cập nhật route, chỉ số và nhãn điều hướng theo mô hình vận hành UGC.
 - Giao diện phải responsive từ mobile web đến desktop rộng; motion phục vụ phản hồi và chuyển trạng thái, không chặn nội dung.
 - Hai luồng chuẩn của app nội bộ là sinh viên và admin, có cùng design system nhưng khác cấu trúc thông tin theo công việc.
 

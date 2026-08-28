@@ -178,7 +178,7 @@ On narrow screens, body copy steps down to 13px and the sticky topbar title trun
 
 The internal shell uses a fixed 244px navy directory and a sticky 72px utility bar. The centered content canvas may grow to 1660px and uses 24px outer padding on desktop. The main dashboard grid is a fluid route board plus a 304px status rail, narrowing the rail to 272px below 1280px. Panels use a 16px gap and align to the top.
 
-The route board owns the first viewport. Its header contains the surface title and primary action; the progress band follows; the route or operations map carries the central workflow; and a compact mission table or work queue closes the board. The status rail holds verified progress, affiliate or priority signals, recent events, and secondary actions. A leaderboard may follow the grid, but it does not compete with the route board.
+The route board owns the first viewport. Its header contains the surface title and primary action; the progress band follows; the route or operations map carries the central workflow; and a compact mission table or work queue closes the board. The status rail holds verified progress, UGC performance or priority signals, recent events, and secondary actions. A ranking list may follow the grid, but it does not compete with the route board.
 
 ### Responsive contract
 
@@ -225,7 +225,7 @@ Labels pair text with a semantic soft background and never rely on hue alone. Us
 
 ### Student route state machine
 
-The student route has four ordered destinations: choose a mission, produce or revise content, submit for review, then receive points and lead recognition. The route derives from submission status:
+The student route has four ordered destinations: choose a mission, produce or revise content, submit for review, then receive points and track UGC performance. The route derives from submission status:
 
 - `not_started` → 0%: mission choice is active; later review/reward steps stay locked.
 - `rejected` → 25%: production/revision is active and must expose the correction action.
@@ -236,7 +236,7 @@ Completed markers are blue checks; the single current marker is cyan with an act
 
 ### Admin operations map
 
-The admin board maps four parallel domains—campaigns, UGC submissions, leads, and P2P ambassadors—through three ordered nodes each. Every row contains domain identity, handoff context, count-bearing nodes, directional connectors, and a route-specific destination. The middle node is the operational focus; “complete,” “active,” and default node treatments reflect query results, not decoration. On phones, nodes stack vertically with arrows rotated downward. The priority rail totals pending UGC, leads needing verification, and flagged conversations, and its CTA leads to real work.
+The admin board maps four parallel domains—campaigns, UGC submissions, content performance, and the ambassador community—through three ordered nodes each. Every row contains domain identity, handoff context, count-bearing nodes, directional connectors, and a route-specific destination. The middle node is the operational focus; “complete,” “active,” and default node treatments reflect query results, not decoration. On phones, nodes stack vertically with arrows rotated downward. The priority rail totals pending UGC and flagged conversations, and its CTA opens real work.
 
 ### Boards, rails, queues, and empty states
 

@@ -6,7 +6,7 @@ require_once __DIR__ . '/app/bootstrap.php';
 
 $page = (string) ($_GET['page'] ?? (user() ? 'dashboard' : 'login'));
 $page = $page === 'home' ? (user() ? 'dashboard' : 'login') : $page;
-$publicPages = ['home', 'ambassadors', 'login', 'affiliate'];
+$publicPages = ['home', 'ambassadors', 'login'];
 
 if ($page === 'dashboard' && user()) {
     $page = user()['role'] === 'admin' ? 'admin-dashboard' : (user()['role'] === 'prospect' ? 'ambassadors' : 'student-dashboard');
@@ -16,19 +16,18 @@ $routes = [
     'home' => 'pages/public/home.php',
     'ambassadors' => 'pages/public/ambassadors.php',
     'login' => 'pages/public/login.php',
-    'affiliate' => 'pages/public/affiliate.php',
     'admin-dashboard' => 'pages/admin/dashboard.php',
     'admin-campaigns' => 'pages/admin/campaigns.php',
     'admin-submissions' => 'pages/admin/submissions.php',
     'admin-ambassadors' => 'pages/admin/ambassadors.php',
-    'admin-leads' => 'pages/admin/leads.php',
+    'admin-performance' => 'pages/admin/performance.php',
     'admin-moderation' => 'pages/admin/moderation.php',
     'admin-rewards' => 'pages/admin/rewards.php',
     'appearance-studio' => 'pages/admin/appearance.php',
     'student-dashboard' => 'pages/student/dashboard.php',
     'campaigns' => 'pages/student/campaigns.php',
     'my-submissions' => 'pages/student/submissions.php',
-    'my-affiliate' => 'pages/student/affiliate.php',
+    'my-performance' => 'pages/student/performance.php',
     'wallet' => 'pages/student/wallet.php',
     'copilot' => 'pages/student/copilot.php',
     'inbox' => 'pages/student/inbox.php',

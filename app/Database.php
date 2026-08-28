@@ -74,31 +74,6 @@ final class Database
                 FOREIGN KEY(user_id) REFERENCES users(id)
             );
 
-            CREATE TABLE IF NOT EXISTS affiliate_links (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                campaign_id INTEGER NOT NULL,
-                code TEXT NOT NULL UNIQUE,
-                clicks INTEGER NOT NULL DEFAULT 0,
-                leads INTEGER NOT NULL DEFAULT 0,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(user_id, campaign_id),
-                FOREIGN KEY(user_id) REFERENCES users(id),
-                FOREIGN KEY(campaign_id) REFERENCES campaigns(id)
-            );
-
-            CREATE TABLE IF NOT EXISTS leads (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                affiliate_id INTEGER,
-                full_name TEXT NOT NULL,
-                phone TEXT NOT NULL,
-                email TEXT,
-                major TEXT,
-                status TEXT NOT NULL DEFAULT 'new',
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY(affiliate_id) REFERENCES affiliate_links(id)
-            );
-
             CREATE TABLE IF NOT EXISTS wallet_transactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
@@ -162,7 +137,10 @@ final class Database
         self::addColumn($db, 'users', 'violation_level', "TEXT NOT NULL DEFAULT 'none'");
         self::addColumn($db, 'submissions', 'ai_score', 'INTEGER NOT NULL DEFAULT 0');
         self::addColumn($db, 'submissions', 'views', 'INTEGER NOT NULL DEFAULT 0');
+        self::addColumn($db, 'submissions', 'likes', 'INTEGER NOT NULL DEFAULT 0');
         self::addColumn($db, 'submissions', 'comments', 'INTEGER NOT NULL DEFAULT 0');
+        self::addColumn($db, 'submissions', 'shares', 'INTEGER NOT NULL DEFAULT 0');
+        self::addColumn($db, 'submissions', 'platform', "TEXT NOT NULL DEFAULT ''");
         self::addColumn($db, 'submissions', 'bonus_points', 'INTEGER NOT NULL DEFAULT 0');
         self::addColumn($db, 'conversations', 'quality_score', 'INTEGER NOT NULL DEFAULT 0');
         self::addColumn($db, 'conversations', 'crm_status', "TEXT NOT NULL DEFAULT 'new'");
@@ -174,10 +152,15 @@ final class Database
         }
 
         $db->exec("UPDATE users SET ambassador_tier = 'senior', gpa = 3.45, followers = 2400, policy_status = 'approved' WHERE email = 'ambassador@cmc.edu.vn'");
-        $db->exec("UPDATE users SET ambassador_tier = 'lead', gpa = 3.62, followers = 5100, policy_status = 'approved' WHERE email = 'nam@cmc.edu.vn'");
+        $db->exec("UPDATE users SET ambassador_tier = 'senior', gpa = 3.62, followers = 5100, policy_status = 'approved' WHERE email = 'nam@cmc.edu.vn'");
         $db->exec("UPDATE users SET ambassador_tier = 'junior', gpa = 3.31, followers = 1300, policy_status = 'approved' WHERE email = 'linh@cmc.edu.vn'");
+        $db->exec("UPDATE users SET ambassador_tier = 'senior' WHERE ambassador_tier NOT IN ('junior', 'senior')");
         $db->exec("UPDATE users SET gpa = 3.28, followers = 860, policy_status = 'pending' WHERE email = 'student@cmc.edu.vn'");
         $db->exec("UPDATE conversations SET quality_score = 82 WHERE quality_score = 0 AND id = 1");
+        $db->exec("UPDATE conversations SET crm_status = 'active' WHERE crm_status NOT IN ('new', 'active', 'resolved')");
+        $db->exec("UPDATE submissions SET platform = COALESCE((SELECT platform FROM campaigns WHERE campaigns.id = submissions.campaign_id), 'TikTok / Reels') WHERE platform = ''");
+        $db->exec("UPDATE submissions SET views = 18400, likes = 1290, comments = 86, shares = 94 WHERE content_url = 'https://www.youtube.com/shorts/demo' AND views = 0");
+        $db->exec("UPDATE wallet_transactions SET description = 'Thưởng hiệu quả nội dung UGC', reference_type = 'submission' WHERE reference_type IS NOT NULL AND reference_type <> 'submission'");
     }
 
     private static function addColumn(PDO $db, string $table, string $column, string $definition): void
@@ -223,12 +206,10 @@ final class Database
                 $campaign->execute($row);
             }
 
-            $db->exec("INSERT INTO submissions (campaign_id, user_id, content_url, caption, status) VALUES (1, 2, 'https://www.tiktok.com/@demo/video/001', 'Góc học bài có nắng đẹp nhất CMC', 'pending')");
-            $db->exec("INSERT INTO submissions (campaign_id, user_id, content_url, caption, status, feedback) VALUES (2, 3, 'https://www.youtube.com/shorts/demo', 'Một ngày chạy deadline cùng sinh viên Marketing', 'approved', 'Nội dung tự nhiên, đúng brief.')");
+            $db->exec("INSERT INTO submissions (campaign_id, user_id, content_url, caption, status, platform, views, likes, comments, shares) VALUES (1, 2, 'https://www.tiktok.com/@demo/video/001', 'Góc học bài có nắng đẹp nhất CMC', 'pending', 'TikTok', 0, 0, 0, 0)");
+            $db->exec("INSERT INTO submissions (campaign_id, user_id, content_url, caption, status, feedback, platform, views, likes, comments, shares) VALUES (2, 3, 'https://www.youtube.com/shorts/demo', 'Một ngày chạy deadline cùng sinh viên Marketing', 'approved', 'Nội dung tự nhiên, đúng brief.', 'YouTube Shorts', 18400, 1290, 86, 94)");
 
-            $db->exec("INSERT INTO affiliate_links (user_id, campaign_id, code, clicks, leads) VALUES (2, 1, 'HAAN-CMC24', 126, 8), (3, 2, 'MINHANH-CMC', 214, 14)");
-            $db->exec("INSERT INTO leads (affiliate_id, full_name, phone, email, major, status) VALUES (1, 'Hoàng Gia Bảo', '0987654321', 'bao@example.com', 'Công nghệ thông tin', 'qualified'), (2, 'Đỗ Hương Giang', '0912345678', 'giang@example.com', 'Marketing', 'new')");
-            $db->exec("INSERT INTO wallet_transactions (user_id, type, points, description, reference_type, reference_id) VALUES (2, 'credit', 80, 'Lead hợp lệ từ chiến dịch Review không gian học tập', 'lead', 1), (2, 'credit', 50, 'Hoàn thành nhiệm vụ tháng 7', 'submission', 1), (3, 'credit', 140, '14 lead hợp lệ từ link giới thiệu', 'lead', 2), (3, 'credit', 80, 'Bài nộp đã được duyệt', 'submission', 2)");
+            $db->exec("INSERT INTO wallet_transactions (user_id, type, points, description, reference_type, reference_id) VALUES (2, 'credit', 50, 'Hoàn thành nhiệm vụ tháng 7', 'submission', 1), (3, 'credit', 120, 'Bài nộp UGC có hiệu quả tốt', 'submission', 2)");
             $db->exec("INSERT INTO conversations (prospect_id, ambassador_id, status, rating, last_message_at) VALUES (6, 3, 'open', NULL, CURRENT_TIMESTAMP)");
             $db->exec("INSERT INTO messages (conversation_id, sender_id, content, is_flagged) VALUES (1, 6, 'Chị ơi ngành Marketing có học nhiều toán không ạ?', 0), (1, 3, 'Chào em! Ngành có một số môn số liệu nền tảng, nhưng phần lớn tập trung vào tư duy khách hàng, nội dung và chiến lược. Chị có thể kể kỹ hơn về từng năm học nhé.', 0)");
 

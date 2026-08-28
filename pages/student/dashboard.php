@@ -31,11 +31,12 @@ $routeProgressByStatus = ['not_started' => 0, 'rejected' => 25, 'pending' => 75,
 $journeyProgress = $routeProgressByStatus[$routeStatus] ?? 0;
 $completedMilestones = (int) floor($journeyProgress / 25);
 $transactions = rows('SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY id DESC LIMIT 5', [$current['id']]);
-$clicks = (int) scalar('SELECT COALESCE(SUM(clicks),0) FROM affiliate_links WHERE user_id = ?', [$current['id']]);
-$leads = (int) scalar('SELECT COALESCE(SUM(leads),0) FROM affiliate_links WHERE user_id = ?', [$current['id']]);
-$conversionRate = $clicks > 0 ? ($leads / $clicks) * 100 : 0;
+$views = (int) scalar("SELECT COALESCE(SUM(views),0) FROM submissions WHERE user_id = ? AND status = 'approved'", [$current['id']]);
+$likes = (int) scalar("SELECT COALESCE(SUM(likes),0) FROM submissions WHERE user_id = ? AND status = 'approved'", [$current['id']]);
+$engagements = (int) scalar("SELECT COALESCE(SUM(likes + comments + shares),0) FROM submissions WHERE user_id = ? AND status = 'approved'", [$current['id']]);
+$engagementRate = $views > 0 ? ($engagements / $views) * 100 : 0;
 $leaderboard = rows(<<<'SQL'
-    SELECT u.id, u.name, u.ambassador_tier, COALESCE(w.points,0) AS points, COALESCE(a.leads,0) AS leads
+    SELECT u.id, u.name, u.ambassador_tier, COALESCE(w.points,0) AS points, COALESCE(a.views,0) AS views
     FROM users u
     LEFT JOIN (
         SELECT user_id, SUM(points) AS points
@@ -44,12 +45,13 @@ $leaderboard = rows(<<<'SQL'
         GROUP BY user_id
     ) w ON w.user_id = u.id
     LEFT JOIN (
-        SELECT user_id, SUM(leads) AS leads
-        FROM affiliate_links
+        SELECT user_id, SUM(views) AS views
+        FROM submissions
+        WHERE status = 'approved'
         GROUP BY user_id
     ) a ON a.user_id = u.id
     WHERE u.role IN ('student','ambassador')
-    ORDER BY points DESC
+    ORDER BY points DESC, views DESC
     LIMIT 5
 SQL);
 ?>
@@ -105,7 +107,7 @@ SQL);
             </article>
             <article class="route-stop <?= $routeStatus === 'approved' ? 'is-complete' : 'is-locked' ?>">
                 <span class="route-marker"><i class="bi <?= $routeStatus === 'approved' ? 'bi-check-lg' : 'bi-gift' ?>"></i></span>
-                <div class="route-stop-copy"><small><?= $routeStatus === 'approved' ? 'Đã hoàn tất' : 'Kết quả' ?></small><h3>Nhận điểm và ghi nhận leads</h3><p><?= $routeStatus === 'approved' ? 'Nhiệm vụ hiện tại đã được xác minh và ghi nhận.' : 'Mở khóa sau khi nội dung của nhiệm vụ hiện tại được duyệt.' ?></p></div>
+                <div class="route-stop-copy"><small><?= $routeStatus === 'approved' ? 'Đã hoàn tất' : 'Kết quả' ?></small><h3>Nhận điểm và theo dõi hiệu quả</h3><p><?= $routeStatus === 'approved' ? 'Nội dung đã được xác minh; bạn có thể theo dõi chỉ số UGC theo nền tảng.' : 'Mở khóa sau khi nội dung của nhiệm vụ hiện tại được duyệt.' ?></p></div>
                 <?php if ($routeStatus === 'approved'): ?><span class="status-label status-success">Đã ghi nhận</span><?php endif; ?>
             </article>
         </div>
@@ -135,16 +137,16 @@ SQL);
             <dl class="rail-stats">
                 <div><dt>Ví điểm</dt><dd><?= number_format($balance) ?></dd></div>
                 <div><dt>Bài đã nộp</dt><dd><?= $submissionCount ?></dd></div>
-                <div><dt>Lượt click</dt><dd><?= number_format($clicks) ?></dd></div>
-                <div><dt>Leads hợp lệ</dt><dd><?= number_format($leads) ?></dd></div>
+                <div><dt>Lượt xem</dt><dd><?= number_format($views) ?></dd></div>
+                <div><dt>Lượt thích</dt><dd><?= number_format($likes) ?></dd></div>
             </dl>
         </section>
 
         <section class="rail-section">
-            <div class="rail-heading"><h2>Affiliate của bạn</h2><span class="status-label status-info">Đang hoạt động</span></div>
-            <div class="rail-key-number"><strong><?= number_format($conversionRate, 1) ?>%</strong><span>Tỷ lệ chuyển đổi</span></div>
-            <div class="rail-list"><p><span>Tổng lượt click</span><strong><?= number_format($clicks) ?> clicks</strong></p><p><span>Leads đã ghi nhận</span><strong><?= number_format($leads) ?></strong></p></div>
-            <a class="rail-link" href="index.php?page=my-affiliate">Quản lý link <i class="bi bi-arrow-right"></i></a>
+            <div class="rail-heading"><h2>Hiệu quả nội dung</h2><span class="status-label status-info">Đã tổng hợp</span></div>
+            <div class="rail-key-number"><strong><?= number_format($engagementRate, 1) ?>%</strong><span>Tỷ lệ tương tác</span></div>
+            <div class="rail-list"><p><span>Tổng lượt xem</span><strong><?= number_format($views) ?> views</strong></p><p><span>Tương tác</span><strong><?= number_format($engagements) ?></strong></p></div>
+            <a class="rail-link" href="index.php?page=my-performance">Xem chỉ số <i class="bi bi-arrow-right"></i></a>
         </section>
 
         <section class="rail-section">
@@ -162,6 +164,6 @@ SQL);
 <section class="panel-card leaderboard-panel section-block">
     <div class="section-title-row"><div><h2>Bảng xếp hạng tích lũy</h2><p>Xếp theo tổng điểm đã được hệ thống xác minh.</p></div><span class="status-label status-neutral"><i class="bi bi-shield-check"></i> Dữ liệu đã kiểm tra</span></div>
     <div class="leaderboard-list">
-        <?php foreach ($leaderboard as $rank => $member): ?><div class="leaderboard-row <?= (int) $member['id'] === (int) $current['id'] ? 'is-me' : '' ?>"><span class="rank-number"><?= $rank + 1 ?></span><span class="avatar avatar-sm"><?= e(initials($member['name'])) ?></span><p><strong><?= e($member['name']) ?><?= (int) $member['id'] === (int) $current['id'] ? ' (Bạn)' : '' ?></strong><small><?= e(ucfirst($member['ambassador_tier'])) ?> · <?= (int) $member['leads'] ?> leads</small></p><b><?= number_format((int) $member['points']) ?> điểm</b></div><?php endforeach; ?>
+        <?php foreach ($leaderboard as $rank => $member): ?><div class="leaderboard-row <?= (int) $member['id'] === (int) $current['id'] ? 'is-me' : '' ?>"><span class="rank-number"><?= $rank + 1 ?></span><span class="avatar avatar-sm"><?= e(initials($member['name'])) ?></span><p><strong><?= e($member['name']) ?><?= (int) $member['id'] === (int) $current['id'] ? ' (Bạn)' : '' ?></strong><small><?= e(ucfirst($member['ambassador_tier'])) ?> · <?= number_format((int) $member['views']) ?> views</small></p><b><?= number_format((int) $member['points']) ?> điểm</b></div><?php endforeach; ?>
     </div>
 </section>

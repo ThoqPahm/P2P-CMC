@@ -4,7 +4,7 @@ $ambassadors = rows("SELECT * FROM users WHERE role = 'ambassador' AND status = 
 $stats = [
     'ambassadors' => scalar("SELECT COUNT(*) FROM users WHERE role = 'ambassador' AND status = 'active'"),
     'conversations' => scalar('SELECT COUNT(*) FROM conversations'),
-    'leads' => scalar('SELECT COUNT(*) FROM leads'),
+    'submissions' => scalar("SELECT COUNT(*) FROM submissions WHERE status = 'approved'"),
 ];
 ?>
 <section class="cmc-hero">
@@ -32,7 +32,7 @@ $stats = [
         <div class="cmc-proof-grid">
             <p><strong><?= (int) $stats['ambassadors'] ?></strong><span>đại sứ đang hoạt động</span></p>
             <p><strong><?= (int) $stats['conversations'] ?></strong><span>cuộc trò chuyện đã mở</span></p>
-            <p><strong><?= (int) $stats['leads'] ?></strong><span>bạn trẻ đã để lại nhu cầu</span></p>
+            <p><strong><?= (int) $stats['submissions'] ?></strong><span>nội dung sinh viên đã được duyệt</span></p>
             <p class="proof-statement"><i class="bi bi-person-check"></i><span>Người thật, thông tin thật, góc nhìn riêng</span></p>
         </div>
     </div>
