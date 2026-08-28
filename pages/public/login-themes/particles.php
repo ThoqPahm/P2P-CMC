@@ -23,7 +23,7 @@
                 <form method="post" action="actions.php?action=login" class="login-form" novalidate>
                     <?= csrf_field() ?>
                     <div class="login-field">
-                        <label class="form-label" for="loginEmail">Email CMC</label>
+                        <label class="form-label" for="loginEmail">Email</label>
                         <div class="input-icon"><i class="bi bi-envelope"></i><input class="form-control" id="loginEmail" type="email" name="email" autocomplete="username" placeholder="name@cmc.edu.vn" value="<?= e($demoEmail) ?>" required></div>
                     </div>
                     <div class="login-field">
@@ -44,7 +44,6 @@
                 </button>
                 <div class="demo-accounts">
                     <strong>Tài khoản demo</strong>
-                    <small>Mật khẩu: 123456</small>
                     <div><a href="index.php?page=login&amp;demo=admin"><i class="bi bi-building"></i> Admin</a><a href="index.php?page=login&amp;demo=student"><i class="bi bi-mortarboard"></i> Sinh viên</a><a href="index.php?page=login&amp;demo=ambassador"><i class="bi bi-chat-square-text"></i> Đại sứ</a></div>
                 </div>
             </div>
