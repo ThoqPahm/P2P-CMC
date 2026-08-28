@@ -243,9 +243,10 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .login-theme-particles .login-form-head { margin-bottom: 1.6rem; }
 .login-theme-particles .login-product-mark { margin: 0 0 1.8rem; color: var(--cmc-navy); font-family: "Syne", "Trebuchet MS", sans-serif; font-size: clamp(2.2rem, 3vw, 2.75rem); font-weight: 700; letter-spacing: -.04em; line-height: 1; text-align: center; }
 .login-theme-particles .login-product-mark span { color: var(--cmc-blue); }
-.login-theme-particles .login-form-head h1 { margin-bottom: .55rem; font-size: clamp(1.95rem, 2.7vw, 2.55rem); letter-spacing: -.04em; }
+.login-theme-particles .login-form-head h1 { margin-bottom: .55rem; font-size: clamp(1.8rem, 2.4vw, 2.3rem); letter-spacing: -.04em; }
 .login-theme-particles .login-form-head > p:last-child { color: #526a7d; font-size: .88rem; }
-.login-theme-particles .login-welcome-brand { color: var(--cmc-blue-dark); font-family: "Syne", "Trebuchet MS", sans-serif; font-size: .96em; font-weight: 700; letter-spacing: -.03em; }
+.login-theme-particles .login-welcome-brand { color: var(--cmc-navy); font-family: "Syne", "Trebuchet MS", sans-serif; font-size: .96em; font-weight: 700; letter-spacing: -.03em; }
+.login-theme-particles .login-welcome-brand > span { color: var(--cmc-blue); }
 .login-theme-particles .login-form { gap: 1rem; }
 .login-theme-particles .login-field { gap: .5rem; }
 .login-theme-particles .login-field .form-label { color: var(--cmc-navy); font-size: .76rem; font-weight: 700; }
@@ -253,6 +254,8 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .login-theme-particles .input-icon .form-control { height: 56px; padding-left: 3rem; color: var(--cmc-ink); background: #fff; border: 1px solid #c5d8e5; border-radius: 12px; font-size: .92rem; box-shadow: 0 3px 12px rgba(0,39,87,.035); transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease; }
 .login-theme-particles .input-icon .form-control:hover { border-color: #9dbdce; }
 .login-theme-particles .input-icon .form-control:focus { background: #fff; border-color: var(--cmc-blue); box-shadow: 0 0 0 4px rgba(0,143,213,.12); }
+.login-theme-particles .login-remember { width: fit-content; display: inline-flex; align-items: center; gap: .55rem; color: #526a7d; font-size: .76rem; font-weight: 650; cursor: pointer; user-select: none; }
+.login-theme-particles .login-remember input { width: 16px; height: 16px; margin: 0; accent-color: var(--cmc-blue-dark); cursor: pointer; }
 .login-theme-particles .login-submit { min-height: 56px; display: flex; align-items: center; justify-content: space-between; margin-top: .35rem; padding-inline: 1.25rem; background: #1387e6 linear-gradient(145deg, #0864d9 0%, #1387e6 58%, #42a5ec 100%); background-size: 150% 150%; border-color: #1387e6; border-radius: 12px; box-shadow: 0 12px 24px rgba(8,100,217,.22); font-size: .9rem; transition: background-position .24s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
 .login-theme-particles .login-submit:hover { background-position: 100% 50%; border-color: #0864d9; box-shadow: 0 14px 26px rgba(8,100,217,.28); }
 .login-theme-particles .login-submit i { transition: transform .18s ease; }
@@ -272,7 +275,7 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
     .login-theme-particles .internal-login-form { padding-block: 2rem; }
     .login-theme-particles .login-product-mark { margin-bottom: 1.15rem; font-size: 2.2rem; }
     .login-theme-particles .login-form-head { margin-bottom: 1.15rem; }
-    .login-theme-particles .login-form-head h1 { font-size: 2.05rem; }
+    .login-theme-particles .login-form-head h1 { font-size: 1.85rem; }
     .login-theme-particles .login-form { gap: .8rem; }
     .login-theme-particles .input-icon .form-control, .login-theme-particles .login-submit { height: 52px; min-height: 52px; }
     .login-theme-particles .login-divider { margin-block: .75rem; }

@@ -18,7 +18,7 @@
                 <div class="login-form-head">
                     <p class="login-product-mark"><span>e</span>Ambassador</p>
                     <h1 id="loginTitle">Đăng nhập</h1>
-                    <p>Chào mừng bạn trở lại <span class="login-welcome-brand">eAmbassador</span>.</p>
+                    <p>Chào mừng bạn trở lại <span class="login-welcome-brand"><span>e</span>Ambassador</span>.</p>
                 </div>
                 <form method="post" action="actions.php?action=login" class="login-form" novalidate>
                     <?= csrf_field() ?>
@@ -30,6 +30,7 @@
                         <div class="login-field-head"><label class="form-label" for="loginPassword">Mật khẩu</label><button class="password-toggle" type="button" data-password-toggle="loginPassword" data-toggle-label="visible" aria-label="Hiện mật khẩu" title="Hiện mật khẩu"><i class="bi bi-eye" aria-hidden="true"></i><span>Hiện</span></button></div>
                         <div class="input-icon"><i class="bi bi-lock"></i><input class="form-control" id="loginPassword" type="password" name="password" autocomplete="current-password" placeholder="Nhập mật khẩu" value="<?= $demoEmail ? '123456' : '' ?>" required></div>
                     </div>
+                    <label class="login-remember"><input type="checkbox" name="remember" value="1"><span>Ghi nhớ mật khẩu</span></label>
                     <button class="btn btn-brand btn-lg w-100 login-submit" type="submit"><span>Đăng nhập</span><i class="bi bi-arrow-right"></i></button>
                 </form>
                 <div class="login-divider" aria-hidden="true"><span>hoặc</span></div>
