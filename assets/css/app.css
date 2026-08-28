@@ -222,14 +222,14 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .lead-form-card { padding: 2rem; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
 
 /* Login theme: CMC Particle Logo */
-.login-theme-particles .internal-login-visual { background: linear-gradient(145deg, #087fc3 0%, #259fd9 58%, #9fe3f1 100%); cursor: grab; }
+.login-theme-particles .internal-login-visual { background: linear-gradient(145deg, #087fc3 0%, #259fd9 58%, #8fd8ec 100%); cursor: grab; }
 .login-theme-particles .internal-login-visual:active { cursor: grabbing; }
 .login-theme-particles .internal-login-visual::before { z-index: 0; inset: 0; background: none; filter: none; opacity: 1; }
 .login-theme-particles .internal-login-visual::after { z-index: 3; inset: 0; width: auto; height: auto; aspect-ratio: auto; background: none; border-radius: 0; filter: none; box-shadow: none; }
 .login-theme-particles .login-particle-atmosphere { position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; }
 .login-theme-particles .login-particle-atmosphere span { position: absolute; color: rgba(255,255,255,.09); font-size: clamp(4.5rem, 10vw, 8rem); font-weight: 800; letter-spacing: -.04em; line-height: .82; white-space: nowrap; }
 .login-theme-particles .login-particle-atmosphere span:first-child { top: 18%; left: -5%; }
-.login-theme-particles .login-particle-atmosphere span:last-child { right: 1%; bottom: 5%; }
+.login-theme-particles .login-particle-atmosphere span:last-child { right: -6%; bottom: 5%; }
 .login-theme-particles .login-particle-fallback { position: absolute; z-index: 1; inset: 50% auto auto 50%; width: min(74%, 460px); height: auto; opacity: .26; filter: brightness(0) invert(1); transform: translate(-50%, -43%); transition: opacity .3s ease; }
 .login-theme-particles .internal-login-visual.is-particle-ready .login-particle-fallback { opacity: 0; }
 .login-theme-particles .login-particle-canvas { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; }
