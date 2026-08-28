@@ -64,24 +64,20 @@
         };
     })();
 
-    const createHoverColorRamp = (hexColor, steps = 8) => {
-        const value = Number.parseInt(hexColor.slice(1), 16);
-        const red = value >> 16;
-        const green = (value >> 8) & 255;
-        const blue = value & 255;
+    const createColorRamp = (startColor, endColor, steps = 16) => {
+        const startValue = Number.parseInt(startColor.slice(1), 16);
+        const endValue = Number.parseInt(endColor.slice(1), 16);
+        const startChannels = [startValue >> 16, (startValue >> 8) & 255, startValue & 255];
+        const endChannels = [endValue >> 16, (endValue >> 8) & 255, endValue & 255];
         return Array.from({ length: steps + 1 }, (_, index) => {
             const mix = index / steps;
-            const channel = (start) => Math.round(start + (255 - start) * mix).toString(16).padStart(2, '0');
-            return `#${channel(red)}${channel(green)}${channel(blue)}`;
+            const channel = (channelIndex) => Math.round(
+                startChannels[channelIndex] + (endChannels[channelIndex] - startChannels[channelIndex]) * mix
+            ).toString(16).padStart(2, '0');
+            return `#${channel(0)}${channel(1)}${channel(2)}`;
         });
     };
-    const hoverColorRamps = {
-        white: createHoverColorRamp('#ffffff'),
-        feature: createHoverColorRamp('#e8fbff'),
-        fill: createHoverColorRamp('#c9f6fb'),
-        depthLight: createHoverColorRamp('#a7eef5'),
-        depthDark: createHoverColorRamp('#0874ad')
-    };
+    const lightColorRamp = createColorRamp('#0874ad', '#ffffff');
 
     let lastDrawTime = 0;
 
@@ -112,6 +108,12 @@
         const sinY = Math.sin(rotationY);
         const cosZ = Math.cos(rotationZ);
         const sinZ = Math.sin(rotationZ);
+        const surfaceNormalX = -sinY;
+        const surfaceNormalY = cosY * sinX;
+        const surfaceNormalZ = -cosY * cosX;
+        const surfaceLight = Math.max(0, Math.min(1,
+            (surfaceNormalX * -.35 + surfaceNormalY * -.45 + surfaceNormalZ * -.82 - .12) / .7
+        ));
         const focalLength = 620;
         const interactionRadius = Math.max(84, Math.min(132, Math.min(canvasWidth, canvasHeight) * .22));
         let hoverSettled = true;
@@ -138,7 +140,6 @@
             const fontWeight = particle.layer === 'feature' ? 850 : (particle.layer === 'fill' ? 800 : 750);
             let hoverTargetX = 0;
             let hoverTargetY = 0;
-            let hoverStrength = 0;
 
             if (pointerActive) {
                 const deltaX = baseScreenX - pointerX;
@@ -147,7 +148,7 @@
                 if (distance < interactionRadius) {
                     const directionX = distance > .01 ? deltaX / distance : Math.cos(particle.tone * Math.PI * 2);
                     const directionY = distance > .01 ? deltaY / distance : Math.sin(particle.tone * Math.PI * 2);
-                    hoverStrength = (1 - distance / interactionRadius) ** 2;
+                    const hoverStrength = (1 - distance / interactionRadius) ** 2;
                     const maximumPush = particle.layer === 'feature' ? 18 : (particle.layer === 'fill' ? 12.5 : 8.5);
                     hoverTargetX = directionX * hoverStrength * maximumPush;
                     hoverTargetY = directionY * hoverStrength * maximumPush;
@@ -156,32 +157,32 @@
 
             particle.hoverX = (particle.hoverX || 0) + (hoverTargetX - (particle.hoverX || 0)) * hoverEase;
             particle.hoverY = (particle.hoverY || 0) + (hoverTargetY - (particle.hoverY || 0)) * hoverEase;
-            particle.hoverStrength = (particle.hoverStrength || 0) + (hoverStrength - (particle.hoverStrength || 0)) * hoverEase;
             if (Math.abs(hoverTargetX - particle.hoverX) > .1
-                || Math.abs(hoverTargetY - particle.hoverY) > .1
-                || Math.abs(hoverStrength - particle.hoverStrength) > .008) {
+                || Math.abs(hoverTargetY - particle.hoverY) > .1) {
                 hoverSettled = false;
             }
 
             const screenX = baseScreenX + particle.hoverX;
             const screenY = baseScreenY + particle.hoverY;
 
-            const hoverColorStep = Math.min(8, Math.round(Math.sqrt(particle.hoverStrength) * 8));
+            const positionLight = Math.max(0, Math.min(1,
+                .5 - tiltedX / Math.max(1, scale * 1280) - tiltedY / Math.max(1, scale * 960)
+            ));
+            const lightStrength = Math.max(0, Math.min(1,
+                .12 + depthRatio * .68 + surfaceLight * .14 + positionLight * .06
+            ));
+            const lightColorStep = Math.min(16, Math.round(lightStrength * 16));
             let baseAlpha;
-            let colorRamp;
             particleContext.font = `${fontWeight} ${fontSize}px "Segoe UI Variable", "Segoe UI", sans-serif`;
             if (particle.layer === 'feature') {
                 baseAlpha = (.96 + depthRatio * .04) * (.98 + particle.opacity * .02);
-                colorRamp = particle.tone > .76 ? hoverColorRamps.white : hoverColorRamps.feature;
             } else if (particle.layer === 'fill') {
                 baseAlpha = (.78 + depthRatio * .18) * (.96 + particle.opacity * .04);
-                colorRamp = particle.tone > .68 ? hoverColorRamps.white : hoverColorRamps.fill;
             } else {
                 baseAlpha = (.38 + depthRatio * .18) * (.9 + particle.opacity * .1);
-                colorRamp = depthRatio > .58 ? hoverColorRamps.depthLight : hoverColorRamps.depthDark;
             }
-            particleContext.globalAlpha = Math.min(1, baseAlpha + particle.hoverStrength * .34);
-            particleContext.fillStyle = colorRamp[hoverColorStep];
+            particleContext.globalAlpha = Math.min(1, baseAlpha * (.84 + lightStrength * .16));
+            particleContext.fillStyle = lightColorRamp[lightColorStep];
             particleContext.fillText(particle.label, screenX, screenY);
         }
 

@@ -155,7 +155,7 @@ function login_theme_registry(): array
             'name' => 'CMC Particle Logo',
             'description' => 'Biểu trưng CMC tạo từ các từ khóa chuyển động theo con trỏ.',
             'file' => 'pages/public/login-themes/particles.php',
-            'script' => 'assets/js/login-particles.js?v=7',
+            'script' => 'assets/js/login-particles.js?v=8',
         ],
     ];
 }
