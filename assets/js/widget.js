@@ -1,8 +1,9 @@
 (() => {
     'use strict';
 
-    const config = window.eAmbassadorWidget || { token: '', ambassadors: [] };
+    const config = window.eAmbassadorWidget || { token: '', ambassadors: [], content: [] };
     const ambassadors = Array.isArray(config.ambassadors) ? config.ambassadors : [];
+    const publishedContent = Array.isArray(config.content) ? config.content : [];
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
     const views = $$('.widget-view');
@@ -11,8 +12,11 @@
     let backTarget = null;
     let selectedAmbassador = null;
     let availability = 'all';
+    let contentType = 'all';
     let conversation = null;
     let messagePoll = null;
+    let offlineContact = null;
+    let pendingOfflineMessage = '';
 
     const escapeHtml = (value) => {
         const element = document.createElement('div');
@@ -33,6 +37,21 @@
         toast.textContent = message;
         toast.classList.remove('is-hidden');
         window.setTimeout(() => toast.classList.add('is-hidden'), 2600);
+    };
+
+    const stopMessagePolling = () => {
+        if (!messagePoll) return;
+        window.clearInterval(messagePoll);
+        messagePoll = null;
+    };
+
+    const startMessagePolling = () => {
+        stopMessagePolling();
+        messagePoll = window.setInterval(loadMessages, 4000);
+    };
+
+    const setActiveNavigation = (activeButton) => {
+        $$('.widget-navigation button').forEach((button) => button.classList.toggle('is-active', button === activeButton));
     };
 
     const unique = (key) => [...new Set(ambassadors.map((item) => item[key]).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), 'vi'));
@@ -69,10 +88,54 @@
                 <span class="ambassador-card-head"><span class="ambassador-avatar">${escapeHtml(item.initials)}</span><span class="ambassador-copy"><strong>${escapeHtml(item.name)} <i class="bi bi-patch-check-fill"></i></strong><span>${escapeHtml(item.major)} · Năm ${item.study_year}</span></span><span class="availability ${item.online ? 'online' : 'offline'}"><i></i>${item.online ? 'Online' : 'Offline'}</span></span>
                 <span class="ambassador-bio">${escapeHtml(item.bio || 'Sẵn sàng chia sẻ trải nghiệm học tập và đời sống tại CMC.')}</span>
                 <span class="ambassador-facts"><span><small>Quê quán</small><strong>${escapeHtml(item.hometown)}</strong></span><span><small>Có thể chia sẻ</small><strong>${escapeHtml((item.interests || []).slice(0, 2).join(', ') || 'Đời sống CMC')}</strong></span></span>
-                <span class="ambassador-cta">${item.online ? `Chat với ${escapeHtml(item.name)}` : 'Xem hồ sơ và đặt lịch'} <i class="bi bi-arrow-right"></i></span>
+                <span class="ambassador-cta">${item.online ? `Chat với ${escapeHtml(item.name)}` : 'Nhắn tin hoặc đặt lịch'} <i class="bi bi-arrow-right"></i></span>
             </button>`).join('');
         $('#widgetEmpty').classList.toggle('is-hidden', filtered.length > 0);
         $$('.widget-ambassador').forEach((button) => button.addEventListener('click', () => openProfile(Number(button.dataset.ambassadorId))));
+    };
+
+    const prepareChatForm = () => {
+        if (!selectedAmbassador) return;
+        $('#chatAmbassadorId').value = selectedAmbassador.id;
+        $('#chatMajor').value = selectedAmbassador.major;
+        $('#chatStartTitle').textContent = 'Bắt đầu cuộc trò chuyện';
+        $('#chatStartDescription').textContent = 'Giới thiệu ngắn để đại sứ hiểu câu hỏi của bạn.';
+        $('#chatSubmitLabel').textContent = 'Kết nối với đại sứ';
+    };
+
+    const openSchedule = (previous = 'profileView', contact = null) => {
+        if (!selectedAmbassador) return;
+        const form = $('#scheduleForm');
+        $('#scheduleAmbassadorId').value = selectedAmbassador.id;
+        $('#scheduleAmbassadorName').textContent = selectedAmbassador.name;
+        if (contact) {
+            form.elements.namedItem('name').value = contact.name || '';
+            form.elements.namedItem('email').value = contact.email || '';
+            form.elements.namedItem('question').value = contact.question || '';
+        }
+        showView('scheduleView', previous);
+    };
+
+    const setChatHeader = (online) => {
+        $('#chatHeaderAvatar').textContent = selectedAmbassador.initials;
+        $('#chatHeaderName').textContent = selectedAmbassador.name;
+        const status = $('#chatHeaderStatus');
+        status.classList.toggle('is-offline', !online);
+        status.innerHTML = `<i></i> ${online ? 'Đang online' : 'Đang offline · sẽ phản hồi sau'}`;
+    };
+
+    const openOfflineChat = () => {
+        stopMessagePolling();
+        conversation = null;
+        offlineContact = null;
+        pendingOfflineMessage = '';
+        setChatHeader(false);
+        const list = $('#widgetMessages');
+        delete list.dataset.loaded;
+        list.innerHTML = `<div class="offline-chat-note"><i class="bi bi-clock-history"></i><p><strong>${escapeHtml(selectedAmbassador.name)} đang offline</strong><span>Cứ nhắn như bình thường. eAmbassador sẽ báo qua email khi có phản hồi.</span></p></div>`;
+        $('#widgetMessageInput').value = '';
+        showView('chatView', 'profileView');
+        $('#widgetMessageInput').focus();
     };
 
     const openProfile = (id) => {
@@ -87,18 +150,53 @@
         $('#profileStatus').innerHTML = `<i></i> ${selectedAmbassador.online ? 'Đang online' : 'Hiện đang offline'}`;
         $('#profileAction').innerHTML = selectedAmbassador.online
             ? '<button class="primary-action" id="openChatForm" type="button"><i class="bi bi-chat-dots-fill"></i> Chat ngay với đại sứ</button>'
-            : '<button class="secondary-action" id="openScheduleForm" type="button"><i class="bi bi-calendar2-check"></i> Đặt lịch tư vấn</button>';
+            : '<button class="primary-action" id="openChatForm" type="button"><i class="bi bi-envelope-fill"></i> Gửi tin nhắn</button><button class="secondary-action" id="openScheduleForm" type="button"><i class="bi bi-calendar2-check"></i> Đặt lịch tư vấn</button>';
         $('#openChatForm')?.addEventListener('click', () => {
-            $('#chatAmbassadorId').value = selectedAmbassador.id;
-            $('#chatMajor').value = selectedAmbassador.major;
-            showView('chatStartView', 'profileView');
+            if (selectedAmbassador.online) {
+                prepareChatForm();
+                showView('chatStartView', 'profileView');
+            } else {
+                openOfflineChat();
+            }
         });
-        $('#openScheduleForm')?.addEventListener('click', () => {
-            $('#scheduleAmbassadorId').value = selectedAmbassador.id;
-            $('#scheduleAmbassadorName').textContent = selectedAmbassador.name;
-            showView('scheduleView', 'profileView');
-        });
+        $('#openScheduleForm')?.addEventListener('click', () => openSchedule());
         showView('profileView', 'directoryView');
+    };
+
+    const renderContent = () => {
+        const search = $('#contentSearch').value.trim().toLocaleLowerCase('vi');
+        const filtered = publishedContent.filter((item) => {
+            const haystack = [item.title, item.excerpt, item.author, item.authorMajor, item.format].join(' ').toLocaleLowerCase('vi');
+            return (!search || haystack.includes(search)) && (contentType === 'all' || item.type === contentType);
+        });
+        $('#contentGrid').innerHTML = filtered.map((item) => `
+            <button class="content-card" type="button" data-content-id="${item.id}">
+                <span class="content-card-cover type-${item.type}"><span>${escapeHtml(item.format)}</span><i class="bi ${item.type === 'blog' ? 'bi-journal-richtext' : 'bi-play-circle'}"></i></span>
+                <span class="content-card-body"><span class="content-card-title">${escapeHtml(item.title)}</span><span class="content-card-excerpt">${escapeHtml(item.excerpt)}</span><span class="content-card-author"><span>${escapeHtml(item.authorInitials)}</span><span><strong>${escapeHtml(item.author)}</strong><small>${escapeHtml(item.authorMajor)} · ${escapeHtml(item.publishedAt)}</small></span></span><span class="content-card-meta"><span><i class="bi bi-eye"></i> ${Number(item.views).toLocaleString('vi-VN')}</span><span><i class="bi bi-heart"></i> ${Number(item.likes).toLocaleString('vi-VN')}</span><i class="bi bi-arrow-right"></i></span></span>
+            </button>`).join('');
+        $('#contentEmpty').classList.toggle('is-hidden', filtered.length > 0);
+        $$('.content-card').forEach((button) => button.addEventListener('click', () => openContent(Number(button.dataset.contentId))));
+    };
+
+    const openContent = (id) => {
+        const item = publishedContent.find((content) => content.id === id);
+        if (!item) return;
+        $('#detailFormat').textContent = item.format;
+        $('#detailIcon').className = `bi ${item.type === 'blog' ? 'bi-journal-richtext' : 'bi-play-circle'}`;
+        $('#detailTitle').textContent = item.title;
+        $('#detailExcerpt').textContent = item.excerpt;
+        $('#detailAuthorAvatar').textContent = item.authorInitials;
+        $('#detailAuthor').textContent = item.author;
+        $('#detailAuthorMeta').textContent = `${item.authorMajor} · ${item.publishedAt}`;
+        const body = String(item.body || '').trim();
+        $('#detailBody').innerHTML = body
+            ? body.split(/\n{2,}/).map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, '<br>')}</p>`).join('')
+            : `<p>Nội dung này được đại sứ chia sẻ trên ${escapeHtml(item.format)}. Bạn có thể mở bài đăng gốc để xem đầy đủ.</p>`;
+        const source = $('#detailSource');
+        const hasExternalSource = /^https?:\/\//i.test(item.url || '');
+        source.classList.toggle('is-hidden', !hasExternalSource);
+        if (hasExternalSource) source.href = item.url;
+        showView('contentDetailView', 'contentView');
     };
 
     const api = async (action, data = {}, method = 'POST') => {
@@ -137,29 +235,55 @@
         }
     };
 
+    const showOfflineEmailPrompt = (message) => {
+        pendingOfflineMessage = message;
+        $('#offlineEmailStep').classList.remove('is-hidden');
+        $('#offlineSentStep').classList.add('is-hidden');
+        $('#offlineEmailRecipientName').textContent = selectedAmbassador.name;
+        $('#offlineEmailError').classList.add('is-hidden');
+        const dialog = $('#offlineMessageDialog');
+        dialog.showModal();
+        $('#offlineReplyEmail').focus();
+    };
+
+    const showOfflineSentConfirmation = (contact) => {
+        offlineContact = contact;
+        $('#offlineEmailStep').classList.add('is-hidden');
+        $('#offlineSentStep').classList.remove('is-hidden');
+        $('#offlineRecipientName').textContent = selectedAmbassador.name;
+        $('#offlineNotificationEmail').textContent = contact.email;
+        const dialog = $('#offlineMessageDialog');
+        if (!dialog.open) dialog.showModal();
+    };
+
     $('#widgetChatForm').addEventListener('submit', async (event) => {
         event.preventDefault();
         const form = event.currentTarget;
         const button = $('button[type="submit"]', form);
         const error = $('#chatError');
+        const data = Object.fromEntries(new FormData(form).entries());
         error.classList.add('is-hidden');
         button.disabled = true;
-        button.innerHTML = '<i class="bi bi-arrow-repeat"></i> Đang kết nối...';
+        button.innerHTML = `<i class="bi bi-arrow-repeat"></i> ${selectedAmbassador.online ? 'Đang kết nối...' : 'Đang gửi...'}`;
         try {
-            const result = await api('widget_start_chat', Object.fromEntries(new FormData(form).entries()));
-            conversation = { id: result.conversation_id, token: result.conversation_token };
-            $('#chatHeaderAvatar').textContent = selectedAmbassador.initials;
-            $('#chatHeaderName').textContent = selectedAmbassador.name;
+            const result = await api('widget_start_chat', data);
+            const ambassadorOnline = Boolean(result.ambassador_online);
+            conversation = { id: result.conversation_id, token: result.conversation_token, ambassadorOnline };
+            setChatHeader(ambassadorOnline);
             showView('chatView', 'profileView');
             await loadMessages();
-            messagePoll = window.setInterval(loadMessages, 4000);
-            $('#widgetMessageInput').focus();
+            startMessagePolling();
+            if (ambassadorOnline) {
+                $('#widgetMessageInput').focus();
+            } else {
+                showOfflineSentConfirmation({ name: data.name, email: data.email, question: data.message });
+            }
         } catch (caught) {
             error.textContent = caught.message;
             error.classList.remove('is-hidden');
         } finally {
             button.disabled = false;
-            button.innerHTML = 'Kết nối với đại sứ <i class="bi bi-arrow-right"></i>';
+            button.innerHTML = `<span id="chatSubmitLabel">${selectedAmbassador.online ? 'Kết nối với đại sứ' : 'Gửi tin nhắn'}</span><i class="bi bi-arrow-right"></i>`;
         }
     });
 
@@ -167,7 +291,11 @@
         event.preventDefault();
         const input = $('#widgetMessageInput');
         const content = input.value.trim();
-        if (!content || !conversation) return;
+        if (!content) return;
+        if (!conversation) {
+            showOfflineEmailPrompt(content);
+            return;
+        }
         input.disabled = true;
         try {
             await api('widget_send_message', { conversation_id: conversation.id, conversation_token: conversation.token, content });
@@ -178,6 +306,40 @@
         } finally {
             input.disabled = false;
             input.focus();
+        }
+    });
+
+    $('#offlineEmailForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const email = $('#offlineReplyEmail').value.trim();
+        const button = $('button[type="submit"]', form);
+        const error = $('#offlineEmailError');
+        error.classList.add('is-hidden');
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-arrow-repeat"></i> Đang gửi...';
+        try {
+            const result = await api('widget_start_chat', {
+                ambassador_id: selectedAmbassador.id,
+                name: 'Khách tư vấn',
+                email,
+                major: selectedAmbassador.major,
+                message: pendingOfflineMessage,
+            });
+            const ambassadorOnline = Boolean(result.ambassador_online);
+            conversation = { id: result.conversation_id, token: result.conversation_token, ambassadorOnline };
+            setChatHeader(ambassadorOnline);
+            offlineContact = { name: '', email, question: pendingOfflineMessage };
+            $('#widgetMessageInput').value = '';
+            await loadMessages();
+            startMessagePolling();
+            showOfflineSentConfirmation(offlineContact);
+        } catch (caught) {
+            error.textContent = caught.message;
+            error.classList.remove('is-hidden');
+        } finally {
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-send-fill"></i> Gửi tin nhắn';
         }
     });
 
@@ -205,29 +367,75 @@
     ['#widgetSearch', '#majorFilter', '#hometownFilter', '#yearFilter'].forEach((selector) => $(selector).addEventListener('input', renderAmbassadors));
     $$('[data-availability]').forEach((button) => button.addEventListener('click', () => {
         availability = button.dataset.availability;
-        $$('[data-availability]').forEach((item) => item.classList.toggle('is-active', item === button));
+        setActiveNavigation(button);
         renderAmbassadors();
-        if (currentView === 'chatView' && messagePoll) window.clearInterval(messagePoll);
+        if (currentView === 'chatView') stopMessagePolling();
         if (currentView !== 'directoryView') showView('directoryView');
     }));
+    $('[data-widget-tab="content"]').addEventListener('click', (event) => {
+        setActiveNavigation(event.currentTarget);
+        if (currentView === 'chatView') stopMessagePolling();
+        renderContent();
+        showView('contentView');
+    });
     $('#clearFilters').addEventListener('click', () => {
         $('#widgetSearch').value = '';
         $('#majorFilter').value = '';
         $('#hometownFilter').value = '';
         $('#yearFilter').value = '';
         availability = 'all';
-        $$('[data-availability]').forEach((item) => item.classList.toggle('is-active', item.dataset.availability === 'all'));
+        const allButton = $('[data-availability="all"]');
+        setActiveNavigation(allButton);
         renderAmbassadors();
     });
+    $('#contentSearch').addEventListener('input', renderContent);
+    $$('[data-content-type]').forEach((button) => button.addEventListener('click', () => {
+        contentType = button.dataset.contentType;
+        $$('[data-content-type]').forEach((item) => item.classList.toggle('is-active', item === button));
+        renderContent();
+    }));
+    $('#clearContentFilters').addEventListener('click', () => {
+        $('#contentSearch').value = '';
+        contentType = 'all';
+        $$('[data-content-type]').forEach((item) => item.classList.toggle('is-active', item.dataset.contentType === 'all'));
+        renderContent();
+    });
     backButton.addEventListener('click', () => {
-        if (currentView === 'chatView' && messagePoll) window.clearInterval(messagePoll);
-        showView(backTarget || 'directoryView', backTarget === 'profileView' ? 'directoryView' : null);
+        const target = backTarget || 'directoryView';
+        if (currentView === 'chatView') stopMessagePolling();
+        showView(target, backTarget === 'profileView' ? 'directoryView' : null);
+        if (target === 'chatView' && conversation) {
+            loadMessages();
+            startMessagePolling();
+        }
     });
     $('#backToDirectory').addEventListener('click', () => showView('directoryView'));
+    $('#offlineDialogClose').addEventListener('click', () => $('#offlineMessageDialog').close());
+    $('#scheduleBeforeMessage').addEventListener('click', () => {
+        offlineContact = { name: '', email: $('#offlineReplyEmail').value.trim(), question: pendingOfflineMessage };
+        $('#offlineMessageDialog').close();
+        openSchedule('chatView', offlineContact);
+    });
+    $('#continueOfflineChat').addEventListener('click', () => {
+        $('#offlineMessageDialog').close();
+        $('#widgetMessageInput').focus();
+    });
+    $('#scheduleFromMessage').addEventListener('click', () => {
+        $('#offlineMessageDialog').close();
+        stopMessagePolling();
+        openSchedule('chatView', offlineContact);
+    });
     $('#widgetClose').addEventListener('click', () => window.parent.postMessage({ type: 'eambassador:close' }, '*'));
 
     const minimumDate = new Date(Date.now() + (60 * 60 * 1000));
     minimumDate.setMinutes(minimumDate.getMinutes() - minimumDate.getTimezoneOffset());
     $('#preferredAt').min = minimumDate.toISOString().slice(0, 16);
     renderAmbassadors();
+    renderContent();
+    const contentMatch = window.location.hash.match(/^#content-(\d+)$/);
+    if (contentMatch) {
+        const contentButton = $('[data-widget-tab="content"]');
+        setActiveNavigation(contentButton);
+        openContent(Number(contentMatch[1]));
+    }
 })();

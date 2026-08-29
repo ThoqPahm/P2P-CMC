@@ -40,8 +40,8 @@ Tất cả tài khoản dùng mật khẩu `123456`.
 
 - Admin: quản lý sinh viên, đại sứ, chiến dịch/brief, kho UGC, chỉ số views/likes/tương tác, tính bonus, phân hạng Junior/Senior, chính sách, kiểm duyệt hội thoại và lịch tư vấn từ widget website.
 - Sinh viên: nhận nhiệm vụ, dùng AI Copilot tạo ba hướng kịch bản và kiểm tra brand voice, nộp TikTok/Reels/Shorts, theo dõi hiệu quả nội dung, bảng xếp hạng và ví điểm.
-- Đại sứ: toàn bộ chức năng sinh viên, cộng thêm inbox P2P, quality score hội thoại và trạng thái hỗ trợ.
-- Học sinh THPT: dùng widget nhúng trên website chính thức để lọc đại sứ theo ngành, quê quán, khóa và trạng thái; chat với người đang online hoặc đặt lịch với người đang offline.
+- Đại sứ: toàn bộ chức năng sinh viên, cộng thêm inbox P2P, quality score hội thoại, trạng thái hỗ trợ và trình soạn blog đưa trải nghiệm đã duyệt lên widget.
+- Học sinh THPT: dùng widget nhúng trên website chính thức để lọc đại sứ theo ngành, quê quán, khóa và trạng thái; đọc Content đã duyệt; chat với người đang online hoặc đặt lịch với người đang offline.
 - Hiệu quả UGC: tập trung lượt xem, lượt thích, bình luận và chia sẻ theo bài đăng, chiến dịch và nền tảng.
 
 ## Cấu trúc

@@ -26,7 +26,7 @@ Nền tảng tập trung nội dung UGC, chỉ số đa nền tảng, hội tho�
 - Người dùng nội bộ đăng nhập theo vai trò và làm việc trong app shell trên desktop hoặc mobile web.
 - Sinh viên thường xuyên xem nhiệm vụ, brief, trạng thái bài nộp, lượt xem, lượt thích, tương tác và ví điểm.
 - Admin cần quét nhanh trạng thái hệ thống, xử lý danh sách, đánh giá nội dung và điều phối chính sách.
-- Học sinh THPT dùng widget nhúng trên website chính thức để tìm người phù hợp, trò chuyện khi đại sứ online hoặc đặt lịch khi đại sứ offline.
+- Học sinh THPT dùng widget nhúng trên website chính thức để tìm người phù hợp, đọc blog và UGC đã duyệt, trò chuyện khi đại sứ online hoặc đặt lịch khi đại sứ offline.
 
 ## Capabilities and Constraints
 

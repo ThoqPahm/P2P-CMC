@@ -40,9 +40,9 @@ try {
     switch ($action) {
         case 'widget_start_chat':
             $ambassadorId = (int) ($_POST['ambassador_id'] ?? 0);
-            $ambassador = rows("SELECT id FROM users WHERE id = ? AND role = 'ambassador' AND status = 'active' AND is_online = 1", [$ambassadorId])[0] ?? null;
+            $ambassador = rows("SELECT id, is_online FROM users WHERE id = ? AND role = 'ambassador' AND status = 'active'", [$ambassadorId])[0] ?? null;
             if (!$ambassador) {
-                throw new InvalidArgumentException('Đại sứ hiện đang offline. Bạn có thể đặt lịch tư vấn thay thế.');
+                throw new InvalidArgumentException('Đại sứ này hiện chưa sẵn sàng nhận tin nhắn.');
             }
             $name = trim((string) ($_POST['name'] ?? ''));
             $email = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
@@ -76,7 +76,13 @@ try {
                 $statement->execute([$conversationId, $prospectId, mb_substr($firstMessage, 0, 1000), $flagged]);
                 $db->prepare('UPDATE conversations SET last_message_at = CURRENT_TIMESTAMP, quality_score = ? WHERE id = ?')->execute([$flagged ? 34 : 64, $conversationId]);
             }
-            json_response(['ok' => true, 'conversation_id' => $conversationId, 'conversation_token' => $conversationToken, 'current_user_id' => $prospectId]);
+            json_response([
+                'ok' => true,
+                'conversation_id' => $conversationId,
+                'conversation_token' => $conversationToken,
+                'current_user_id' => $prospectId,
+                'ambassador_online' => (bool) $ambassador['is_online'],
+            ]);
 
         case 'widget_messages':
             verify_widget_access();

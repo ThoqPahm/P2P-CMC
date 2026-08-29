@@ -81,6 +81,31 @@ try {
             flash('success', 'Bài của bạn đã được gửi và đang chờ duyệt.');
             redirect('index.php?page=my-submissions');
 
+        case 'submit_blog':
+            require_auth(['ambassador']);
+            $campaignId = (int) ($_POST['campaign_id'] ?? 0);
+            $title = trim((string) ($_POST['blog_title'] ?? ''));
+            $excerpt = trim((string) ($_POST['blog_excerpt'] ?? ''));
+            $body = trim((string) ($_POST['blog_body'] ?? ''));
+            $sourceUrl = trim((string) ($_POST['content_url'] ?? ''));
+            if ($campaignId < 1 || mb_strlen($title) < 8 || mb_strlen($excerpt) < 20 || mb_strlen($body) < 120) {
+                throw new InvalidArgumentException('Hãy chọn brief và viết tiêu đề, phần giới thiệu, nội dung blog đầy đủ hơn.');
+            }
+            if ($sourceUrl !== '' && !filter_var($sourceUrl, FILTER_VALIDATE_URL)) {
+                throw new InvalidArgumentException('Đường dẫn tham khảo chưa hợp lệ.');
+            }
+            $campaign = rows('SELECT id FROM campaigns WHERE id = ? AND status = ?', [$campaignId, 'active'])[0] ?? null;
+            if (!$campaign) {
+                throw new RuntimeException('Brief này không còn hoạt động.');
+            }
+            $statement = $db->prepare("INSERT INTO submissions (campaign_id, user_id, content_url, caption, platform, content_type, blog_title, blog_excerpt, blog_body) VALUES (?, ?, '', ?, 'Blog', 'blog', ?, ?, ?)");
+            $statement->execute([$campaignId, user()['id'], $excerpt, $title, $excerpt, $body]);
+            $submissionId = (int) $db->lastInsertId();
+            $contentUrl = $sourceUrl !== '' ? $sourceUrl : 'index.php?page=widget#content-' . $submissionId;
+            $db->prepare('UPDATE submissions SET content_url = ? WHERE id = ?')->execute([$contentUrl, $submissionId]);
+            flash('success', 'Bài blog đã được gửi và sẽ xuất hiện trong widget sau khi được duyệt.');
+            redirect('index.php?page=my-submissions');
+
         case 'review_submission':
             require_auth(['admin']);
             $submissionId = (int) ($_POST['submission_id'] ?? 0);

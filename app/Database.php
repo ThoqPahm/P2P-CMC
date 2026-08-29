@@ -161,6 +161,10 @@ final class Database
         self::addColumn($db, 'submissions', 'shares', 'INTEGER NOT NULL DEFAULT 0');
         self::addColumn($db, 'submissions', 'platform', "TEXT NOT NULL DEFAULT ''");
         self::addColumn($db, 'submissions', 'bonus_points', 'INTEGER NOT NULL DEFAULT 0');
+        self::addColumn($db, 'submissions', 'content_type', "TEXT NOT NULL DEFAULT 'social'");
+        self::addColumn($db, 'submissions', 'blog_title', 'TEXT');
+        self::addColumn($db, 'submissions', 'blog_excerpt', 'TEXT');
+        self::addColumn($db, 'submissions', 'blog_body', 'TEXT');
         self::addColumn($db, 'conversations', 'quality_score', 'INTEGER NOT NULL DEFAULT 0');
         self::addColumn($db, 'conversations', 'crm_status', "TEXT NOT NULL DEFAULT 'new'");
         self::addColumn($db, 'conversations', 'public_token', 'TEXT');
@@ -170,6 +174,24 @@ final class Database
         if ($count === 0) {
             self::seed($db);
         }
+
+        $db->exec(<<<'SQL'
+            INSERT INTO submissions (
+                campaign_id, user_id, content_url, caption, status, feedback, platform,
+                content_type, blog_title, blog_excerpt, blog_body
+            )
+            SELECT
+                2, 4, '',
+                'Một góc nhìn thật về nhịp học, đồ án và cách chủ động hỏi khi chưa hiểu bài.',
+                'approved', 'Bài viết rõ ràng, gần gũi và phù hợp để chia sẻ trong widget.', 'Blog',
+                'blog',
+                'Một ngày học Công nghệ thông tin tại CMC diễn ra như thế nào?',
+                'Từ giờ học, thời gian làm bài đến cách trao đổi với bạn bè, đây là nhịp học thường ngày dưới góc nhìn của một sinh viên CNTT.',
+                'Một ngày học của mình thường bắt đầu bằng việc xem lại mục tiêu của buổi học và ghi nhanh những phần còn chưa chắc. Thay vì cố ghi chép mọi thứ, mình tập trung vào ví dụ và cách giảng viên giải quyết từng bài toán.\n\nSau giờ học, mình thường dành một khoảng thời gian để thử lại phần code hoặc hoàn thiện đầu việc của nhóm. Có những hôm tiến độ rất nhanh, cũng có hôm cả nhóm phải dừng lại để tìm nguyên nhân của một lỗi nhỏ. Điều hữu ích nhất là hỏi sớm và mô tả rõ mình đã thử những gì.\n\nNếu bạn đang cân nhắc ngành CNTT, lời khuyên của mình là đừng quá lo vì chưa biết nhiều từ đầu. Sự tò mò, thói quen tự học và khả năng phối hợp với người khác sẽ giúp bạn tiến bộ từng ngày.'
+            WHERE EXISTS (SELECT 1 FROM campaigns WHERE id = 2)
+              AND EXISTS (SELECT 1 FROM users WHERE id = 4 AND role = 'ambassador')
+              AND NOT EXISTS (SELECT 1 FROM submissions WHERE content_type = 'blog' AND blog_title = 'Một ngày học Công nghệ thông tin tại CMC diễn ra như thế nào?')
+        SQL);
 
         $db->exec("UPDATE users SET ambassador_tier = 'senior', gpa = 3.45, followers = 2400, policy_status = 'approved' WHERE email = 'ambassador@cmc.edu.vn'");
         $db->exec("UPDATE users SET ambassador_tier = 'senior', gpa = 3.62, followers = 5100, policy_status = 'approved' WHERE email = 'nam@cmc.edu.vn'");

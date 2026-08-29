@@ -176,7 +176,7 @@ On narrow screens, body copy steps down to 13px and the sticky topbar title trun
 
 ### Embedded consultation widget
 
-The public widget is a compact extension of the same system, isolated in an iframe so the host website cannot alter its layout. It uses the documented body typography and brand palette; Syne remains limited to the eAmbassador product mark. On desktop it opens as a focused side panel, while narrow screens use the full viewport. Directory filters, availability, profile details, chat and appointment states must remain usable by keyboard and preserve visible focus treatment.
+The public widget is a compact extension of the same system, isolated in an iframe so the host website cannot alter its layout. It uses the documented body typography and brand palette; Syne remains limited to the eAmbassador product mark. On desktop it opens as a focused side panel, while narrow screens use the full viewport. Its top navigation separates ambassador discovery, immediate chat, approved Content and appointment intent. Directory filters, content reading, profile details, chat and appointment states must remain usable by keyboard and preserve visible focus treatment.
 
 ## Layout
 
