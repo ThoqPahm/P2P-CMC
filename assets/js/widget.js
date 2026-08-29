@@ -619,6 +619,8 @@
         bindAssistantPrompts($('#widgetAiPrompts'));
         $('#widgetAiForm').addEventListener('submit', async (event) => {
             event.preventDefault();
+            const form = event.currentTarget;
+            const submitButton = $('button[type="submit"]', form);
             const input = $('#widgetAiInput');
             const message = input.value.trim();
             if (!message) return;
@@ -628,7 +630,7 @@
             persistAssistantHistory();
             input.value = '';
             input.disabled = true;
-            $('button[type="submit"]', event.currentTarget).disabled = true;
+            submitButton.disabled = true;
             renderAssistantHistory(true);
             try {
                 const result = await api('widget_ai_chat', { message, history: historyPayload });
@@ -650,7 +652,7 @@
                 renderAssistantHistory();
             } finally {
                 input.disabled = false;
-                $('button[type="submit"]', event.currentTarget).disabled = false;
+                submitButton.disabled = false;
                 input.focus();
             }
         });

@@ -247,7 +247,6 @@ final class AiProviderManager
         $responseBody = curl_exec($handle);
         $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
         $curlError = curl_error($handle);
-        curl_close($handle);
         if (!is_string($responseBody) || $responseBody === '' || $status < 200 || $status >= 300) {
             $apiMessage = self::responseErrorMessage(is_string($responseBody) ? $responseBody : '');
             throw new AiProviderRequestException($curlError !== '' ? $curlError : ($apiMessage !== '' ? $apiMessage : 'AI API trả về HTTP ' . $status . '.'), $status);
