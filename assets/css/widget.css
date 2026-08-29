@@ -135,11 +135,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .widget-empty button { margin-top: 16px; padding: 9px 13px; color: var(--widget-blue-strong); background: #fff; border: 1px solid #bcd8e7; border-radius: 9px; font-weight: 700; }
 
 .widget-profile { padding-top: 0; background: #f3f8fb; }
-.profile-cover { position: relative; min-height: 220px; margin: 0 -24px; padding: 34px 28px; overflow: hidden; color: #fff; background: var(--widget-navy); }
-.profile-cover::before { position: absolute; top: -92px; right: -62px; width: 260px; height: 260px; content: ''; border: 44px solid rgba(0,222,223,.12); border-radius: 50%; }
-.profile-cover::after { position: absolute; right: 145px; bottom: -108px; width: 190px; height: 190px; content: ''; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; }
+.profile-cover { position: relative; min-height: 220px; margin: 0 -24px; padding: 34px 28px; overflow: hidden; color: #fff; background: var(--widget-blue); }
+.profile-cover::before { position: absolute; top: 14px; right: -96px; width: 390px; height: 176px; content: ''; opacity: .13; background: #fff; -webkit-mask: url('../img/cmc-university.svg') center / contain no-repeat; mask: url('../img/cmc-university.svg') center / contain no-repeat; }
+.profile-cover::after { position: absolute; right: -34px; bottom: -62px; width: 230px; height: 230px; content: ''; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; }
 .profile-route { position: absolute; top: 36px; right: 30px; z-index: 1; display: flex; justify-content: space-between; width: 146px; border-top: 1px solid rgba(255,255,255,.32); }
-.profile-route i { width: 8px; height: 8px; margin-top: -5px; background: var(--widget-cyan); border: 2px solid var(--widget-navy); border-radius: 50%; box-shadow: 0 0 0 1px rgba(255,255,255,.5); }
+.profile-route i { width: 8px; height: 8px; margin-top: -5px; background: var(--widget-cyan); border: 2px solid var(--widget-blue); border-radius: 50%; box-shadow: 0 0 0 1px rgba(255,255,255,.5); }
 .profile-hero { position: relative; z-index: 2; display: grid; grid-template-columns: 108px minmax(0, 1fr); align-items: center; gap: 20px; max-width: 560px; min-height: 152px; }
 .profile-avatar { width: 108px; height: 124px; border: 1px solid rgba(255,255,255,.5); border-radius: 12px; box-shadow: 0 18px 36px rgba(0,20,48,.3); font-size: 1.8rem; }
 .profile-verified { display: inline-flex; align-items: center; gap: 6px; color: #d9f7f7; font-size: .68rem; font-weight: 750; }
@@ -278,6 +278,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     .widget-ambassador { padding: 14px; }
     .widget-profile { background: #f3f8fb; }
     .profile-cover { min-height: 202px; margin: 0 -15px; padding: 26px 18px; }
+    .profile-cover::before { top: 24px; right: -112px; width: 330px; height: 148px; opacity: .12; }
     .profile-route { top: 28px; right: 18px; opacity: .72; }
     .profile-hero { grid-template-columns: 82px minmax(0, 1fr); gap: 14px; min-height: 150px; }
     .profile-avatar { width: 82px; height: 100px; }

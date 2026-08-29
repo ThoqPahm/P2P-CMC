@@ -53,7 +53,7 @@ $contentData = array_map(static fn(array $item): array => [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/widget.css?v=9" rel="stylesheet">
+    <link href="assets/css/widget.css?v=10" rel="stylesheet">
 </head>
 <body class="widget-body">
 <main class="widget-shell" id="widgetShell">
@@ -155,6 +155,6 @@ $contentData = array_map(static fn(array $item): array => [
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=9"></script>
+<script src="assets/js/widget.js?v=10"></script>
 </body>
 </html>
