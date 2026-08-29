@@ -88,7 +88,7 @@ PROMPT;
                     'HISTORY' => $safeHistory,
                     'QUESTION' => $message,
                 ];
-                $ai = AiProviderManager::requestJson(self::SYSTEM_PROMPT, $context, $config, 650, true);
+                $ai = AiProviderManager::requestJson(self::SYSTEM_PROMPT, $context, $config, 650);
                 $validated = self::validateAiResult(
                     $ai,
                     $matchedKnowledge,
@@ -462,7 +462,7 @@ PROMPT;
     private static function validateAiResult(array $ai, array $knowledge, array $ambassadors, array $recommended, bool $allowConversation = false, array $conversationSourceIds = []): ?array
     {
         $answer = mb_substr(trim((string) ($ai['answer'] ?? '')), 0, 900);
-        if ($answer === '') {
+        if ($answer === '' || self::containsInternalLeak($answer)) {
             return null;
         }
         $validKnowledge = array_map(static fn(array $item): int => (int) $item['id'], $knowledge);
@@ -489,6 +489,11 @@ PROMPT;
             'ambassador_ids' => array_slice($ambassadorIds, 0, 3),
             'suggested_questions' => array_slice($questions, 0, 3),
         ];
+    }
+
+    private static function containsInternalLeak(string $answer): bool
+    {
+        return preg_match('/(?:source_ids|ambassador_ids|suggested_questions|ADMIN_RULES|CONVERSATION_GUIDANCE|KNOWLEDGE\s*(?:id|\[|:)|HISTORY\s*[:\[]|QUESTION\s*[:\[]|```|JSON\s*object)/ui', $answer) === 1;
     }
 
     /** @return array<int, string> */

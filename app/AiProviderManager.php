@@ -217,7 +217,7 @@ final class AiProviderManager
         throw $lastError ?? new RuntimeException('Không còn API key khả dụng.');
     }
 
-    public static function requestJson(string $systemPrompt, array $context, array $config, int $maxTokens = 600, bool $allowPlainAnswer = false): array
+    public static function requestJson(string $systemPrompt, array $context, array $config, int $maxTokens = 600): array
     {
         $jsonConfig = $config;
         $jsonConfig['json_mode'] = true;
@@ -226,23 +226,6 @@ final class AiProviderManager
             $content = preg_replace('/^```(?:json)?\s*|\s*```$/ui', '', $content) ?? $content;
         }
         if (preg_match('/\{.*\}/su', $content, $match) !== 1) {
-            if ($allowPlainAnswer && !str_starts_with(ltrim($content), '{') && !str_starts_with(ltrim($content), '[')) {
-                $answer = mb_substr(trim(strip_tags($content)), 0, 900);
-                if ($answer !== '') {
-                    $guidance = is_array($context['CONVERSATION_GUIDANCE'] ?? null) ? $context['CONVERSATION_GUIDANCE'] : [];
-                    $knowledgeIds = array_values(array_filter(array_map(
-                        static fn(mixed $item): int => (int) (is_array($item) ? ($item['id'] ?? 0) : 0),
-                        is_array($context['KNOWLEDGE'] ?? null) ? array_slice($context['KNOWLEDGE'], 0, 1) : []
-                    )));
-                    return [
-                        'answer' => $answer,
-                        'intent' => $guidance ? 'clarify' : 'general',
-                        'source_ids' => $guidance['source_ids'] ?? $knowledgeIds,
-                        'ambassador_ids' => [],
-                        'suggested_questions' => $guidance['suggested_questions'] ?? [],
-                    ];
-                }
-            }
             throw new RuntimeException('Phản hồi AI không chứa JSON.');
         }
         $result = json_decode($match[0], true, 64, JSON_THROW_ON_ERROR);
