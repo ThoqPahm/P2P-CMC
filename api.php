@@ -71,8 +71,32 @@ function reject_flagged_message(array $moderation): void
     ], 422);
 }
 
+function enforce_widget_ai_rate_limit(): void
+{
+    $now = time();
+    $requests = array_values(array_filter(
+        is_array($_SESSION['widget_ai_requests'] ?? null) ? $_SESSION['widget_ai_requests'] : [],
+        static fn(mixed $timestamp): bool => is_int($timestamp) && $timestamp > $now - 60
+    ));
+    if (count($requests) >= 8) {
+        json_response(['ok' => false, 'message' => 'Bạn đang dùng AI quá nhanh. Hãy thử lại sau một phút.'], 429);
+    }
+    $requests[] = $now;
+    $_SESSION['widget_ai_requests'] = $requests;
+}
+
+/** @return array<string, mixed> */
+function widget_ambassador(int $ambassadorId): array
+{
+    $ambassador = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM users WHERE id = ? AND role = 'ambassador' AND status = 'active'", [$ambassadorId])[0] ?? null;
+    if (!$ambassador) {
+        throw new InvalidArgumentException('Không tìm thấy đại sứ phù hợp.');
+    }
+    return $ambassador;
+}
+
 try {
-    $widgetActions = ['widget_start_chat', 'widget_send_message', 'widget_schedule'];
+    $widgetActions = ['widget_start_chat', 'widget_send_message', 'widget_schedule', 'widget_ai_suggestions', 'widget_ai_rewrite'];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $payload = json_decode((string) file_get_contents('php://input'), true);
         if (is_array($payload)) {
@@ -86,6 +110,18 @@ try {
     }
 
     switch ($action) {
+        case 'widget_ai_suggestions':
+            enforce_widget_ai_rate_limit();
+            $ambassador = widget_ambassador((int) ($_POST['ambassador_id'] ?? 0));
+            $result = WidgetAiAssistant::suggestQuestions($ambassador);
+            json_response(['ok' => true] + $result);
+
+        case 'widget_ai_rewrite':
+            enforce_widget_ai_rate_limit();
+            $ambassador = widget_ambassador((int) ($_POST['ambassador_id'] ?? 0));
+            $result = WidgetAiAssistant::rewriteQuestion((string) ($_POST['draft'] ?? ''), $ambassador);
+            json_response(['ok' => true] + $result);
+
         case 'widget_start_chat':
             $ambassadorId = (int) ($_POST['ambassador_id'] ?? 0);
             $ambassador = rows("SELECT id, is_online FROM users WHERE id = ? AND role = 'ambassador' AND status = 'active'", [$ambassadorId])[0] ?? null;

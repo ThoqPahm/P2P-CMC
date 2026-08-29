@@ -17,6 +17,7 @@
     let messagePoll = null;
     let offlineContact = null;
     let pendingOfflineMessage = '';
+    const aiSuggestionCache = new Map();
 
     const escapeHtml = (value) => {
         const element = document.createElement('div');
@@ -134,6 +135,7 @@
         } else {
             list.innerHTML = `<div class="offline-chat-note"><i class="bi bi-clock-history"></i><p><strong>${escapeHtml(selectedAmbassador.name)} đang offline</strong><span>Cứ nhắn như bình thường. eAmbassador sẽ báo qua email khi có phản hồi.</span></p></div>`;
         }
+        showChatAiSuggestions();
         showView('chatView', previous);
         setActiveNavigation($('[data-widget-tab="chat"]'));
         $('#widgetMessageInput').focus();
@@ -170,6 +172,7 @@
             + (selectedAmbassador.online ? '' : '<button class="secondary-action" id="openScheduleForm" type="button"><i class="bi bi-calendar2-check"></i> Đặt lịch tư vấn</button>');
         $('#openChatForm')?.addEventListener('click', () => openChat());
         $('#openScheduleForm')?.addEventListener('click', () => openSchedule());
+        loadAiSuggestions();
         showView('profileView', 'directoryView');
     };
 
@@ -222,6 +225,51 @@
         const result = await response.json();
         if (!response.ok || !result.ok) throw new Error(result.message || 'Không thể thực hiện yêu cầu.');
         return result;
+    };
+
+    const useAiQuestion = (question, openChatFirst = false) => {
+        if (openChatFirst) openChat('profileView');
+        const input = $('#widgetMessageInput');
+        input.value = question;
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+    };
+
+    const renderAiQuestions = (container, suggestions, openChatFirst = false) => {
+        container.innerHTML = suggestions.map((question) => `<button type="button" data-ai-question="${escapeHtml(question)}"><i class="bi bi-chat-square-text"></i><span>${escapeHtml(question)}</span></button>`).join('');
+        $$('[data-ai-question]', container).forEach((button) => button.addEventListener('click', () => useAiQuestion(button.dataset.aiQuestion, openChatFirst)));
+    };
+
+    const showChatAiSuggestions = () => {
+        const panel = $('#chatAiPanel');
+        const suggestions = selectedAmbassador ? aiSuggestionCache.get(selectedAmbassador.id) : null;
+        panel.classList.toggle('is-hidden', Boolean(conversation) || !suggestions?.length);
+        if (suggestions?.length) renderAiQuestions($('#chatAiSuggestions'), suggestions);
+    };
+
+    const loadAiSuggestions = async (force = false) => {
+        if (!selectedAmbassador) return;
+        const ambassadorId = selectedAmbassador.id;
+        const container = $('#profileAiSuggestions');
+        const cached = aiSuggestionCache.get(ambassadorId);
+        if (cached && !force) {
+            renderAiQuestions(container, cached, true);
+            showChatAiSuggestions();
+            return;
+        }
+        container.innerHTML = '<span class="ai-loading"><i class="bi bi-arrow-repeat"></i> AI đang chuẩn bị gợi ý...</span>';
+        $('#refreshAiQuestions').disabled = true;
+        try {
+            const result = await api('widget_ai_suggestions', { ambassador_id: ambassadorId });
+            if (!selectedAmbassador || selectedAmbassador.id !== ambassadorId) return;
+            aiSuggestionCache.set(ambassadorId, result.suggestions);
+            renderAiQuestions(container, result.suggestions, true);
+            showChatAiSuggestions();
+        } catch (error) {
+            container.innerHTML = `<span class="ai-error"><i class="bi bi-exclamation-circle"></i> ${escapeHtml(error.message)}</span>`;
+        } finally {
+            $('#refreshAiQuestions').disabled = false;
+        }
     };
 
     const loadMessages = async () => {
@@ -313,6 +361,7 @@
             });
             const ambassadorOnline = Boolean(result.ambassador_online);
             conversation = { id: result.conversation_id, token: result.conversation_token, ambassadorOnline, ambassadorId: selectedAmbassador.id };
+            $('#chatAiPanel').classList.add('is-hidden');
             setChatHeader(ambassadorOnline);
             offlineContact = { name: '', email, question: pendingOfflineMessage };
             $('#widgetMessageInput').value = '';
@@ -356,6 +405,32 @@
     });
 
     ['#widgetSearch', '#majorFilter', '#hometownFilter', '#yearFilter'].forEach((selector) => $(selector).addEventListener('input', renderAmbassadors));
+    $('#refreshAiQuestions').addEventListener('click', () => loadAiSuggestions(true));
+    $('#widgetAiRewrite').addEventListener('click', async (event) => {
+        if (!selectedAmbassador) return;
+        const input = $('#widgetMessageInput');
+        const draft = input.value.trim();
+        if (!draft) {
+            showToast('Hãy nhập câu hỏi nháp trước.');
+            input.focus();
+            return;
+        }
+        const button = event.currentTarget;
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-arrow-repeat"></i> AI đang chỉnh...';
+        try {
+            const result = await api('widget_ai_rewrite', { ambassador_id: selectedAmbassador.id, draft });
+            input.value = result.question;
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+            showToast('AI đã làm rõ câu hỏi. Bạn hãy kiểm tra trước khi gửi.');
+        } catch (error) {
+            showToast(error.message);
+        } finally {
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-magic"></i> AI làm rõ câu hỏi';
+        }
+    });
     $('[data-widget-tab="chat"]').addEventListener('click', (event) => {
         setActiveNavigation(event.currentTarget);
         if (selectedAmbassador) {

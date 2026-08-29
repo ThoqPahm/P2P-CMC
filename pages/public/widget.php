@@ -54,7 +54,7 @@ $contentData = array_map(static fn(array $item): array => [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/widget.css?v=12" rel="stylesheet">
+    <link href="assets/css/widget.css?v=13" rel="stylesheet">
 </head>
 <body class="widget-body">
 <main class="widget-shell" id="widgetShell">
@@ -113,13 +113,16 @@ $contentData = array_map(static fn(array $item): array => [
                 <section class="profile-section"><h2>Sở thích &amp; mối quan tâm</h2><p class="profile-section-note">Những chủ đề đại sứ yêu thích và thường xuyên tìm hiểu.</p><div class="profile-tags" id="profileTags"></div></section>
                 <section class="profile-section"><h2>Có thể chia sẻ cùng bạn</h2><p class="profile-section-note">Bắt đầu bằng một trong những chủ đề dưới đây.</p><ul class="profile-share-list" id="profileShareList"></ul></section>
             </div>
+            <section class="profile-section profile-ai-panel"><div class="profile-ai-heading"><span><i class="bi bi-stars"></i></span><div><h2>AI gợi ý câu hỏi</h2><p>Đề xuất theo ngành học và sở thích của đại sứ.</p></div><button id="refreshAiQuestions" type="button"><i class="bi bi-arrow-clockwise"></i> Làm mới</button></div><div class="ai-question-list" id="profileAiSuggestions"></div><small><i class="bi bi-info-circle"></i> AI chỉ hỗ trợ cách hỏi; câu trả lời vẫn đến từ đại sứ sinh viên.</small></section>
             <p class="privacy-note"><i class="bi bi-shield-check"></i> Hồ sơ đã được xác minh. Cuộc trò chuyện được lưu để bảo đảm an toàn cho cả hai bên.</p>
         </div>
     </section>
 
     <section class="widget-view widget-chat is-hidden" id="chatView">
         <div class="chat-person"><span class="mini-avatar" id="chatHeaderAvatar"></span><div><strong id="chatHeaderName"></strong><small id="chatHeaderStatus"><i></i> Đang online</small></div></div>
+        <div class="chat-ai-panel is-hidden" id="chatAiPanel"><div><i class="bi bi-stars"></i><strong>Gợi ý từ AI</strong></div><div class="ai-question-list compact" id="chatAiSuggestions"></div></div>
         <div class="widget-messages" id="widgetMessages"></div>
+        <div class="chat-ai-rewrite"><button id="widgetAiRewrite" type="button"><i class="bi bi-magic"></i> AI làm rõ câu hỏi</button><small>AI chỉ sửa câu nháp, không tự gửi.</small></div>
         <form class="widget-composer" id="widgetMessageForm"><textarea id="widgetMessageInput" rows="1" placeholder="Nhập tin nhắn..."></textarea><button type="submit" aria-label="Gửi tin nhắn"><i class="bi bi-send-fill"></i></button></form>
         <small class="chat-safe"><i class="bi bi-shield-check"></i> Cuộc trò chuyện được lưu để đảm bảo an toàn.</small>
     </section>
@@ -153,6 +156,6 @@ $contentData = array_map(static fn(array $item): array => [
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=12"></script>
+<script src="assets/js/widget.js?v=13"></script>
 </body>
 </html>

@@ -59,6 +59,21 @@ php -S 127.0.0.1:8000 router.php
 
 Với Qwen, API key, workspace và endpoint phải cùng region. Thay `YOUR_WORKSPACE_ID` bằng Workspace ID trong Alibaba Cloud Model Studio.
 
+### AI hỗ trợ học sinh trong widget
+
+Widget có hai tính năng AI phía server: gợi ý câu hỏi theo hồ sơ đại sứ và làm rõ câu hỏi nháp trước khi gửi. Tính năng không tự gửi tin nhắn, không tự trả lời thay đại sứ và không đưa API key xuống trình duyệt.
+
+Mặc định widget tái sử dụng bộ biến `AI_MODERATION_*` ở trên. Nếu muốn dùng model hoặc endpoint riêng cho trải nghiệm học sinh, cấu hình:
+
+```bash
+AI_WIDGET_API_URL="https://provider.example/v1/chat/completions" \
+AI_WIDGET_API_KEY="your-key" \
+AI_WIDGET_MODEL="provider-model-name" \
+php -S 127.0.0.1:8000 router.php
+```
+
+Gemini và Qwen dùng cùng URL tương thích OpenAI đã nêu ở phần kiểm duyệt. Khi chưa có key hoặc API lỗi, widget tự chuyển sang bộ gợi ý và làm sạch câu hỏi cục bộ để luồng demo vẫn hoạt động. Mỗi phiên widget được giới hạn 8 yêu cầu AI/phút.
+
 ## Tài khoản demo
 
 Tất cả tài khoản dùng mật khẩu `123456`.
