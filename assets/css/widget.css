@@ -136,7 +136,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 .widget-profile { padding-top: 0; background: #f3f8fb; }
 .profile-cover { position: relative; min-height: 220px; margin: 0 -24px; padding: 34px 28px; overflow: hidden; color: #fff; background: var(--widget-blue); }
-.profile-cover::before { position: absolute; right: -120px; bottom: -44px; width: 430px; height: 194px; content: ''; opacity: .13; background: #fff; -webkit-mask: url('../img/cmc-university.svg') center / contain no-repeat; mask: url('../img/cmc-university.svg') center / contain no-repeat; }
+.profile-cover::before { position: absolute; right: -120px; bottom: -24px; width: 430px; height: 194px; content: ''; opacity: .13; background: #fff; -webkit-mask: url('../img/cmc-university.svg') center / contain no-repeat; mask: url('../img/cmc-university.svg') center / contain no-repeat; }
 .profile-hero { position: relative; z-index: 2; display: grid; grid-template-columns: 108px minmax(0, 1fr); align-items: center; gap: 20px; max-width: 560px; min-height: 152px; }
 .profile-avatar { width: 108px; height: 124px; border: 1px solid rgba(255,255,255,.5); border-radius: 12px; box-shadow: 0 18px 36px rgba(0,20,48,.3); font-size: 1.8rem; }
 .profile-verified { display: inline-flex; align-items: center; gap: 6px; color: #d9f7f7; font-size: .68rem; font-weight: 750; }
@@ -275,7 +275,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     .widget-ambassador { padding: 14px; }
     .widget-profile { background: #f3f8fb; }
     .profile-cover { min-height: 202px; margin: 0 -15px; padding: 26px 18px; }
-    .profile-cover::before { right: -116px; bottom: -34px; width: 360px; height: 162px; opacity: .12; }
+    .profile-cover::before { right: -116px; bottom: -18px; width: 360px; height: 162px; opacity: .12; }
     .profile-hero { grid-template-columns: 82px minmax(0, 1fr); gap: 14px; min-height: 150px; }
     .profile-avatar { width: 82px; height: 100px; }
     .profile-hero h1 { font-size: 1.45rem; }
