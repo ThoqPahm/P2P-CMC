@@ -10,14 +10,16 @@ $editingKnowledge = $editKnowledgeId ? (rows('SELECT * FROM ai_knowledge_entries
 $aiLogs = rows('SELECT * FROM widget_ai_logs ORDER BY id DESC LIMIT 12');
 $activeKnowledgeCount = (int) scalar('SELECT COUNT(*) FROM ai_knowledge_entries WHERE is_active = 1');
 $configuredProviderCount = count(array_filter($providers, static fn(array $provider): bool => (bool) $provider['has_key']));
+$loginThemes = login_theme_registry();
+$activeLoginTheme = active_login_theme();
 ?>
 <section class="super-console">
     <header class="super-console-head">
         <div><span><i class="bi bi-shield-lock-fill"></i> Chỉ Super Admin</span><h2>Điều khiển AI &amp; Widget</h2><p>Cấu hình hạ tầng mô hình, dữ liệu gốc và giao diện mà không đưa bí mật xuống trình duyệt.</p></div>
-        <div class="super-console-actions"><a class="btn btn-light border" href="index.php?page=admin-widget"><i class="bi bi-arrow-left"></i> Quản trị widget</a><a class="btn btn-brand" href="index.php?page=widget#assistant" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Mở chatbot</a></div>
+        <div class="super-console-actions"><a class="btn btn-light border" href="index.php?page=appearance-studio"><i class="bi bi-window-sidebar"></i> Theme đăng nhập</a><a class="btn btn-light border" href="index.php?page=admin-widget"><i class="bi bi-arrow-left"></i> Quản trị widget</a><a class="btn btn-brand" href="index.php?page=widget#assistant" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Mở chatbot</a></div>
     </header>
 
-    <nav class="super-console-nav" aria-label="Khu vực cấu hình"><a href="#runtime"><i class="bi bi-sliders"></i> Runtime</a><a href="#providers"><i class="bi bi-cpu"></i> Providers</a><a href="#knowledge"><i class="bi bi-database-check"></i> Dữ liệu gốc</a><a href="#theme"><i class="bi bi-palette"></i> Theme</a><a href="#logs"><i class="bi bi-activity"></i> Nhật ký</a></nav>
+    <nav class="super-console-nav" aria-label="Khu vực cấu hình"><a href="#runtime"><i class="bi bi-sliders"></i> Runtime</a><a href="#providers"><i class="bi bi-cpu"></i> Providers</a><a href="#knowledge"><i class="bi bi-database-check"></i> Dữ liệu gốc</a><a href="#theme"><i class="bi bi-palette"></i> Theme widget</a><a href="index.php?page=appearance-studio"><i class="bi bi-window-sidebar"></i> Theme đăng nhập · <?= e($loginThemes[$activeLoginTheme]['name']) ?></a><a href="#logs"><i class="bi bi-activity"></i> Nhật ký</a></nav>
 
     <div class="super-status-strip">
         <span><i class="bi bi-power"></i><strong>Chatbot</strong><?= $settings['widget_ai_enabled'] === '1' ? 'Đang bật' : 'Đang tắt' ?></span>

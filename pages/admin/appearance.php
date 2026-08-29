@@ -1,5 +1,5 @@
 <?php
-require_auth(['admin']);
+require_super_admin();
 $pageTitle = 'Chọn giao diện đăng nhập';
 $themes = login_theme_registry();
 $activeTheme = active_login_theme();
@@ -8,9 +8,9 @@ $activeTheme = active_login_theme();
     <header class="login-theme-head">
         <div>
             <h2>Giao diện đăng nhập</h2>
-            <p>Chọn theme được hiển thị tại trang đăng nhập. Trang này không xuất hiện trong menu quản trị.</p>
+            <p>Chọn theme được hiển thị tại trang đăng nhập cho toàn hệ thống.</p>
         </div>
-        <a class="btn btn-light" href="index.php?page=login&amp;preview=1" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Xem trang login</a>
+        <div class="d-flex flex-wrap gap-2"><a class="btn btn-light border" href="index.php?page=super-admin"><i class="bi bi-arrow-left"></i> Super Admin</a><a class="btn btn-light" href="index.php?page=login&amp;preview=1" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Xem trang login</a></div>
     </header>
 
     <form method="post" action="actions.php?action=set_login_theme">
