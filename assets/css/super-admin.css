@@ -44,9 +44,46 @@
 .provider-state.state-success { color: #118364; }.provider-state.state-success i { background: currentColor; }
 .provider-state.state-failed { color: #b4233b; }.provider-state.state-failed i { background: currentColor; }
 .provider-fields { display: grid; grid-template-columns: 1.5fr .65fr 1fr; gap: 12px; margin-top: 15px; padding-left: 54px; }
+.provider-fields-gemini { grid-template-columns: 1.5fr .65fr; }
 .provider-row footer { display: flex; align-items: center; gap: 16px; margin-top: 11px; padding-left: 54px; color: #60788d; font-size: .7rem; }
 .provider-row footer label { display: inline-flex; align-items: center; gap: 6px; }
 .provider-row footer small { margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.key-pool { margin: 18px 0 0 54px; overflow: hidden; background: #f7fafc; border: 1px solid #d7e4ec; border-radius: 14px; }
+.key-pool-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 16px 18px; background: #edf5f9; border-bottom: 1px solid #d7e4ec; }
+.key-pool-heading h5 { margin: 0; color: #002757; font-size: .82rem; }
+.key-pool-heading p { max-width: 640px; margin: 4px 0 0; color: #60788d; font-size: .7rem; line-height: 1.5; }
+.key-pool-heading > span { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; color: #006eaa; font-size: .68rem; font-weight: 750; }
+.key-slot-list { padding: 0 18px; }
+.key-slot { display: grid; grid-template-columns: minmax(160px, 1fr) auto auto auto; align-items: center; gap: 14px; padding: 14px 0; }
+.key-slot + .key-slot { border-top: 1px solid #dce7ef; }
+.key-slot.is-paused { opacity: .64; }
+.key-slot-identity { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.key-slot-icon { display: grid; flex: 0 0 auto; width: 32px; height: 32px; place-items: center; color: #006eaa; background: #e1f1f7; border-radius: 9px; }
+.key-slot-identity div { min-width: 0; }
+.key-slot-identity strong, .key-slot-identity code { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.key-slot-identity strong { color: #16364d; font-size: .74rem; }
+.key-slot-identity code { margin-top: 3px; color: #60788d; font-size: .66rem; font-variant-numeric: tabular-nums; }
+.key-slot-metrics { display: flex; gap: 18px; }
+.key-slot-metrics span { min-width: 70px; }
+.key-slot-metrics small, .key-slot-metrics b { display: block; }
+.key-slot-metrics small { color: #7890a1; font-size: .6rem; }
+.key-slot-metrics b { margin-top: 3px; color: #36566d; font-size: .68rem; font-variant-numeric: tabular-nums; }
+.key-health { display: inline-flex; align-items: center; gap: 6px; min-width: 92px; color: #60788d; font-size: .64rem; font-weight: 750; }
+.key-health i { width: 7px; height: 7px; background: currentColor; border-radius: 50%; }
+.key-health-success { color: #118364; }
+.key-health-rate_limited, .key-health-temporary_error, .key-health-cooldown { color: #b46b09; }
+.key-health-auth_error, .key-health-failed, .key-health-decrypt_error { color: #b4233b; }
+.key-slot-actions { display: flex; justify-content: flex-end; gap: 6px; }
+.key-slot-actions .btn { white-space: nowrap; }
+.key-slot-note { grid-column: 1 / -1; margin-top: -6px; padding-left: 42px; overflow-wrap: anywhere; color: #7890a1; font-size: .62rem; line-height: 1.45; }
+.key-pool-empty { display: flex; align-items: center; gap: 12px; padding: 22px 0; color: #60788d; }
+.key-pool-empty > i { font-size: 1.2rem; }
+.key-pool-empty strong { color: #36566d; font-size: .74rem; }
+.key-pool-empty p { margin: 3px 0 0; font-size: .68rem; }
+.key-pool-add { display: grid; grid-template-columns: .7fr 1.3fr auto; align-items: end; gap: 10px; padding: 14px 18px; background: #fff; border-top: 1px solid #d7e4ec; }
+.key-pool-add label > span { display: block; margin-bottom: 6px; color: #36566d; font-size: .66rem; font-weight: 750; }
+.key-pool-add input { width: 100%; min-height: 38px; padding: 8px 10px; color: #102a43; background: #fff; border: 1px solid #cadce7; border-radius: 9px; }
+.key-pool-add .btn { min-height: 38px; white-space: nowrap; }
 .theme-color-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
 .theme-color-grid label { display: flex; align-items: center; gap: 11px; padding: 12px; background: var(--super-soft); border-radius: 12px; cursor: pointer; }
 .theme-color-grid input { flex: 0 0 auto; width: 42px; height: 42px; padding: 2px; background: #fff; border: 1px solid #cadce7; border-radius: 9px; }
@@ -79,12 +116,14 @@
     .super-status-strip span:nth-child(3) { border-left: 0; border-top: 1px solid var(--super-line); }
     .super-status-strip span:nth-child(4) { border-top: 1px solid var(--super-line); }
     .provider-fields { grid-template-columns: 1fr 1fr; }.provider-endpoint { grid-column: 1 / -1; }
+    .key-slot { grid-template-columns: minmax(180px, 1fr) auto auto; }.key-slot-actions { grid-column: 1 / -1; justify-content: flex-start; padding-left: 42px; }.key-slot-note { margin-top: -4px; }
     .theme-color-grid { grid-template-columns: 1fr 1fr; }
     .knowledge-layout { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 720px) {
     .super-console-head, .super-section-heading, .super-save-bar { align-items: stretch; flex-direction: column; }
+    .super-save-bar { position: static; }
     .super-console-actions { flex-wrap: wrap; }.super-console-actions .btn { flex: 1 1 auto; }
     .super-console-nav { top: 68px; }
     .super-status-strip, .super-field-grid, .theme-color-grid { grid-template-columns: 1fr; }
@@ -93,5 +132,6 @@
     .provider-row header { grid-template-columns: 42px minmax(0, 1fr); }.provider-state { grid-column: 2; }
     .provider-fields { grid-template-columns: 1fr; padding-left: 0; }.provider-endpoint { grid-column: auto; }
     .provider-row footer { align-items: flex-start; flex-direction: column; padding-left: 0; }.provider-row footer small { margin-left: 0; white-space: normal; }
+    .key-pool { margin-left: 0; }.key-pool-heading { flex-direction: column; }.key-slot { grid-template-columns: 1fr auto; }.key-slot-metrics { grid-column: 1 / -1; padding-left: 42px; }.key-health { justify-self: end; grid-column: 2; grid-row: 1; }.key-slot-actions { grid-column: 1 / -1; padding-left: 42px; }.key-pool-add { grid-template-columns: 1fr; }.key-slot-note { padding-left: 42px; }
     .knowledge-item, .super-log-list article { grid-template-columns: 1fr; }.super-log-list article > span { text-align: left; }
 }

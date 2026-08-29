@@ -3,6 +3,7 @@ require_super_admin();
 $pageTitle = 'Super Admin Console';
 $settings = ui_settings();
 $providers = AiProviderManager::allConfigs();
+$geminiKeys = AiProviderManager::keySlots('gemini');
 $knowledgeEntries = rows('SELECT * FROM ai_knowledge_entries ORDER BY is_active DESC, updated_at DESC, id DESC');
 $editKnowledgeId = (int) ($_GET['edit_knowledge'] ?? 0);
 $editingKnowledge = $editKnowledgeId ? (rows('SELECT * FROM ai_knowledge_entries WHERE id = ?', [$editKnowledgeId])[0] ?? null) : null;
@@ -21,7 +22,7 @@ $configuredProviderCount = count(array_filter($providers, static fn(array $provi
     <div class="super-status-strip">
         <span><i class="bi bi-power"></i><strong>Chatbot</strong><?= $settings['widget_ai_enabled'] === '1' ? 'Đang bật' : 'Đang tắt' ?></span>
         <span><i class="bi bi-cpu"></i><strong>Provider chính</strong><?= e($providers[$settings['widget_ai_provider']]['name'] ?? 'Chưa chọn') ?></span>
-        <span><i class="bi bi-key"></i><strong>Đã có API key</strong><?= $configuredProviderCount ?>/<?= count($providers) ?></span>
+        <span><i class="bi bi-key"></i><strong>Gemini key đang bật</strong><?= (int) $providers['gemini']['enabled_key_count'] ?>/<?= (int) $providers['gemini']['key_count'] ?> slot</span>
         <span><i class="bi bi-database-check"></i><strong>Dữ liệu đang dùng</strong><?= $activeKnowledgeCount ?> mục</span>
     </div>
 
@@ -43,12 +44,50 @@ $configuredProviderCount = count(array_filter($providers, static fn(array $provi
                 <?php foreach ($providers as $key => $provider): ?>
                     <article class="provider-row">
                         <header><div class="provider-mark provider-<?= e($key) ?>"><?= e(mb_strtoupper(mb_substr($key, 0, 1))) ?></div><div><h4><?= e($provider['name']) ?></h4><p><?= e($provider['hint']) ?></p></div><span class="provider-state state-<?= e($provider['last_test_status']) ?>"><i></i><?= $provider['has_key'] ? ($provider['last_test_status'] === 'success' ? 'Kết nối tốt' : 'Đã có key') : 'Chưa có key' ?></span></header>
-                        <div class="provider-fields">
+                        <div class="provider-fields <?= $key === 'gemini' ? 'provider-fields-gemini' : '' ?>">
                             <label class="provider-endpoint"><span>Endpoint</span><input type="url" name="providers[<?= e($key) ?>][endpoint]" value="<?= e($provider['endpoint']) ?>" required></label>
                             <label><span>Model</span><input name="providers[<?= e($key) ?>][model]" value="<?= e($provider['model']) ?>" required></label>
-                            <label><span>API key mới</span><input type="password" name="providers[<?= e($key) ?>][api_key]" value="" autocomplete="new-password" placeholder="<?= $provider['has_key'] ? 'Đã lưu · để trống nếu giữ nguyên' : 'Dán API key tại đây' ?>"></label>
+                            <?php if ($key !== 'gemini'): ?><label><span>API key mới</span><input type="password" name="providers[<?= e($key) ?>][api_key]" value="" autocomplete="new-password" placeholder="<?= $provider['has_key'] ? 'Đã lưu · để trống nếu giữ nguyên' : 'Dán API key tại đây' ?>"></label><?php endif; ?>
                         </div>
-                        <footer><label><input type="checkbox" name="providers[<?= e($key) ?>][enabled]" <?= $provider['enabled'] ? 'checked' : '' ?>> Cho phép sử dụng</label><label><input type="checkbox" name="providers[<?= e($key) ?>][clear_key]"> Xóa key đã lưu</label><button class="btn btn-sm btn-light border" type="submit" formaction="actions.php?action=test_ai_provider" formnovalidate name="provider" value="<?= e($key) ?>"><i class="bi bi-plug"></i> Test key đang lưu</button><?php if ($provider['last_tested_at']): ?><small><?= e($provider['last_test_message']) ?> · <?= date('H:i d/m/Y', strtotime((string) $provider['last_tested_at'])) ?></small><?php endif; ?></footer>
+                        <footer><label><input type="checkbox" name="providers[<?= e($key) ?>][enabled]" <?= $provider['enabled'] ? 'checked' : '' ?>> Cho phép sử dụng</label><?php if ($key !== 'gemini'): ?><label><input type="checkbox" name="providers[<?= e($key) ?>][clear_key]"> Xóa key đã lưu</label><?php endif; ?><button class="btn btn-sm btn-light border" type="submit" formaction="actions.php?action=test_ai_provider" formnovalidate name="provider" value="<?= e($key) ?>"><i class="bi bi-plug"></i> Test kết nối</button><?php if ($provider['last_tested_at']): ?><small><?= e($provider['last_test_message']) ?> · <?= date('H:i d/m/Y', strtotime((string) $provider['last_tested_at'])) ?></small><?php endif; ?></footer>
+
+                        <?php if ($key === 'gemini'): ?>
+                            <div class="key-pool">
+                                <div class="key-pool-heading">
+                                    <div><h5>Vòng xoay API key</h5><p>Mỗi request dùng slot ít lượt nhất. Slot lỗi quota hoặc lỗi tạm thời sẽ nghỉ rồi tự quay lại.</p></div>
+                                    <span><i class="bi bi-arrow-repeat"></i> <?= (int) $provider['enabled_key_count'] ?> đang chạy</span>
+                                </div>
+                                <div class="key-slot-list">
+                                    <?php foreach ($geminiKeys as $slot):
+                                        $isCooling = $slot['cooldown_until'] && strtotime((string) $slot['cooldown_until'] . ' UTC') > time();
+                                        $slotState = !$slot['enabled'] ? 'paused' : ($isCooling ? 'cooldown' : (string) $slot['last_status']);
+                                        $stateLabel = match ($slotState) {
+                                            'success' => 'Sẵn sàng', 'rate_limited' => 'Đang giới hạn', 'auth_error' => 'Lỗi xác thực',
+                                            'temporary_error', 'cooldown' => 'Đang nghỉ', 'failed', 'decrypt_error' => 'Cần kiểm tra',
+                                            'paused' => 'Đã tắt', default => 'Chưa test',
+                                        };
+                                    ?>
+                                        <div class="key-slot <?= !$slot['enabled'] ? 'is-paused' : '' ?>">
+                                            <div class="key-slot-identity"><span class="key-slot-icon"><i class="bi bi-key-fill"></i></span><div><strong><?= e($slot['label']) ?></strong><code>•••• <?= e($slot['key_suffix']) ?></code></div></div>
+                                            <div class="key-slot-metrics"><span><small>Lượt dùng</small><b><?= number_format((int) $slot['use_count']) ?></b></span><span><small>Lần gần nhất</small><b><?= $slot['last_used_at'] ? date('H:i d/m', strtotime((string) $slot['last_used_at'])) : 'Chưa dùng' ?></b></span></div>
+                                            <span class="key-health key-health-<?= e($slotState) ?>"><i></i><?= e($stateLabel) ?></span>
+                                            <div class="key-slot-actions">
+                                                <button class="btn btn-sm btn-light border" type="submit" formaction="actions.php?action=test_ai_provider_key" formnovalidate name="key_id" value="<?= (int) $slot['id'] ?>" title="Test riêng slot này"><i class="bi bi-plug"></i></button>
+                                                <button class="btn btn-sm btn-light border" type="submit" formaction="actions.php?action=toggle_ai_provider_key" formnovalidate name="key_id" value="<?= (int) $slot['id'] ?>"><?= $slot['enabled'] ? 'Tạm dừng' : 'Bật lại' ?></button>
+                                                <button class="btn btn-sm btn-outline-danger" type="submit" formaction="actions.php?action=delete_ai_provider_key" formnovalidate name="key_id" value="<?= (int) $slot['id'] ?>" onclick="return confirm('Xóa API key này khỏi vòng xoay?')" title="Xóa slot"><i class="bi bi-trash3"></i></button>
+                                            </div>
+                                            <?php if ($isCooling): ?><small class="key-slot-note">Tự thử lại sau <?= date('H:i:s', strtotime((string) $slot['cooldown_until'] . ' UTC')) ?> · <?= e($slot['last_message'] ?: 'Provider yêu cầu chờ.') ?></small><?php elseif ($slot['last_message']): ?><small class="key-slot-note"><?= e($slot['last_message']) ?></small><?php endif; ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                    <?php if (!$geminiKeys): ?><div class="key-pool-empty"><i class="bi bi-key"></i><div><strong>Chưa có key trong vòng xoay</strong><p>Thêm ít nhất một slot để Gemini bắt đầu trả lời.</p></div></div><?php endif; ?>
+                                </div>
+                                <div class="key-pool-add">
+                                    <label><span>Tên slot</span><input name="key_label" maxlength="60" placeholder="Ví dụ: Gemini chính"></label>
+                                    <label><span>API key mới</span><input type="password" name="api_key" autocomplete="new-password" placeholder="Dán key từ Google AI Studio"></label>
+                                    <button class="btn btn-brand" type="submit" formaction="actions.php?action=add_ai_provider_key" formnovalidate name="provider" value="gemini"><i class="bi bi-plus-lg"></i> Thêm vào vòng xoay</button>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </article>
                 <?php endforeach; ?>
             </div>

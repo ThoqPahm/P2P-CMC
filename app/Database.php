@@ -162,6 +162,29 @@ final class Database
                 FOREIGN KEY(updated_by) REFERENCES users(id)
             );
 
+            CREATE TABLE IF NOT EXISTS ai_provider_keys (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                provider TEXT NOT NULL CHECK(provider IN ('gemini','deepseek','glm','qwen')),
+                label TEXT NOT NULL,
+                api_key_encrypted TEXT NOT NULL,
+                key_suffix TEXT NOT NULL DEFAULT '',
+                enabled INTEGER NOT NULL DEFAULT 1,
+                use_count INTEGER NOT NULL DEFAULT 0,
+                failure_count INTEGER NOT NULL DEFAULT 0,
+                cooldown_until TEXT,
+                last_status TEXT NOT NULL DEFAULT 'untested',
+                last_message TEXT,
+                last_used_at TEXT,
+                last_tested_at TEXT,
+                created_by INTEGER,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(created_by) REFERENCES users(id)
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_ai_provider_keys_rotation
+                ON ai_provider_keys(provider, enabled, use_count, last_used_at);
+
             CREATE TABLE IF NOT EXISTS ai_knowledge_entries (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 category TEXT NOT NULL,
@@ -255,6 +278,16 @@ final class Database
                 ('glm', 'https://open.bigmodel.cn/api/paas/v4/chat/completions', 'glm-5.2'),
                 ('qwen', 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions', 'qwen-plus')
         SQL);
+
+        $db->exec(<<<'SQL'
+            INSERT INTO ai_provider_keys (provider, label, api_key_encrypted, key_suffix, created_by)
+            SELECT provider, 'Key mặc định', api_key_encrypted, 'legacy', updated_by
+            FROM ai_provider_configs AS config
+            WHERE config.provider = 'gemini'
+              AND config.api_key_encrypted <> ''
+              AND NOT EXISTS (SELECT 1 FROM ai_provider_keys AS pool WHERE pool.provider = config.provider)
+        SQL);
+        $db->exec("UPDATE ai_provider_configs SET api_key_encrypted = '' WHERE provider = 'gemini' AND EXISTS (SELECT 1 FROM ai_provider_keys WHERE provider = 'gemini')");
 
         $knowledgeCount = (int) $db->query('SELECT COUNT(*) FROM ai_knowledge_entries')->fetchColumn();
         if ($knowledgeCount === 0) {

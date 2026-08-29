@@ -125,6 +125,36 @@ try {
             flash($test['ok'] ? 'success' : 'danger', $test['message']);
             redirect('index.php?page=super-admin#providers');
 
+        case 'add_ai_provider_key':
+            require_super_admin();
+            $provider = (string) ($_POST['provider'] ?? 'gemini');
+            AiProviderManager::addKey(
+                $provider,
+                (string) ($_POST['key_label'] ?? ''),
+                (string) ($_POST['api_key'] ?? ''),
+                (int) user()['id']
+            );
+            flash('success', 'Đã thêm API key vào vòng xoay ' . (AiProviderManager::registry()[$provider]['name'] ?? $provider) . '.');
+            redirect('index.php?page=super-admin#providers');
+
+        case 'toggle_ai_provider_key':
+            require_super_admin();
+            AiProviderManager::toggleKey((int) ($_POST['key_id'] ?? 0));
+            flash('success', 'Đã cập nhật trạng thái API key.');
+            redirect('index.php?page=super-admin#providers');
+
+        case 'test_ai_provider_key':
+            require_super_admin();
+            $test = AiProviderManager::testKey((int) ($_POST['key_id'] ?? 0));
+            flash($test['ok'] ? 'success' : 'danger', $test['message']);
+            redirect('index.php?page=super-admin#providers');
+
+        case 'delete_ai_provider_key':
+            require_super_admin();
+            AiProviderManager::removeKey((int) ($_POST['key_id'] ?? 0));
+            flash('success', 'Đã xóa API key khỏi vòng xoay.');
+            redirect('index.php?page=super-admin#providers');
+
         case 'save_ai_knowledge':
             require_super_admin();
             $id = (int) ($_POST['knowledge_id'] ?? 0);

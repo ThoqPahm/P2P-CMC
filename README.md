@@ -89,6 +89,8 @@ APP_SECRET="a-long-random-production-secret"
 
 Super Admin quản lý Gemini, DeepSeek, Zhipu GLM và Alibaba Qwen qua endpoint Chat Completions tương thích OpenAI, model, API key, rule, dữ liệu gốc và màu theme widget. API key được mã hóa AES-256-GCM trong SQLite; `APP_SECRET` phải được giữ ổn định giữa các lần deploy. Nếu không đặt `APP_SECRET`, môi trường local tự tạo `data/.app_secret` (đã bị Git bỏ qua).
 
+Gemini hỗ trợ nhiều API key trong một key pool. Hệ thống cân bằng lượt gọi giữa các slot đang bật, tự chuyển sang slot kế tiếp khi gặp quota/rate limit hoặc lỗi tạm thời, đồng thời đưa key lỗi vào cooldown trước khi thử lại. Giao diện chỉ hiển thị nhãn và bốn ký tự cuối của mỗi key.
+
 Endpoint mặc định:
 
 - Gemini: `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`
