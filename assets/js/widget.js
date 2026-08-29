@@ -403,7 +403,17 @@
             headers: method === 'POST' ? { 'Content-Type': 'application/json' } : {},
             body: method === 'POST' ? JSON.stringify(payload) : undefined,
         });
-        const result = await response.json();
+        const responseText = await response.text();
+        if (!responseText.trim()) {
+            throw new Error('Máy chủ không trả về dữ liệu. Hãy thử gửi lại sau ít phút.');
+        }
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (error) {
+            console.error('Widget API returned invalid JSON', { action, status: response.status, responseText });
+            throw new Error('Phản hồi từ máy chủ chưa hoàn chỉnh. Hãy thử gửi lại sau ít phút.');
+        }
         if (!response.ok || !result.ok) throw new Error(result.message || 'Không thể thực hiện yêu cầu.');
         return result;
     };

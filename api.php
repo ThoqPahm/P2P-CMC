@@ -5,6 +5,22 @@ declare(strict_types=1);
 // API responses must remain valid JSON even when the local PHP runtime emits warnings.
 ini_set('display_errors', '0');
 ini_set('display_startup_errors', '0');
+ob_start();
+register_shutdown_function(static function (): void {
+    $error = error_get_last();
+    $fatalTypes = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR];
+    if (!$error || !in_array($error['type'], $fatalTypes, true)) {
+        return;
+    }
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+    if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    http_response_code(500);
+    echo '{"ok":false,"message":"Máy chủ chưa hoàn tất phản hồi. Vui lòng thử gửi lại sau ít phút."}';
+});
 
 require_once __DIR__ . '/app/bootstrap.php';
 
@@ -14,7 +30,12 @@ $action = (string) ($_GET['action'] ?? $_POST['action'] ?? '');
 function json_response(array $data, int $status = 200): never
 {
     http_response_code($status);
-    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    try {
+        echo json_encode($data, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    } catch (JsonException) {
+        http_response_code(500);
+        echo '{"ok":false,"message":"Phản hồi máy chủ không đúng định dạng. Vui lòng thử lại."}';
+    }
     exit;
 }
 
