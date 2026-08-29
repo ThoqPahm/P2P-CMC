@@ -23,6 +23,24 @@
     let storedConversations = [];
     let assistantHistory = [];
     const aiSuggestionCache = new Map();
+    const assistantPanel = $('#widgetAiAssistant');
+    const assistantToggle = $('#widgetAiToggle');
+
+    const setAssistantOpen = (open, returnFocus = false) => {
+        if (!assistantPanel || !assistantToggle) return;
+        assistantPanel.classList.toggle('is-hidden', !open);
+        assistantToggle.classList.toggle('is-open', open);
+        assistantToggle.setAttribute('aria-expanded', String(open));
+        assistantToggle.setAttribute('aria-label', open ? 'Đóng trợ lý AI' : 'Mở trợ lý AI');
+        const icon = $('i', assistantToggle);
+        icon.className = open ? 'bi bi-x-lg' : 'bi bi-stars';
+        if (open) {
+            renderAssistantHistory();
+            window.requestAnimationFrame(() => $('#widgetAiInput')?.focus());
+        } else if (returnFocus) {
+            assistantToggle.focus();
+        }
+    };
 
     const escapeHtml = (value) => {
         const element = document.createElement('div');
@@ -135,7 +153,10 @@
         const matches = ids.map((id) => ambassadors.find((item) => item.id === Number(id))).filter(Boolean).slice(0, 3);
         container.classList.toggle('is-hidden', matches.length === 0);
         container.innerHTML = matches.length ? `<strong>Đại sứ phù hợp</strong><div>${matches.map((item) => `<button type="button" data-ai-ambassador-id="${item.id}"><span>${escapeHtml(item.initials)}</span><span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.major)} · Năm ${item.study_year}</small></span><i class="bi bi-arrow-right"></i></button>`).join('')}</div>` : '';
-        $$('[data-ai-ambassador-id]', container).forEach((button) => button.addEventListener('click', () => openProfile(Number(button.dataset.aiAmbassadorId))));
+        $$('[data-ai-ambassador-id]', container).forEach((button) => button.addEventListener('click', () => {
+            setAssistantOpen(false);
+            openProfile(Number(button.dataset.aiAmbassadorId));
+        }));
     };
 
     const renderAssistantHistory = (loading = false) => {
@@ -593,6 +614,8 @@
 
     ['#widgetSearch', '#majorFilter', '#hometownFilter', '#yearFilter'].forEach((selector) => $(selector).addEventListener('input', renderAmbassadors));
     if ($('#widgetAiForm')) {
+        assistantToggle.addEventListener('click', () => setAssistantOpen(assistantPanel.classList.contains('is-hidden'), true));
+        $('#widgetAiClose').addEventListener('click', () => setAssistantOpen(false, true));
         bindAssistantPrompts($('#widgetAiPrompts'));
         $('#widgetAiForm').addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -724,6 +747,11 @@
         showView('directoryView');
     });
     $('#widgetClose').addEventListener('click', () => window.parent.postMessage({ type: 'eambassador:close' }, '*'));
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && assistantPanel && !assistantPanel.classList.contains('is-hidden')) {
+            setAssistantOpen(false, true);
+        }
+    });
     window.addEventListener('storage', (event) => {
         if (event.key === inboxStorageKey) {
             storedConversations = readStoredConversations();
@@ -751,7 +779,6 @@
         openContent(Number(contentMatch[1]));
     }
     if (window.location.hash === '#assistant' && $('#widgetAiAssistant')) {
-        $('#widgetAiAssistant').scrollIntoView({ block: 'start', inline: 'nearest' });
-        $('#widgetAiInput').focus();
+        setAssistantOpen(true);
     }
 })();
