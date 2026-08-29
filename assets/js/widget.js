@@ -4,6 +4,7 @@
     const config = window.eAmbassadorWidget || { token: '', ambassadors: [], content: [] };
     const ambassadors = Array.isArray(config.ambassadors) ? config.ambassadors : [];
     const publishedContent = Array.isArray(config.content) ? config.content : [];
+    const assistantConfig = config.ai && typeof config.ai === 'object' ? config.ai : { enabled: false, name: 'CMC AI', welcome: '' };
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
     const views = $$('.widget-view');
@@ -18,7 +19,9 @@
     let offlineContact = null;
     let pendingOfflineMessage = '';
     const inboxStorageKey = 'eambassador.widget.conversations.v1';
+    const assistantStorageKey = 'eambassador.widget.ai-chat.v1';
     let storedConversations = [];
+    let assistantHistory = [];
     const aiSuggestionCache = new Map();
 
     const escapeHtml = (value) => {
@@ -37,6 +40,23 @@
                 && item.token.length >= 24).slice(0, 20);
         } catch (error) {
             return [];
+        }
+    };
+
+    const readAssistantHistory = () => {
+        try {
+            const value = JSON.parse(window.localStorage.getItem(assistantStorageKey) || '[]');
+            return Array.isArray(value) ? value.filter((item) => ['user', 'assistant'].includes(item?.role) && typeof item?.content === 'string').slice(-20) : [];
+        } catch (error) {
+            return [];
+        }
+    };
+
+    const persistAssistantHistory = () => {
+        try {
+            window.localStorage.setItem(assistantStorageKey, JSON.stringify(assistantHistory.slice(-20)));
+        } catch (error) {
+            // The assistant remains usable when local storage is unavailable.
         }
     };
 
@@ -100,7 +120,41 @@
         $$('.inbox-thread', list).forEach((button) => button.addEventListener('click', () => openStoredConversation(Number(button.dataset.conversationId))));
     };
 
+    const bindAssistantPrompts = (root = document) => {
+        $$('[data-widget-ai-prompt]', root).forEach((button) => button.addEventListener('click', () => {
+            const input = $('#widgetAiInput');
+            if (!input) return;
+            input.value = button.dataset.widgetAiPrompt || '';
+            $('#widgetAiForm').requestSubmit();
+        }));
+    };
+
+    const renderAssistantAmbassadors = (ids = []) => {
+        const container = $('#widgetAiAmbassadors');
+        if (!container) return;
+        const matches = ids.map((id) => ambassadors.find((item) => item.id === Number(id))).filter(Boolean).slice(0, 3);
+        container.classList.toggle('is-hidden', matches.length === 0);
+        container.innerHTML = matches.length ? `<strong>Đại sứ phù hợp</strong><div>${matches.map((item) => `<button type="button" data-ai-ambassador-id="${item.id}"><span>${escapeHtml(item.initials)}</span><span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.major)} · Năm ${item.study_year}</small></span><i class="bi bi-arrow-right"></i></button>`).join('')}</div>` : '';
+        $$('[data-ai-ambassador-id]', container).forEach((button) => button.addEventListener('click', () => openProfile(Number(button.dataset.aiAmbassadorId))));
+    };
+
+    const renderAssistantHistory = (loading = false) => {
+        const container = $('#widgetAiMessages');
+        if (!container) return;
+        const messages = assistantHistory.length ? assistantHistory : [{ role: 'assistant', content: assistantConfig.welcome || 'Mình có thể giúp bạn tìm thông tin hoặc chọn đại sứ phù hợp.' }];
+        container.innerHTML = messages.map((item) => `<div class="widget-ai-message ${item.role === 'user' ? 'is-user' : 'is-assistant'}"><span>${item.role === 'assistant' ? '<i class="bi bi-stars"></i>' : 'Bạn'}</span><div><p>${escapeHtml(item.content)}</p>${item.sources?.length ? `<small><i class="bi bi-database-check"></i> Nguồn: ${item.sources.map(escapeHtml).join(' · ')}</small>` : ''}</div></div>`).join('') + (loading ? '<div class="widget-ai-message is-assistant is-loading"><span><i class="bi bi-stars"></i></span><div><i></i><i></i><i></i></div></div>' : '');
+        container.scrollTop = container.scrollHeight;
+        const latestAssistant = [...assistantHistory].reverse().find((item) => item.role === 'assistant');
+        renderAssistantAmbassadors(latestAssistant?.ambassadorIds || []);
+        if (latestAssistant?.suggestedQuestions?.length) {
+            const promptContainer = $('#widgetAiPrompts');
+            promptContainer.innerHTML = latestAssistant.suggestedQuestions.map((question) => `<button type="button" data-widget-ai-prompt="${escapeHtml(question)}"><i class="bi bi-arrow-return-right"></i>${escapeHtml(question)}</button>`).join('');
+            bindAssistantPrompts(promptContainer);
+        }
+    };
+
     storedConversations = readStoredConversations();
+    assistantHistory = readAssistantHistory();
 
     const showView = (id, previous = null) => {
         views.forEach((view) => view.classList.toggle('is-hidden', view.id !== id));
@@ -538,6 +592,46 @@
     });
 
     ['#widgetSearch', '#majorFilter', '#hometownFilter', '#yearFilter'].forEach((selector) => $(selector).addEventListener('input', renderAmbassadors));
+    if ($('#widgetAiForm')) {
+        bindAssistantPrompts($('#widgetAiPrompts'));
+        $('#widgetAiForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const input = $('#widgetAiInput');
+            const message = input.value.trim();
+            if (!message) return;
+            const historyPayload = assistantHistory.slice(-8).map((item) => ({ role: item.role, content: item.content }));
+            assistantHistory.push({ role: 'user', content: message, createdAt: new Date().toISOString() });
+            assistantHistory = assistantHistory.slice(-20);
+            persistAssistantHistory();
+            input.value = '';
+            input.disabled = true;
+            $('button[type="submit"]', event.currentTarget).disabled = true;
+            renderAssistantHistory(true);
+            try {
+                const result = await api('widget_ai_chat', { message, history: historyPayload });
+                assistantHistory.push({
+                    role: 'assistant',
+                    content: result.answer,
+                    sources: result.source_titles || [],
+                    ambassadorIds: result.ambassador_ids || [],
+                    suggestedQuestions: result.suggested_questions || [],
+                    provider: result.provider,
+                    createdAt: new Date().toISOString(),
+                });
+                assistantHistory = assistantHistory.slice(-20);
+                persistAssistantHistory();
+                renderAssistantHistory();
+            } catch (error) {
+                assistantHistory.push({ role: 'assistant', content: error.message, createdAt: new Date().toISOString() });
+                persistAssistantHistory();
+                renderAssistantHistory();
+            } finally {
+                input.disabled = false;
+                $('button[type="submit"]', event.currentTarget).disabled = false;
+                input.focus();
+            }
+        });
+    }
     $('#refreshAiQuestions').addEventListener('click', () => loadAiSuggestions(true));
     $('#widgetAiRewrite').addEventListener('click', async (event) => {
         if (!selectedAmbassador) return;
@@ -631,9 +725,14 @@
     });
     $('#widgetClose').addEventListener('click', () => window.parent.postMessage({ type: 'eambassador:close' }, '*'));
     window.addEventListener('storage', (event) => {
-        if (event.key !== inboxStorageKey) return;
-        storedConversations = readStoredConversations();
-        renderInbox();
+        if (event.key === inboxStorageKey) {
+            storedConversations = readStoredConversations();
+            renderInbox();
+        }
+        if (event.key === assistantStorageKey) {
+            assistantHistory = readAssistantHistory();
+            renderAssistantHistory();
+        }
     });
 
     const minimumDate = new Date(Date.now() + (60 * 60 * 1000));
@@ -642,6 +741,7 @@
     renderAmbassadors();
     renderContent();
     renderInbox();
+    renderAssistantHistory();
     const contentMatch = window.location.hash.match(/^#content-(\d+)$/);
     if (window.location.hash === '#inbox') {
         openInbox();
@@ -649,5 +749,9 @@
         const contentButton = $('[data-widget-tab="content"]');
         setActiveNavigation(contentButton);
         openContent(Number(contentMatch[1]));
+    }
+    if (window.location.hash === '#assistant' && $('#widgetAiAssistant')) {
+        $('#widgetAiAssistant').scrollIntoView({ block: 'start', inline: 'nearest' });
+        $('#widgetAiInput').focus();
     }
 })();

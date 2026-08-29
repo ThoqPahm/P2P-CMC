@@ -19,6 +19,7 @@ $isLogin = ($page ?? '') === 'login';
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="assets/css/app.css?v=62" rel="stylesheet">
     <?php if (($page ?? '') === 'admin-widget'): ?><link href="assets/css/widget-admin.css?v=1" rel="stylesheet"><?php endif; ?>
+    <?php if (($page ?? '') === 'super-admin'): ?><link href="assets/css/super-admin.css?v=1" rel="stylesheet"><?php endif; ?>
 </head>
 <body class="<?= $isLogin ? 'login-layout' : ($isPublic ? 'public-layout' : 'app-layout') ?>">
 <!--

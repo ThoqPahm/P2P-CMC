@@ -147,6 +147,44 @@ final class Database
                 value TEXT NOT NULL,
                 updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS ai_provider_configs (
+                provider TEXT PRIMARY KEY CHECK(provider IN ('gemini','deepseek','glm','qwen')),
+                endpoint TEXT NOT NULL,
+                model TEXT NOT NULL,
+                api_key_encrypted TEXT NOT NULL DEFAULT '',
+                enabled INTEGER NOT NULL DEFAULT 1,
+                last_test_status TEXT NOT NULL DEFAULT 'untested',
+                last_test_message TEXT,
+                last_tested_at TEXT,
+                updated_by INTEGER,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(updated_by) REFERENCES users(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS ai_knowledge_entries (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                category TEXT NOT NULL,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL,
+                keywords TEXT NOT NULL DEFAULT '',
+                is_active INTEGER NOT NULL DEFAULT 1,
+                updated_by INTEGER,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(updated_by) REFERENCES users(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS widget_ai_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                question TEXT NOT NULL,
+                answer TEXT NOT NULL,
+                provider TEXT NOT NULL,
+                model TEXT NOT NULL,
+                knowledge_ids TEXT NOT NULL DEFAULT '[]',
+                ambassador_ids TEXT NOT NULL DEFAULT '[]',
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
         SQL);
 
         self::addColumn($db, 'users', 'ambassador_tier', "TEXT NOT NULL DEFAULT 'junior'");
@@ -209,6 +247,31 @@ final class Database
         $db->exec("UPDATE submissions SET platform = COALESCE((SELECT platform FROM campaigns WHERE campaigns.id = submissions.campaign_id), 'TikTok / Reels') WHERE platform = ''");
         $db->exec("UPDATE submissions SET views = 18400, likes = 1290, comments = 86, shares = 94 WHERE content_url = 'https://www.youtube.com/shorts/demo' AND views = 0");
         $db->exec("UPDATE wallet_transactions SET description = 'Thưởng hiệu quả nội dung UGC', reference_type = 'submission' WHERE reference_type IS NOT NULL AND reference_type <> 'submission'");
+
+        $db->exec(<<<'SQL'
+            INSERT OR IGNORE INTO ai_provider_configs (provider, endpoint, model) VALUES
+                ('gemini', 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', 'gemini-2.5-flash'),
+                ('deepseek', 'https://api.deepseek.com/chat/completions', 'deepseek-chat'),
+                ('glm', 'https://open.bigmodel.cn/api/paas/v4/chat/completions', 'glm-5.2'),
+                ('qwen', 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions', 'qwen-plus')
+        SQL);
+
+        $knowledgeCount = (int) $db->query('SELECT COUNT(*) FROM ai_knowledge_entries')->fetchColumn();
+        if ($knowledgeCount === 0) {
+            $knowledge = $db->prepare('INSERT INTO ai_knowledge_entries (category, title, content, keywords, is_active) VALUES (?, ?, ?, ?, 1)');
+            $knowledge->execute([
+                'Hỗ trợ học sinh',
+                'Kết nối với đại sứ sinh viên',
+                'Học sinh có thể tìm đại sứ theo ngành học, quê quán và năm học; xem hồ sơ rồi nhắn tin trực tiếp để hỏi về trải nghiệm học tập và đời sống sinh viên.',
+                'đại sứ, tư vấn, nhắn tin, ngành học, quê quán',
+            ]);
+            $knowledge->execute([
+                'Hỗ trợ học sinh',
+                'Khi đại sứ đang offline',
+                'Học sinh vẫn có thể gửi tin nhắn khi đại sứ offline và để lại email nhận phản hồi, hoặc chọn đặt lịch tư vấn vào thời gian phù hợp.',
+                'offline, email, phản hồi, đặt lịch, tư vấn',
+            ]);
+        }
     }
 
     private static function addColumn(PDO $db, string $table, string $column, string $definition): void

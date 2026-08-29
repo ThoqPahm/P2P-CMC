@@ -36,6 +36,25 @@ function require_auth(array $roles = []): void
     }
 }
 
+function is_super_admin(?array $account = null): bool
+{
+    $account ??= user();
+    if (!$account || ($account['role'] ?? '') !== 'admin') {
+        return false;
+    }
+    $configured = trim((string) getenv('SUPER_ADMIN_EMAILS'));
+    $emails = $configured !== '' ? preg_split('/\s*,\s*/', mb_strtolower($configured)) : ['admin@cmc.edu.vn'];
+    return in_array(mb_strtolower((string) ($account['email'] ?? '')), $emails ?: [], true);
+}
+
+function require_super_admin(): void
+{
+    if (!is_super_admin()) {
+        http_response_code(404);
+        exit('Trang không tồn tại.');
+    }
+}
+
 function redirect(string $url): never
 {
     header('Location: ' . $url);
@@ -123,6 +142,15 @@ function ui_setting_defaults(): array
 {
     return [
         'login_theme' => 'eyes',
+        'widget_ai_enabled' => '1',
+        'widget_ai_provider' => 'gemini',
+        'widget_ai_name' => 'CMC AI',
+        'widget_ai_welcome' => 'Chào bạn! Mình có thể giải đáp thông tin chung từ dữ liệu của trường hoặc giúp bạn tìm đại sứ phù hợp.',
+        'widget_ai_rules' => 'Chỉ trả lời từ dữ liệu được phê duyệt. Không suy đoán học phí, học bổng, điểm chuẩn, cam kết việc làm hoặc chính sách tuyển sinh. Khi thiếu dữ liệu, nói rõ và gợi ý đại sứ phù hợp.',
+        'widget_theme_primary' => '#008fd5',
+        'widget_theme_navy' => '#002757',
+        'widget_theme_soft' => '#f2f8fb',
+        'widget_theme_accent' => '#00dedf',
     ];
 }
 

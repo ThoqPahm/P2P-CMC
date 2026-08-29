@@ -78,7 +78,7 @@ function enforce_widget_ai_rate_limit(): void
         is_array($_SESSION['widget_ai_requests'] ?? null) ? $_SESSION['widget_ai_requests'] : [],
         static fn(mixed $timestamp): bool => is_int($timestamp) && $timestamp > $now - 60
     ));
-    if (count($requests) >= 8) {
+    if (count($requests) >= 15) {
         json_response(['ok' => false, 'message' => 'Bạn đang dùng AI quá nhanh. Hãy thử lại sau một phút.'], 429);
     }
     $requests[] = $now;
@@ -96,7 +96,7 @@ function widget_ambassador(int $ambassadorId): array
 }
 
 try {
-    $widgetActions = ['widget_start_chat', 'widget_send_message', 'widget_schedule', 'widget_ai_suggestions', 'widget_ai_rewrite'];
+    $widgetActions = ['widget_start_chat', 'widget_send_message', 'widget_schedule', 'widget_ai_chat', 'widget_ai_suggestions', 'widget_ai_rewrite'];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $payload = json_decode((string) file_get_contents('php://input'), true);
         if (is_array($payload)) {
@@ -110,6 +110,12 @@ try {
     }
 
     switch ($action) {
+        case 'widget_ai_chat':
+            enforce_widget_ai_rate_limit();
+            $history = is_array($_POST['history'] ?? null) ? $_POST['history'] : [];
+            $result = WidgetChatAssistant::reply((string) ($_POST['message'] ?? ''), $history);
+            json_response(['ok' => true] + $result);
+
         case 'widget_ai_suggestions':
             enforce_widget_ai_rate_limit();
             $ambassador = widget_ambassador((int) ($_POST['ambassador_id'] ?? 0));

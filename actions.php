@@ -64,6 +64,94 @@ try {
             flash('success', 'Đã đổi giao diện đăng nhập.');
             redirect('index.php?page=appearance-studio');
 
+        case 'save_super_admin_ai':
+            require_super_admin();
+            $registry = AiProviderManager::registry();
+            $activeProvider = (string) ($_POST['widget_ai_provider'] ?? '');
+            if (!isset($registry[$activeProvider])) {
+                throw new InvalidArgumentException('Provider AI không hợp lệ.');
+            }
+            $colors = [];
+            foreach (['primary', 'navy', 'soft', 'accent'] as $colorKey) {
+                $value = mb_strtolower(trim((string) ($_POST['widget_theme_' . $colorKey] ?? '')));
+                if (preg_match('/^#[0-9a-f]{6}$/', $value) !== 1) {
+                    throw new InvalidArgumentException('Màu theme phải ở định dạng #RRGGBB.');
+                }
+                $colors[$colorKey] = $value;
+            }
+            $settingsToSave = [
+                'widget_ai_enabled' => isset($_POST['widget_ai_enabled']) ? '1' : '0',
+                'widget_ai_provider' => $activeProvider,
+                'widget_ai_name' => mb_substr(trim((string) ($_POST['widget_ai_name'] ?? 'CMC AI')), 0, 60),
+                'widget_ai_welcome' => mb_substr(trim((string) ($_POST['widget_ai_welcome'] ?? '')), 0, 500),
+                'widget_ai_rules' => mb_substr(trim((string) ($_POST['widget_ai_rules'] ?? '')), 0, 3000),
+                'widget_theme_primary' => $colors['primary'],
+                'widget_theme_navy' => $colors['navy'],
+                'widget_theme_soft' => $colors['soft'],
+                'widget_theme_accent' => $colors['accent'],
+            ];
+            if ($settingsToSave['widget_ai_name'] === '' || $settingsToSave['widget_ai_welcome'] === '' || $settingsToSave['widget_ai_rules'] === '') {
+                throw new InvalidArgumentException('Tên trợ lý, lời chào và rule không được để trống.');
+            }
+            $providerInput = is_array($_POST['providers'] ?? null) ? $_POST['providers'] : [];
+            $db->beginTransaction();
+            $settingStatement = $db->prepare("INSERT INTO ui_settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP");
+            foreach ($settingsToSave as $key => $value) {
+                $settingStatement->execute([$key, $value]);
+            }
+            foreach ($registry as $provider => $preset) {
+                $input = is_array($providerInput[$provider] ?? null) ? $providerInput[$provider] : [];
+                AiProviderManager::save(
+                    $provider,
+                    (string) ($input['endpoint'] ?? $preset['endpoint']),
+                    (string) ($input['model'] ?? $preset['model']),
+                    (string) ($input['api_key'] ?? ''),
+                    isset($input['enabled']),
+                    isset($input['clear_key']),
+                    (int) user()['id']
+                );
+            }
+            $db->commit();
+            flash('success', 'Đã lưu cấu hình AI và theme widget.');
+            redirect('index.php?page=super-admin');
+
+        case 'test_ai_provider':
+            require_super_admin();
+            $provider = (string) ($_POST['provider'] ?? '');
+            if (!isset(AiProviderManager::registry()[$provider])) {
+                throw new InvalidArgumentException('Provider AI không hợp lệ.');
+            }
+            $test = AiProviderManager::test($provider);
+            flash($test['ok'] ? 'success' : 'danger', $test['message']);
+            redirect('index.php?page=super-admin#providers');
+
+        case 'save_ai_knowledge':
+            require_super_admin();
+            $id = (int) ($_POST['knowledge_id'] ?? 0);
+            $category = mb_substr(trim((string) ($_POST['category'] ?? '')), 0, 80);
+            $title = mb_substr(trim((string) ($_POST['title'] ?? '')), 0, 180);
+            $content = mb_substr(trim((string) ($_POST['content'] ?? '')), 0, 5000);
+            $keywords = mb_substr(trim((string) ($_POST['keywords'] ?? '')), 0, 500);
+            if (mb_strlen($category) < 2 || mb_strlen($title) < 4 || mb_strlen($content) < 20) {
+                throw new InvalidArgumentException('Hãy nhập đầy đủ danh mục, tiêu đề và nội dung kiến thức.');
+            }
+            if ($id > 0) {
+                $statement = $db->prepare('UPDATE ai_knowledge_entries SET category = ?, title = ?, content = ?, keywords = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+                $statement->execute([$category, $title, $content, $keywords, user()['id'], $id]);
+            } else {
+                $statement = $db->prepare('INSERT INTO ai_knowledge_entries (category, title, content, keywords, updated_by) VALUES (?, ?, ?, ?, ?)');
+                $statement->execute([$category, $title, $content, $keywords, user()['id']]);
+            }
+            flash('success', $id > 0 ? 'Đã cập nhật dữ liệu gốc.' : 'Đã thêm dữ liệu gốc mới.');
+            redirect('index.php?page=super-admin#knowledge');
+
+        case 'toggle_ai_knowledge':
+            require_super_admin();
+            $id = (int) ($_POST['knowledge_id'] ?? 0);
+            $db->prepare('UPDATE ai_knowledge_entries SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END, updated_by = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')->execute([user()['id'], $id]);
+            flash('success', 'Đã cập nhật trạng thái dữ liệu gốc.');
+            redirect('index.php?page=super-admin#knowledge');
+
         case 'submit_content':
             require_auth(['student', 'ambassador']);
             $campaignId = (int) ($_POST['campaign_id'] ?? 0);

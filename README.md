@@ -74,7 +74,27 @@ AI_WIDGET_MODEL="provider-model-name" \
 php -S 127.0.0.1:8000 router.php
 ```
 
-Gemini và Qwen dùng cùng URL tương thích OpenAI đã nêu ở phần kiểm duyệt. Khi chưa có key hoặc API lỗi, widget tự chuyển sang bộ gợi ý và làm sạch câu hỏi cục bộ để luồng demo vẫn hoạt động. Mỗi phiên widget được giới hạn 8 yêu cầu AI/phút.
+Gemini và Qwen dùng cùng URL tương thích OpenAI đã nêu ở phần kiểm duyệt. Khi chưa có key hoặc API lỗi, widget tự chuyển sang bộ gợi ý và làm sạch câu hỏi cục bộ để luồng demo vẫn hoạt động. Mỗi phiên widget được giới hạn 15 yêu cầu AI/phút.
+
+### Chatbot AI và Super Admin
+
+Widget có thêm trợ lý AI cho học sinh tại đầu trang. Trợ lý chỉ trả lời từ `ai_knowledge_entries`, có thể gợi ý đại sứ từ hồ sơ thật và chuyển thẳng sang profile đại sứ. Lịch sử hỏi đáp được lưu cục bộ trong trình duyệt; nhật ký kỹ thuật gần nhất được giữ phía server để Super Admin phát hiện chủ đề còn thiếu dữ liệu.
+
+Trang cấu hình ẩn: `index.php?page=super-admin`. Trang không xuất hiện trong menu và mặc định chỉ tài khoản `admin@cmc.edu.vn` truy cập được. Khi triển khai thật, đặt danh sách email bằng biến môi trường:
+
+```bash
+SUPER_ADMIN_EMAILS="owner@cmc.edu.vn,tech@cmc.edu.vn"
+APP_SECRET="a-long-random-production-secret"
+```
+
+Super Admin quản lý Gemini, DeepSeek, Zhipu GLM và Alibaba Qwen qua endpoint Chat Completions tương thích OpenAI, model, API key, rule, dữ liệu gốc và màu theme widget. API key được mã hóa AES-256-GCM trong SQLite; `APP_SECRET` phải được giữ ổn định giữa các lần deploy. Nếu không đặt `APP_SECRET`, môi trường local tự tạo `data/.app_secret` (đã bị Git bỏ qua).
+
+Endpoint mặc định:
+
+- Gemini: `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`
+- DeepSeek: `https://api.deepseek.com/chat/completions`
+- GLM: `https://open.bigmodel.cn/api/paas/v4/chat/completions`
+- Qwen: `https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions` hoặc domain Workspace chính thức cùng region.
 
 ## Tài khoản demo
 

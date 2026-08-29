@@ -41,6 +41,9 @@ $contentData = array_map(static fn(array $item): array => [
     'likes' => (int) $item['likes'],
     'publishedAt' => date('d/m/Y', strtotime($item['submitted_at'])),
 ], $publishedContent);
+$widgetSettings = ui_settings();
+$themeColor = static fn(string $key, string $fallback): string => preg_match('/^#[0-9a-f]{6}$/i', (string) ($widgetSettings[$key] ?? '')) === 1 ? (string) $widgetSettings[$key] : $fallback;
+$widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
 ?>
 <!doctype html>
 <html lang="vi">
@@ -54,10 +57,10 @@ $contentData = array_map(static fn(array $item): array => [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/widget.css?v=15" rel="stylesheet">
+    <link href="assets/css/widget.css?v=16" rel="stylesheet">
 </head>
 <body class="widget-body">
-<main class="widget-shell" id="widgetShell">
+<main class="widget-shell" id="widgetShell" style="--widget-blue:<?= e($themeColor('widget_theme_primary', '#008fd5')) ?>;--widget-blue-strong:<?= e($themeColor('widget_theme_primary', '#006eaa')) ?>;--widget-navy:<?= e($themeColor('widget_theme_navy', '#002757')) ?>;--widget-soft:<?= e($themeColor('widget_theme_soft', '#f2f8fb')) ?>;--widget-cyan:<?= e($themeColor('widget_theme_accent', '#00dedf')) ?>">
     <header class="widget-header">
         <button class="widget-back is-hidden" id="widgetBack" type="button" aria-label="Quay lại"><i class="bi bi-arrow-left"></i></button>
         <div class="widget-brand" aria-label="CMC University eAmbassador"><img src="assets/img/cmc-university-horizontal.png" alt="CMC University"><span><b>e</b>Ambassador</span></div>
@@ -76,6 +79,16 @@ $contentData = array_map(static fn(array $item): array => [
             <div><h1>Chọn đại sứ để trò chuyện</h1><p><strong><?= count($ambassadors) ?> đại sứ đã xác minh</strong> · <?= number_format($answeredQuestions, 0, ',', '.') ?> câu trả lời đã được ghi nhận.</p></div>
             <span class="widget-powered"><small>Powered by</small><span class="cmc-mini"><img src="assets/img/cmc-university.svg" alt="CMC University"></span><i aria-hidden="true"></i><strong><b>e</b>Ambassador</strong></span>
         </div>
+        <?php if ($widgetAiEnabled): ?>
+            <section class="widget-ai-assistant" id="widgetAiAssistant" aria-label="Trợ lý AI hỗ trợ học sinh">
+                <header><span class="widget-ai-avatar"><i class="bi bi-stars"></i></span><div><h2><?= e($widgetSettings['widget_ai_name']) ?></h2><p>Hỏi thông tin chung hoặc tìm đại sứ phù hợp</p></div><small><i></i> Dữ liệu đã duyệt</small></header>
+                <div class="widget-ai-messages" id="widgetAiMessages" aria-live="polite"></div>
+                <div class="widget-ai-ambassadors is-hidden" id="widgetAiAmbassadors"></div>
+                <div class="widget-ai-prompts" id="widgetAiPrompts"><button type="button" data-widget-ai-prompt="Gợi ý đại sứ phù hợp với ngành mình quan tâm"><i class="bi bi-person-check"></i> Tìm đại sứ phù hợp</button><button type="button" data-widget-ai-prompt="Mình có thể hỏi đại sứ những gì?"><i class="bi bi-chat-square-text"></i> Có thể hỏi gì?</button><button type="button" data-widget-ai-prompt="Nếu đại sứ đang offline thì mình phải làm sao?"><i class="bi bi-clock-history"></i> Khi đại sứ offline</button></div>
+                <form class="widget-ai-composer" id="widgetAiForm"><label class="visually-hidden" for="widgetAiInput">Câu hỏi cho trợ lý AI</label><textarea id="widgetAiInput" rows="1" maxlength="600" placeholder="Hỏi AI hoặc mô tả đại sứ bạn muốn tìm..."></textarea><button type="submit" aria-label="Gửi câu hỏi cho AI"><i class="bi bi-arrow-up"></i></button></form>
+                <footer><i class="bi bi-shield-check"></i> AI chỉ trả lời từ dữ liệu cố định; thông tin chính sách cần xác nhận với nhà trường.</footer>
+            </section>
+        <?php endif; ?>
         <div class="widget-filters" aria-label="Lọc đại sứ">
             <label class="widget-search"><i class="bi bi-search"></i><input id="widgetSearch" type="search" placeholder="Tên hoặc điều bạn quan tâm..."></label>
             <div class="widget-filter-row">
@@ -154,8 +167,8 @@ $contentData = array_map(static fn(array $item): array => [
     <div class="widget-toast is-hidden" id="widgetToast" role="status"></div>
  </main>
 <script>
-window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
+window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData, 'ai' => ['enabled' => $widgetAiEnabled, 'name' => $widgetSettings['widget_ai_name'], 'welcome' => $widgetSettings['widget_ai_welcome']]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=15"></script>
+<script src="assets/js/widget.js?v=16"></script>
 </body>
 </html>
