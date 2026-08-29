@@ -53,7 +53,7 @@ $contentData = array_map(static fn(array $item): array => [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/widget.css?v=6" rel="stylesheet">
+    <link href="assets/css/widget.css?v=7" rel="stylesheet">
 </head>
 <body class="widget-body">
 <main class="widget-shell" id="widgetShell">
@@ -65,7 +65,7 @@ $contentData = array_map(static fn(array $item): array => [
 
     <nav class="widget-navigation" aria-label="Cách kết nối với đại sứ">
         <button class="is-active" type="button" data-availability="all"><i class="bi bi-people"></i><span>Đại sứ</span></button>
-        <button type="button" data-availability="online"><i class="bi bi-chat-dots"></i><span>Chat ngay</span></button>
+        <button type="button" data-widget-tab="chat"><i class="bi bi-chat-dots"></i><span>Chat ngay</span></button>
         <button type="button" data-widget-tab="content"><i class="bi bi-journal-richtext"></i><span>Content</span></button>
         <button type="button" data-availability="offline"><i class="bi bi-calendar2-check"></i><span>Đặt lịch</span></button>
     </nav>
@@ -106,11 +106,6 @@ $contentData = array_map(static fn(array $item): array => [
         <div class="profile-content"><span class="profile-verified"><i class="bi bi-patch-check-fill"></i> Đại sứ sinh viên đã xác minh</span><h1 id="profileName"></h1><p class="profile-major" id="profileMajor"></p><p class="profile-location" id="profileLocation"></p><p class="profile-bio" id="profileBio"></p><div class="profile-tags" id="profileTags"></div><div class="profile-action" id="profileAction"></div><p class="privacy-note"><i class="bi bi-shield-check"></i> Thông tin chỉ dùng để duy trì tư vấn và bảo đảm an toàn.</p></div>
     </section>
 
-    <section class="widget-view widget-form-view is-hidden" id="chatStartView">
-        <div class="form-heading"><span class="form-icon"><i class="bi bi-chat-heart"></i></span><h1 id="chatStartTitle">Bắt đầu cuộc trò chuyện</h1><p id="chatStartDescription">Giới thiệu ngắn để đại sứ hiểu câu hỏi của bạn.</p></div>
-        <form class="widget-form" id="widgetChatForm"><input type="hidden" name="ambassador_id" id="chatAmbassadorId"><label><span>Tên của bạn</span><input name="name" autocomplete="name" required placeholder="Ví dụ: Minh Anh"></label><label><span>Email</span><input name="email" type="email" autocomplete="email" required placeholder="minhanh@email.com"></label><label><span>Ngành đang quan tâm</span><input name="major" id="chatMajor" placeholder="Công nghệ thông tin"></label><label><span>Bạn muốn hỏi điều gì?</span><textarea name="message" rows="4" required placeholder="Ngành học, môi trường, hoạt động sinh viên..."></textarea></label><p class="form-error is-hidden" id="chatError"></p><button class="primary-action" type="submit"><span id="chatSubmitLabel">Kết nối với đại sứ</span><i class="bi bi-arrow-right"></i></button></form>
-    </section>
-
     <section class="widget-view widget-chat is-hidden" id="chatView">
         <div class="chat-person"><span class="mini-avatar" id="chatHeaderAvatar"></span><div><strong id="chatHeaderName"></strong><small id="chatHeaderStatus"><i></i> Đang online</small></div></div>
         <div class="widget-messages" id="widgetMessages"></div>
@@ -129,9 +124,9 @@ $contentData = array_map(static fn(array $item): array => [
             <button class="offline-dialog-close" id="offlineDialogClose" type="button" aria-label="Đóng thông báo"><i class="bi bi-x-lg"></i></button>
             <div id="offlineEmailStep">
                 <span class="offline-dialog-icon"><i class="bi bi-envelope"></i></span>
-                <h2 id="offlineMessageTitle">Nhận phản hồi qua email</h2>
-                <p><strong id="offlineEmailRecipientName"></strong> đang offline. Nhập email để gửi tin nhắn; eAmbassador sẽ báo cho bạn khi có phản hồi.</p>
-                <form class="offline-email-form" id="offlineEmailForm"><label><span>Email nhận phản hồi</span><input id="offlineReplyEmail" name="email" type="email" autocomplete="email" required placeholder="ban@email.com"></label><p class="offline-email-error is-hidden" id="offlineEmailError"></p><div class="offline-dialog-actions"><button class="secondary-action" id="scheduleBeforeMessage" type="button">Đặt lịch</button><button class="primary-action" type="submit"><i class="bi bi-send-fill"></i> Gửi tin nhắn</button></div></form>
+                <h2 id="offlineMessageTitle">Xác nhận email để gửi</h2>
+                <p id="offlineEmailDescription"></p>
+                <form class="offline-email-form" id="offlineEmailForm"><label><span id="offlineReplyEmailLabel">Email của bạn</span><input id="offlineReplyEmail" name="email" type="email" autocomplete="email" required placeholder="ban@email.com"></label><p class="offline-email-error is-hidden" id="offlineEmailError"></p><div class="offline-dialog-actions" id="offlineEmailActions"><button class="secondary-action" id="scheduleBeforeMessage" type="button">Đặt lịch</button><button class="primary-action" type="submit"><i class="bi bi-send-fill"></i> Gửi tin nhắn</button></div></form>
             </div>
             <div class="is-hidden" id="offlineSentStep">
                 <span class="offline-dialog-icon"><i class="bi bi-envelope-check"></i></span>
@@ -147,6 +142,6 @@ $contentData = array_map(static fn(array $item): array => [
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=6"></script>
+<script src="assets/js/widget.js?v=7"></script>
 </body>
 </html>

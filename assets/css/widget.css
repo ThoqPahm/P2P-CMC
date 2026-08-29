@@ -225,6 +225,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .offline-dialog-card .offline-email-error { margin: 0; color: var(--widget-danger); font-size: .68rem; }
 .offline-email-form .offline-dialog-actions { margin-top: 8px; }
 .offline-dialog-actions { display: grid; grid-template-columns: 1fr 1.2fr; gap: 9px; margin-top: 24px; }
+.offline-dialog-actions.is-single { grid-template-columns: 1fr; }
 .offline-dialog-actions .primary-action, .offline-dialog-actions .secondary-action { min-height: 44px; padding: 9px 12px; font-size: .68rem; }
 
 @media (max-width: 620px) {

@@ -88,19 +88,10 @@
                 <span class="ambassador-card-head"><span class="ambassador-avatar">${escapeHtml(item.initials)}</span><span class="ambassador-copy"><strong>${escapeHtml(item.name)} <i class="bi bi-patch-check-fill"></i></strong><span>${escapeHtml(item.major)} · Năm ${item.study_year}</span></span><span class="availability ${item.online ? 'online' : 'offline'}"><i></i>${item.online ? 'Online' : 'Offline'}</span></span>
                 <span class="ambassador-bio">${escapeHtml(item.bio || 'Sẵn sàng chia sẻ trải nghiệm học tập và đời sống tại CMC.')}</span>
                 <span class="ambassador-facts"><span><small>Quê quán</small><strong>${escapeHtml(item.hometown)}</strong></span><span><small>Có thể chia sẻ</small><strong>${escapeHtml((item.interests || []).slice(0, 2).join(', ') || 'Đời sống CMC')}</strong></span></span>
-                <span class="ambassador-cta">${item.online ? `Chat với ${escapeHtml(item.name)}` : 'Nhắn tin hoặc đặt lịch'} <i class="bi bi-arrow-right"></i></span>
+                <span class="ambassador-cta">Gửi tin nhắn <i class="bi bi-arrow-right"></i></span>
             </button>`).join('');
         $('#widgetEmpty').classList.toggle('is-hidden', filtered.length > 0);
         $$('.widget-ambassador').forEach((button) => button.addEventListener('click', () => openProfile(Number(button.dataset.ambassadorId))));
-    };
-
-    const prepareChatForm = () => {
-        if (!selectedAmbassador) return;
-        $('#chatAmbassadorId').value = selectedAmbassador.id;
-        $('#chatMajor').value = selectedAmbassador.major;
-        $('#chatStartTitle').textContent = 'Bắt đầu cuộc trò chuyện';
-        $('#chatStartDescription').textContent = 'Giới thiệu ngắn để đại sứ hiểu câu hỏi của bạn.';
-        $('#chatSubmitLabel').textContent = 'Kết nối với đại sứ';
     };
 
     const openSchedule = (previous = 'profileView', contact = null) => {
@@ -124,17 +115,27 @@
         status.innerHTML = `<i></i> ${online ? 'Đang online' : 'Đang offline · sẽ phản hồi sau'}`;
     };
 
-    const openOfflineChat = () => {
+    const openChat = (previous = 'profileView') => {
+        if (!selectedAmbassador) return;
         stopMessagePolling();
-        conversation = null;
-        offlineContact = null;
-        pendingOfflineMessage = '';
-        setChatHeader(false);
+        if (conversation?.ambassadorId !== selectedAmbassador.id) {
+            conversation = null;
+            offlineContact = null;
+            pendingOfflineMessage = '';
+        }
+        setChatHeader(selectedAmbassador.online);
         const list = $('#widgetMessages');
         delete list.dataset.loaded;
-        list.innerHTML = `<div class="offline-chat-note"><i class="bi bi-clock-history"></i><p><strong>${escapeHtml(selectedAmbassador.name)} đang offline</strong><span>Cứ nhắn như bình thường. eAmbassador sẽ báo qua email khi có phản hồi.</span></p></div>`;
-        $('#widgetMessageInput').value = '';
-        showView('chatView', 'profileView');
+        if (conversation) {
+            loadMessages();
+            startMessagePolling();
+        } else if (selectedAmbassador.online) {
+            list.innerHTML = '<div class="widget-empty"><i class="bi bi-chat-heart"></i><h2>Bắt đầu trò chuyện</h2><p>Nhập câu hỏi bên dưới và gửi như một cuộc chat bình thường.</p></div>';
+        } else {
+            list.innerHTML = `<div class="offline-chat-note"><i class="bi bi-clock-history"></i><p><strong>${escapeHtml(selectedAmbassador.name)} đang offline</strong><span>Cứ nhắn như bình thường. eAmbassador sẽ báo qua email khi có phản hồi.</span></p></div>`;
+        }
+        showView('chatView', previous);
+        setActiveNavigation($('[data-widget-tab="chat"]'));
         $('#widgetMessageInput').focus();
     };
 
@@ -148,17 +149,9 @@
         $('#profileBio').textContent = selectedAmbassador.bio;
         $('#profileTags').innerHTML = (selectedAmbassador.interests || []).slice(0, 4).map((interest) => `<span>${escapeHtml(interest)}</span>`).join('');
         $('#profileStatus').innerHTML = `<i></i> ${selectedAmbassador.online ? 'Đang online' : 'Hiện đang offline'}`;
-        $('#profileAction').innerHTML = selectedAmbassador.online
-            ? '<button class="primary-action" id="openChatForm" type="button"><i class="bi bi-chat-dots-fill"></i> Chat ngay với đại sứ</button>'
-            : '<button class="primary-action" id="openChatForm" type="button"><i class="bi bi-envelope-fill"></i> Gửi tin nhắn</button><button class="secondary-action" id="openScheduleForm" type="button"><i class="bi bi-calendar2-check"></i> Đặt lịch tư vấn</button>';
-        $('#openChatForm')?.addEventListener('click', () => {
-            if (selectedAmbassador.online) {
-                prepareChatForm();
-                showView('chatStartView', 'profileView');
-            } else {
-                openOfflineChat();
-            }
-        });
+        $('#profileAction').innerHTML = '<button class="primary-action" id="openChatForm" type="button"><i class="bi bi-send-fill"></i> Gửi tin nhắn</button>'
+            + (selectedAmbassador.online ? '' : '<button class="secondary-action" id="openScheduleForm" type="button"><i class="bi bi-calendar2-check"></i> Đặt lịch tư vấn</button>');
+        $('#openChatForm')?.addEventListener('click', () => openChat());
         $('#openScheduleForm')?.addEventListener('click', () => openSchedule());
         showView('profileView', 'directoryView');
     };
@@ -235,11 +228,17 @@
         }
     };
 
-    const showOfflineEmailPrompt = (message) => {
+    const showEmailPrompt = (message) => {
         pendingOfflineMessage = message;
         $('#offlineEmailStep').classList.remove('is-hidden');
         $('#offlineSentStep').classList.add('is-hidden');
-        $('#offlineEmailRecipientName').textContent = selectedAmbassador.name;
+        $('#offlineMessageTitle').textContent = selectedAmbassador.online ? 'Xác nhận email để gửi' : 'Nhận phản hồi qua email';
+        $('#offlineEmailDescription').textContent = selectedAmbassador.online
+            ? `Nhập email để duy trì cuộc trò chuyện với ${selectedAmbassador.name}.`
+            : `${selectedAmbassador.name} đang offline. Nhập email để nhận thông báo khi có phản hồi.`;
+        $('#offlineReplyEmailLabel').textContent = selectedAmbassador.online ? 'Email của bạn' : 'Email nhận phản hồi';
+        $('#scheduleBeforeMessage').classList.toggle('is-hidden', selectedAmbassador.online);
+        $('#offlineEmailActions').classList.toggle('is-single', selectedAmbassador.online);
         $('#offlineEmailError').classList.add('is-hidden');
         const dialog = $('#offlineMessageDialog');
         dialog.showModal();
@@ -256,44 +255,13 @@
         if (!dialog.open) dialog.showModal();
     };
 
-    $('#widgetChatForm').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const form = event.currentTarget;
-        const button = $('button[type="submit"]', form);
-        const error = $('#chatError');
-        const data = Object.fromEntries(new FormData(form).entries());
-        error.classList.add('is-hidden');
-        button.disabled = true;
-        button.innerHTML = `<i class="bi bi-arrow-repeat"></i> ${selectedAmbassador.online ? 'Đang kết nối...' : 'Đang gửi...'}`;
-        try {
-            const result = await api('widget_start_chat', data);
-            const ambassadorOnline = Boolean(result.ambassador_online);
-            conversation = { id: result.conversation_id, token: result.conversation_token, ambassadorOnline };
-            setChatHeader(ambassadorOnline);
-            showView('chatView', 'profileView');
-            await loadMessages();
-            startMessagePolling();
-            if (ambassadorOnline) {
-                $('#widgetMessageInput').focus();
-            } else {
-                showOfflineSentConfirmation({ name: data.name, email: data.email, question: data.message });
-            }
-        } catch (caught) {
-            error.textContent = caught.message;
-            error.classList.remove('is-hidden');
-        } finally {
-            button.disabled = false;
-            button.innerHTML = `<span id="chatSubmitLabel">${selectedAmbassador.online ? 'Kết nối với đại sứ' : 'Gửi tin nhắn'}</span><i class="bi bi-arrow-right"></i>`;
-        }
-    });
-
     $('#widgetMessageForm').addEventListener('submit', async (event) => {
         event.preventDefault();
         const input = $('#widgetMessageInput');
         const content = input.value.trim();
         if (!content) return;
         if (!conversation) {
-            showOfflineEmailPrompt(content);
+            showEmailPrompt(content);
             return;
         }
         input.disabled = true;
@@ -327,13 +295,19 @@
                 message: pendingOfflineMessage,
             });
             const ambassadorOnline = Boolean(result.ambassador_online);
-            conversation = { id: result.conversation_id, token: result.conversation_token, ambassadorOnline };
+            conversation = { id: result.conversation_id, token: result.conversation_token, ambassadorOnline, ambassadorId: selectedAmbassador.id };
             setChatHeader(ambassadorOnline);
             offlineContact = { name: '', email, question: pendingOfflineMessage };
             $('#widgetMessageInput').value = '';
             await loadMessages();
             startMessagePolling();
-            showOfflineSentConfirmation(offlineContact);
+            if (ambassadorOnline) {
+                $('#offlineMessageDialog').close();
+                showToast('Tin nhắn đã được gửi.');
+                $('#widgetMessageInput').focus();
+            } else {
+                showOfflineSentConfirmation(offlineContact);
+            }
         } catch (caught) {
             error.textContent = caught.message;
             error.classList.remove('is-hidden');
@@ -365,6 +339,17 @@
     });
 
     ['#widgetSearch', '#majorFilter', '#hometownFilter', '#yearFilter'].forEach((selector) => $(selector).addEventListener('input', renderAmbassadors));
+    $('[data-widget-tab="chat"]').addEventListener('click', (event) => {
+        setActiveNavigation(event.currentTarget);
+        if (selectedAmbassador) {
+            openChat(currentView === 'profileView' ? 'profileView' : 'directoryView');
+            return;
+        }
+        availability = 'all';
+        renderAmbassadors();
+        showView('directoryView');
+        showToast('Chọn một đại sứ để bắt đầu nhắn tin.');
+    });
     $$('[data-availability]').forEach((button) => button.addEventListener('click', () => {
         availability = button.dataset.availability;
         setActiveNavigation(button);
@@ -409,7 +394,10 @@
             startMessagePolling();
         }
     });
-    $('#backToDirectory').addEventListener('click', () => showView('directoryView'));
+    $('#backToDirectory').addEventListener('click', () => {
+        setActiveNavigation($('[data-availability="all"]'));
+        showView('directoryView');
+    });
     $('#offlineDialogClose').addEventListener('click', () => $('#offlineMessageDialog').close());
     $('#scheduleBeforeMessage').addEventListener('click', () => {
         offlineContact = { name: '', email: $('#offlineReplyEmail').value.trim(), question: pendingOfflineMessage };
