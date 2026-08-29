@@ -63,6 +63,8 @@ Với Qwen, API key, workspace và endpoint phải cùng region. Thay `YOUR_WORK
 
 Widget có hai tính năng AI phía server: gợi ý câu hỏi theo hồ sơ đại sứ và làm rõ câu hỏi nháp trước khi gửi. Tính năng không tự gửi tin nhắn, không tự trả lời thay đại sứ và không đưa API key xuống trình duyệt.
 
+Tab Inbox lưu tối đa 20 phiên chat gần nhất trong `localStorage` của trình duyệt. Widget chỉ lưu mã phiên, token truy cập và thông tin xem trước; nội dung đầy đủ vẫn được tải từ server khi học sinh mở lại cuộc trò chuyện.
+
 Mặc định widget tái sử dụng bộ biến `AI_MODERATION_*` ở trên. Nếu muốn dùng model hoặc endpoint riêng cho trải nghiệm học sinh, cấu hình:
 
 ```bash

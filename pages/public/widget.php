@@ -54,7 +54,7 @@ $contentData = array_map(static fn(array $item): array => [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/widget.css?v=13" rel="stylesheet">
+    <link href="assets/css/widget.css?v=15" rel="stylesheet">
 </head>
 <body class="widget-body">
 <main class="widget-shell" id="widgetShell">
@@ -64,9 +64,9 @@ $contentData = array_map(static fn(array $item): array => [
         <button class="widget-close" id="widgetClose" type="button" aria-label="Đóng cửa sổ"><i class="bi bi-x-lg"></i></button>
     </header>
 
-    <nav class="widget-navigation" aria-label="Cách kết nối với đại sứ">
+    <nav class="widget-navigation" aria-label="Điều hướng widget">
         <button class="is-active" type="button" data-availability="all"><i class="bi bi-people"></i><span>Đại sứ</span></button>
-        <button type="button" data-widget-tab="chat"><i class="bi bi-chat-dots"></i><span>Chat ngay</span></button>
+        <button type="button" data-widget-tab="inbox"><i class="bi bi-inbox"></i><span>Inbox</span></button>
         <button type="button" data-widget-tab="content"><i class="bi bi-journal-richtext"></i><span>Content</span></button>
         <button type="button" data-availability="offline"><i class="bi bi-calendar2-check"></i><span>Đặt lịch</span></button>
     </nav>
@@ -118,6 +118,12 @@ $contentData = array_map(static fn(array $item): array => [
         </div>
     </section>
 
+    <section class="widget-view widget-inbox is-hidden" id="inboxView">
+        <div class="inbox-heading"><div><h1>Hộp thư của bạn</h1><p>Mở lại những cuộc trò chuyện đã lưu trên trình duyệt này.</p></div><span id="inboxCount">0 cuộc trò chuyện</span></div>
+        <div class="inbox-list" id="inboxList"></div>
+        <div class="widget-empty inbox-empty is-hidden" id="inboxEmpty"><i class="bi bi-chat-square-heart"></i><h2>Chưa có cuộc trò chuyện</h2><p>Chọn một đại sứ và gửi câu hỏi đầu tiên. Cuộc chat sẽ xuất hiện tại đây.</p><button type="button" id="inboxBrowseAmbassadors">Tìm đại sứ</button></div>
+    </section>
+
     <section class="widget-view widget-chat is-hidden" id="chatView">
         <div class="chat-person"><span class="mini-avatar" id="chatHeaderAvatar"></span><div><strong id="chatHeaderName"></strong><small id="chatHeaderStatus"><i></i> Đang online</small></div></div>
         <div class="chat-ai-panel is-hidden" id="chatAiPanel"><div><i class="bi bi-stars"></i><strong>Gợi ý từ AI</strong></div><div class="ai-question-list compact" id="chatAiSuggestions"></div></div>
@@ -150,6 +156,6 @@ $contentData = array_map(static fn(array $item): array => [
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=14"></script>
+<script src="assets/js/widget.js?v=15"></script>
 </body>
 </html>

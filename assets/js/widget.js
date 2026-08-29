@@ -17,6 +17,8 @@
     let messagePoll = null;
     let offlineContact = null;
     let pendingOfflineMessage = '';
+    const inboxStorageKey = 'eambassador.widget.conversations.v1';
+    let storedConversations = [];
     const aiSuggestionCache = new Map();
 
     const escapeHtml = (value) => {
@@ -24,6 +26,81 @@
         element.textContent = String(value ?? '');
         return element.innerHTML;
     };
+
+    const readStoredConversations = () => {
+        try {
+            const value = JSON.parse(window.localStorage.getItem(inboxStorageKey) || '[]');
+            if (!Array.isArray(value)) return [];
+            return value.filter((item) => Number(item?.id) > 0
+                && Number(item?.ambassadorId) > 0
+                && typeof item?.token === 'string'
+                && item.token.length >= 24).slice(0, 20);
+        } catch (error) {
+            return [];
+        }
+    };
+
+    const persistStoredConversations = () => {
+        try {
+            window.localStorage.setItem(inboxStorageKey, JSON.stringify(storedConversations.slice(0, 20)));
+        } catch (error) {
+            // Private browsing or restricted storage must not block chat.
+        }
+    };
+
+    const formatInboxTime = (value) => {
+        if (!value) return '';
+        const date = new Date(String(value).replace(' ', 'T'));
+        if (Number.isNaN(date.getTime())) return '';
+        const today = new Date();
+        return date.toDateString() === today.toDateString()
+            ? date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+            : date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+    };
+
+    const saveConversationSession = (session, updates = {}) => {
+        if (!session?.id || !session?.token || !session?.ambassadorId) return;
+        const existing = storedConversations.find((item) => Number(item.id) === Number(session.id)) || {};
+        const next = {
+            ...existing,
+            id: Number(session.id),
+            token: String(session.token),
+            ambassadorId: Number(session.ambassadorId),
+            ambassadorOnline: Boolean(session.ambassadorOnline),
+            updatedAt: updates.updatedAt || existing.updatedAt || new Date().toISOString(),
+            lastMessage: updates.lastMessage ?? existing.lastMessage ?? '',
+            lastMessageMine: updates.lastMessageMine ?? existing.lastMessageMine ?? true,
+            lastMessageId: Number(updates.lastMessageId ?? existing.lastMessageId ?? 0),
+            lastSeenMessageId: Number(updates.lastSeenMessageId ?? existing.lastSeenMessageId ?? 0),
+            unread: Number(updates.unread ?? existing.unread ?? 0),
+        };
+        storedConversations = [next, ...storedConversations.filter((item) => Number(item.id) !== next.id)]
+            .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0))
+            .slice(0, 20);
+        persistStoredConversations();
+        renderInbox();
+    };
+
+    const renderInbox = () => {
+        storedConversations = storedConversations.filter((session) => ambassadors.some((item) => item.id === Number(session.ambassadorId)));
+        const list = $('#inboxList');
+        const empty = $('#inboxEmpty');
+        $('#inboxCount').textContent = `${storedConversations.length} cuộc trò chuyện`;
+        empty.classList.toggle('is-hidden', storedConversations.length > 0);
+        list.classList.toggle('is-hidden', storedConversations.length === 0);
+        list.innerHTML = storedConversations.map((session) => {
+            const ambassador = ambassadors.find((item) => item.id === Number(session.ambassadorId));
+            const preview = session.lastMessage || 'Cuộc trò chuyện đã bắt đầu';
+            return `<button class="inbox-thread" type="button" data-conversation-id="${session.id}">
+                <span class="inbox-avatar">${escapeHtml(ambassador.initials)}</span>
+                <span class="inbox-thread-copy"><span><strong>${escapeHtml(ambassador.name)}</strong><time>${escapeHtml(formatInboxTime(session.updatedAt))}</time></span><small>${escapeHtml(ambassador.major)} · Năm ${ambassador.study_year}</small><p>${session.lastMessageMine ? '<b>Bạn:</b> ' : ''}${escapeHtml(preview)}</p></span>
+                <span class="inbox-thread-meta"><i class="${ambassador.online ? 'is-online' : ''}" aria-label="${ambassador.online ? 'Đang online' : 'Đang offline'}"></i>${session.unread > 0 ? `<b aria-label="${session.unread} tin nhắn chưa đọc">${Math.min(session.unread, 99)}</b>` : '<i class="bi bi-chevron-right" aria-hidden="true"></i>'}</span>
+            </button>`;
+        }).join('');
+        $$('.inbox-thread', list).forEach((button) => button.addEventListener('click', () => openStoredConversation(Number(button.dataset.conversationId))));
+    };
+
+    storedConversations = readStoredConversations();
 
     const showView = (id, previous = null) => {
         views.forEach((view) => view.classList.toggle('is-hidden', view.id !== id));
@@ -116,28 +193,57 @@
         status.innerHTML = `<i></i> ${online ? 'Đang online' : 'Đang offline · sẽ phản hồi sau'}`;
     };
 
+    const openInbox = () => {
+        stopMessagePolling();
+        renderInbox();
+        showView('inboxView');
+        setActiveNavigation($('[data-widget-tab="inbox"]'));
+        refreshInbox();
+    };
+
+    const openStoredConversation = (conversationId) => {
+        const session = storedConversations.find((item) => Number(item.id) === Number(conversationId));
+        const ambassador = ambassadors.find((item) => item.id === Number(session?.ambassadorId));
+        if (!session || !ambassador) return;
+        selectedAmbassador = ambassador;
+        conversation = {
+            id: Number(session.id),
+            token: session.token,
+            ambassadorId: ambassador.id,
+            ambassadorOnline: ambassador.online,
+        };
+        openChat('inboxView');
+    };
+
     const openChat = (previous = 'profileView') => {
         if (!selectedAmbassador) return;
         stopMessagePolling();
         if (conversation?.ambassadorId !== selectedAmbassador.id) {
-            conversation = null;
+            const stored = storedConversations.find((item) => Number(item.ambassadorId) === selectedAmbassador.id);
+            conversation = stored ? {
+                id: Number(stored.id),
+                token: stored.token,
+                ambassadorId: selectedAmbassador.id,
+                ambassadorOnline: selectedAmbassador.online,
+            } : null;
             offlineContact = null;
             pendingOfflineMessage = '';
         }
         setChatHeader(selectedAmbassador.online);
         const list = $('#widgetMessages');
         delete list.dataset.loaded;
-        if (conversation) {
-            loadMessages();
-            startMessagePolling();
-        } else if (selectedAmbassador.online) {
+        if (!conversation && selectedAmbassador.online) {
             list.innerHTML = '<div class="widget-empty"><i class="bi bi-chat-heart"></i><h2>Bắt đầu trò chuyện</h2><p>Nhập câu hỏi bên dưới và gửi như một cuộc chat bình thường.</p></div>';
-        } else {
+        } else if (!conversation) {
             list.innerHTML = `<div class="offline-chat-note"><i class="bi bi-clock-history"></i><p><strong>${escapeHtml(selectedAmbassador.name)} đang offline</strong><span>Cứ nhắn như bình thường. eAmbassador sẽ báo qua email khi có phản hồi.</span></p></div>`;
         }
         showChatAiSuggestions();
         showView('chatView', previous);
-        setActiveNavigation($('[data-widget-tab="chat"]'));
+        setActiveNavigation($('[data-widget-tab="inbox"]'));
+        if (conversation) {
+            loadMessages(true);
+            startMessagePolling();
+        }
         $('#widgetMessageInput').focus();
     };
 
@@ -272,7 +378,7 @@
         }
     };
 
-    const loadMessages = async () => {
+    const loadMessages = async (markSeen = currentView === 'chatView') => {
         if (!conversation) return;
         try {
             const result = await api('widget_messages', {
@@ -288,9 +394,46 @@
             }).join('') || '<div class="widget-empty"><i class="bi bi-chat-heart"></i><h2>Hãy gửi lời chào đầu tiên</h2></div>';
             if (nearBottom || !list.dataset.loaded) list.scrollTop = list.scrollHeight;
             list.dataset.loaded = 'true';
+            const latest = result.messages.at(-1);
+            const stored = storedConversations.find((item) => Number(item.id) === Number(conversation.id));
+            const lastSeenMessageId = Number(stored?.lastSeenMessageId || 0);
+            const unread = markSeen ? 0 : result.messages.filter((message) => message.sender_role === 'ambassador' && Number(message.id) > lastSeenMessageId).length;
+            saveConversationSession(conversation, latest ? {
+                updatedAt: latest.created_at,
+                lastMessage: latest.content,
+                lastMessageMine: Number(latest.sender_id) === Number(result.current_user_id),
+                lastMessageId: Number(latest.id),
+                lastSeenMessageId: markSeen ? Number(latest.id) : lastSeenMessageId,
+                unread,
+            } : { unread: 0 });
         } catch (error) {
             showToast(error.message);
         }
+    };
+
+    const refreshInbox = async () => {
+        const sessions = [...storedConversations];
+        await Promise.all(sessions.map(async (session) => {
+            try {
+                const result = await api('widget_messages', {
+                    conversation_id: session.id,
+                    conversation_token: session.token,
+                }, 'GET');
+                const latest = result.messages.at(-1);
+                if (!latest) return;
+                const lastSeenMessageId = Number(session.lastSeenMessageId || 0);
+                saveConversationSession(session, {
+                    updatedAt: latest.created_at,
+                    lastMessage: latest.content,
+                    lastMessageMine: Number(latest.sender_id) === Number(result.current_user_id),
+                    lastMessageId: Number(latest.id),
+                    unread: result.messages.filter((message) => message.sender_role === 'ambassador' && Number(message.id) > lastSeenMessageId).length,
+                });
+            } catch (error) {
+                // Keep the locally saved session available during temporary network errors.
+            }
+        }));
+        renderInbox();
     };
 
     const showEmailPrompt = (message) => {
@@ -350,6 +493,12 @@
             });
             const ambassadorOnline = Boolean(result.ambassador_online);
             conversation = { id: result.conversation_id, token: result.conversation_token, ambassadorOnline, ambassadorId: selectedAmbassador.id };
+            saveConversationSession(conversation, {
+                updatedAt: new Date().toISOString(),
+                lastMessage: pendingOfflineMessage,
+                lastMessageMine: true,
+                unread: 0,
+            });
             $('#chatAiPanel').classList.add('is-hidden');
             setChatHeader(ambassadorOnline);
             offlineContact = { name: '', email, question: pendingOfflineMessage };
@@ -415,17 +564,7 @@
             button.innerHTML = '<i class="bi bi-magic"></i> AI làm rõ câu hỏi';
         }
     });
-    $('[data-widget-tab="chat"]').addEventListener('click', (event) => {
-        setActiveNavigation(event.currentTarget);
-        if (selectedAmbassador) {
-            openChat(currentView === 'profileView' ? 'profileView' : 'directoryView');
-            return;
-        }
-        availability = 'all';
-        renderAmbassadors();
-        showView('directoryView');
-        showToast('Chọn một đại sứ để bắt đầu nhắn tin.');
-    });
+    $('[data-widget-tab="inbox"]').addEventListener('click', openInbox);
     $$('[data-availability]').forEach((button) => button.addEventListener('click', () => {
         availability = button.dataset.availability;
         setActiveNavigation(button);
@@ -469,6 +608,10 @@
             loadMessages();
             startMessagePolling();
         }
+        if (target === 'inboxView') {
+            renderInbox();
+            refreshInbox();
+        }
     });
     $('#backToDirectory').addEventListener('click', () => {
         setActiveNavigation($('[data-availability="all"]'));
@@ -480,15 +623,29 @@
         $('#offlineMessageDialog').close();
         openSchedule('chatView', offlineContact);
     });
+    $('#inboxBrowseAmbassadors').addEventListener('click', () => {
+        availability = 'all';
+        setActiveNavigation($('[data-availability="all"]'));
+        renderAmbassadors();
+        showView('directoryView');
+    });
     $('#widgetClose').addEventListener('click', () => window.parent.postMessage({ type: 'eambassador:close' }, '*'));
+    window.addEventListener('storage', (event) => {
+        if (event.key !== inboxStorageKey) return;
+        storedConversations = readStoredConversations();
+        renderInbox();
+    });
 
     const minimumDate = new Date(Date.now() + (60 * 60 * 1000));
     minimumDate.setMinutes(minimumDate.getMinutes() - minimumDate.getTimezoneOffset());
     $('#preferredAt').min = minimumDate.toISOString().slice(0, 16);
     renderAmbassadors();
     renderContent();
+    renderInbox();
     const contentMatch = window.location.hash.match(/^#content-(\d+)$/);
-    if (contentMatch) {
+    if (window.location.hash === '#inbox') {
+        openInbox();
+    } else if (contentMatch) {
         const contentButton = $('[data-widget-tab="content"]');
         setActiveNavigation(contentButton);
         openContent(Number(contentMatch[1]));
