@@ -142,13 +142,23 @@
     const openProfile = (id) => {
         selectedAmbassador = ambassadors.find((item) => item.id === id) || null;
         if (!selectedAmbassador) return;
+        const online = selectedAmbassador.online;
+        $('#profileView').classList.toggle('is-online', online);
+        $('#profileView').classList.toggle('is-offline', !online);
         $('#profileAvatar').textContent = selectedAmbassador.initials;
         $('#profileName').textContent = selectedAmbassador.name;
-        $('#profileMajor').innerHTML = `<i class="bi bi-book"></i> ${escapeHtml(selectedAmbassador.major)} · Năm ${selectedAmbassador.study_year}`;
-        $('#profileLocation').innerHTML = `<i class="bi bi-geo-alt"></i> ${escapeHtml(selectedAmbassador.hometown)}`;
+        $('#profileMajor').textContent = `${selectedAmbassador.major} · Sinh viên năm ${selectedAmbassador.study_year}`;
+        $('#profileFieldMajor').textContent = selectedAmbassador.major;
+        $('#profileStudyYear').textContent = `Năm ${selectedAmbassador.study_year}`;
+        $('#profileLocation').textContent = selectedAmbassador.hometown;
         $('#profileBio').textContent = selectedAmbassador.bio;
-        $('#profileTags').innerHTML = (selectedAmbassador.interests || []).slice(0, 4).map((interest) => `<span>${escapeHtml(interest)}</span>`).join('');
-        $('#profileStatus').innerHTML = `<i></i> ${selectedAmbassador.online ? 'Đang online' : 'Hiện đang offline'}`;
+        $('#profileTags').innerHTML = (selectedAmbassador.interests || []).map((interest) => `<span><i class="bi bi-check2"></i>${escapeHtml(interest)}</span>`).join('');
+        $('#profileStatusLabel').textContent = online ? 'Đang online và sẵn sàng trò chuyện' : 'Hiện đang offline';
+        $('#profileStatusDetail').textContent = online
+            ? 'Bạn có thể gửi câu hỏi ngay để nhận chia sẻ trực tiếp.'
+            : 'Bạn vẫn có thể nhắn tin. Khi có phản hồi, eAmbassador sẽ thông báo qua email.';
+        $('#profileResponseBadge').textContent = online ? 'Có thể phản hồi ngay' : 'Sẽ phản hồi sau';
+        $('#profilePresenceIcon').className = `bi ${online ? 'bi-chat-heart-fill' : 'bi-envelope-check-fill'}`;
         $('#profileAction').innerHTML = '<button class="primary-action" id="openChatForm" type="button"><i class="bi bi-send-fill"></i> Gửi tin nhắn</button>'
             + (selectedAmbassador.online ? '' : '<button class="secondary-action" id="openScheduleForm" type="button"><i class="bi bi-calendar2-check"></i> Đặt lịch tư vấn</button>');
         $('#openChatForm')?.addEventListener('click', () => openChat());

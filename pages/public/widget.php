@@ -53,7 +53,7 @@ $contentData = array_map(static fn(array $item): array => [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/widget.css?v=7" rel="stylesheet">
+    <link href="assets/css/widget.css?v=8" rel="stylesheet">
 </head>
 <body class="widget-body">
 <main class="widget-shell" id="widgetShell">
@@ -102,8 +102,18 @@ $contentData = array_map(static fn(array $item): array => [
     </article>
 
     <section class="widget-view widget-profile is-hidden" id="profileView" aria-live="polite">
-        <div class="profile-cover"><span class="profile-avatar" id="profileAvatar"></span><span class="profile-status" id="profileStatus"></span></div>
-        <div class="profile-content"><span class="profile-verified"><i class="bi bi-patch-check-fill"></i> Đại sứ sinh viên đã xác minh</span><h1 id="profileName"></h1><p class="profile-major" id="profileMajor"></p><p class="profile-location" id="profileLocation"></p><p class="profile-bio" id="profileBio"></p><div class="profile-tags" id="profileTags"></div><div class="profile-action" id="profileAction"></div><p class="privacy-note"><i class="bi bi-shield-check"></i> Thông tin chỉ dùng để duy trì tư vấn và bảo đảm an toàn.</p></div>
+        <div class="profile-cover">
+            <span class="profile-route" aria-hidden="true"><i></i><i></i><i></i></span>
+            <div class="profile-hero"><span class="profile-avatar" id="profileAvatar"></span><div><span class="profile-verified"><i class="bi bi-patch-check-fill"></i> Đại sứ sinh viên đã xác minh</span><h1 id="profileName"></h1><p id="profileMajor"></p></div></div>
+        </div>
+        <div class="profile-content">
+            <div class="profile-presence" id="profilePresence"><span><i class="bi" id="profilePresenceIcon"></i></span><div><strong id="profileStatusLabel"></strong><p id="profileStatusDetail"></p></div><small id="profileResponseBadge"></small></div>
+            <div class="profile-action" id="profileAction"></div>
+            <div class="profile-facts" aria-label="Thông tin đại sứ"><div><span><i class="bi bi-mortarboard"></i></span><small>Ngành học</small><strong id="profileFieldMajor"></strong></div><div><span><i class="bi bi-calendar3"></i></span><small>Năm học</small><strong id="profileStudyYear"></strong></div><div><span><i class="bi bi-geo-alt"></i></span><small>Quê quán</small><strong id="profileLocation"></strong></div></div>
+            <section class="profile-section"><h2>Chia sẻ từ đại sứ</h2><p class="profile-bio" id="profileBio"></p></section>
+            <section class="profile-section"><h2>Bạn có thể hỏi về</h2><div class="profile-tags" id="profileTags"></div></section>
+            <p class="privacy-note"><i class="bi bi-shield-check"></i> Hồ sơ đã được xác minh. Cuộc trò chuyện được lưu để bảo đảm an toàn cho cả hai bên.</p>
+        </div>
     </section>
 
     <section class="widget-view widget-chat is-hidden" id="chatView">
@@ -142,6 +152,6 @@ $contentData = array_map(static fn(array $item): array => [
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=7"></script>
+<script src="assets/js/widget.js?v=8"></script>
 </body>
 </html>
