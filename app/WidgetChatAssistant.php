@@ -12,9 +12,13 @@ NGUYÊN TẮC BẮT BUỘC:
 2. Không bịa hoặc suy đoán học phí, học bổng, điểm chuẩn, lịch tuyển sinh, chương trình đào tạo, việc làm, chính sách hay cam kết kết quả.
 3. Nếu KNOWLEDGE không đủ, nói rõ chưa có dữ liệu chính thức trong hệ thống và đề nghị gặp đại sứ/kênh chính thức.
 4. Đại sứ chỉ chia sẻ trải nghiệm cá nhân; không đại diện nhà trường xác nhận chính sách.
-5. Trả lời tiếng Việt tự nhiên, gọn, tối đa 650 ký tự. Không dùng markdown table.
-6. Chỉ trả về một JSON object:
-{"answer":"...","intent":"general|recommend|handoff","source_ids":[1],"ambassador_ids":[2],"suggested_questions":["..."]}
+5. Trò chuyện như một tư vấn viên thân thiện: hiểu HISTORY, phản hồi trực tiếp điều học sinh vừa nói và không lặp lại lời chào hoặc câu mẫu máy móc.
+6. Nếu câu hỏi thiếu thông tin làm thay đổi đáp án (ví dụ hỏi học phí nhưng chưa có ngành), chỉ hỏi lại MỘT câu ngắn và đưa 2-4 lựa chọn phù hợp trong suggested_questions. Tuyệt đối không tự chọn một ngành/phương thức thay học sinh.
+7. Khi đã đủ thông tin, trả lời ý chính trước, diễn giải số liệu dễ đọc rồi kết bằng một câu hỏi tiếp nối có ích. suggested_questions phải bám sát câu vừa trả lời, không dùng một bộ câu cố định.
+8. Trả lời tiếng Việt tự nhiên, ấm áp, gọn, tối đa 650 ký tự. Không dùng markdown table và không bê nguyên văn cả tài liệu.
+9. Nếu CLARIFICATION_REQUIRED khác null, làm đúng câu hỏi làm rõ đó trước khi cung cấp số liệu.
+10. Chỉ trả về một JSON object:
+{"answer":"...","intent":"general|clarify|recommend|handoff","source_ids":[1],"ambassador_ids":[2],"suggested_questions":["..."]}
 source_ids và ambassador_ids chỉ được lấy từ JSON đầu vào. suggested_questions tối đa 3 câu.
 PROMPT;
 
@@ -32,16 +36,18 @@ PROMPT;
 
         $knowledge = rows('SELECT id, category, title, content, keywords FROM ai_knowledge_entries WHERE is_active = 1 ORDER BY updated_at DESC, id DESC');
         $ambassadors = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM users WHERE role = 'ambassador' AND status = 'active' ORDER BY is_online DESC, name");
-        $matchedKnowledge = self::matchKnowledge($message, $knowledge);
-        $officialPolicyQuestion = preg_match('/\b(học phí|học bổng|điểm chuẩn|chỉ tiêu|tuyển sinh|xét tuyển|thời hạn hồ sơ|chính sách)\b/ui', $message) === 1;
+        $retrievalMessage = self::contextualQuery($message, $history);
+        $matchedKnowledge = self::matchKnowledge($retrievalMessage, $knowledge);
+        $clarification = self::clarification($retrievalMessage, $matchedKnowledge !== []);
+        $officialPolicyQuestion = preg_match('/\b(học phí|học bổng|điểm chuẩn|chỉ tiêu|tuyển sinh|xét tuyển|thời hạn hồ sơ|chính sách)\b/ui', $retrievalMessage) === 1;
         $recommended = $officialPolicyQuestion ? [] : self::recommendAmbassadors($message, $ambassadors);
-        $fallback = self::fallback($message, $matchedKnowledge, $recommended);
+        $fallback = $clarification ?? self::fallback($retrievalMessage, $matchedKnowledge, $recommended);
         $provider = 'local';
         $model = 'grounded-rules-v1';
         $result = $fallback;
 
         $settings = ui_settings();
-        $config = ($settings['widget_ai_enabled'] ?? '1') === '1' ? AiProviderManager::activeConfig() : null;
+        $config = $clarification === null && ($settings['widget_ai_enabled'] ?? '1') === '1' ? AiProviderManager::activeConfig() : null;
         if ($config !== null) {
             try {
                 $safeHistory = [];
@@ -54,6 +60,7 @@ PROMPT;
                 }
                 $context = [
                     'ADMIN_RULES' => (string) ($settings['widget_ai_rules'] ?? ''),
+                    'CLARIFICATION_REQUIRED' => $clarification,
                     'KNOWLEDGE' => array_map(static fn(array $item): array => [
                         'id' => (int) $item['id'],
                         'category' => $item['category'],
@@ -117,7 +124,7 @@ PROMPT;
                     $score += in_array($token, $keywordTokens, true) ? 3 : 1;
                 }
             }
-            if ($score > 0) {
+            if ($score >= 2) {
                 $item['_score'] = $score;
                 $scored[] = $item;
             }
@@ -172,7 +179,7 @@ PROMPT;
         if ($knowledge) {
             $primary = $knowledge[0];
             $questionTokens = self::tokens($message);
-            $passages = array_values(array_filter(array_map('trim', preg_split('/\R+/u', (string) $primary['content']) ?: [])));
+            $passages = array_values(array_filter(array_map('trim', preg_split('/\R+|(?<=[.!?])\s+(?=[\p{Lu}\p{N}])/u', (string) $primary['content']) ?: [])));
             $bestPassage = $passages[0] ?? (string) $primary['content'];
             $bestScore = -1;
             foreach ($passages as $passage) {
@@ -181,12 +188,22 @@ PROMPT;
                 }
                 $passageTokens = self::tokens($passage);
                 $score = count(array_intersect($questionTokens, $passageTokens));
+                if (str_contains((string) $primary['title'], 'Học bổng') && str_contains($passage, '4 mức học bổng')) {
+                    $score += 2;
+                }
+                if (str_contains((string) $primary['title'], 'Điểm chuẩn') && str_starts_with($passage, '-') && $score >= 2) {
+                    $score += 3;
+                }
+                if (preg_match('/\bOJT\b/ui', $message) === 1 && str_contains($passage, 'On-Job Training')) {
+                    $score += 5;
+                }
                 if ($score > $bestScore) {
                     $bestScore = $score;
                     $bestPassage = $passage;
                 }
             }
-            $answer = (string) $primary['title'] . ': ' . ltrim($bestPassage, "- \t");
+            $answer = (string) $primary['title'] . ': ' . self::formatPassage((string) $primary['title'], $bestPassage, $message);
+            $answer .= self::closingQuestion((string) $primary['title'], $message);
         } else {
             $answer = 'Mình chưa có dữ liệu chính thức đủ để trả lời chắc chắn câu này. Bạn có thể chọn một đại sứ phù hợp để hỏi trải nghiệm thực tế, hoặc kiểm tra kênh thông tin chính thức của trường.';
         }
@@ -198,8 +215,120 @@ PROMPT;
             'answer' => mb_substr($answer, 0, 900),
             'source_ids' => $sourceIds,
             'ambassador_ids' => $ambassadorIds,
-            'suggested_questions' => ['Gợi ý đại sứ phù hợp với mình', 'Mình có thể hỏi đại sứ những gì?', 'Nếu đại sứ offline thì sao?'],
+            'suggested_questions' => self::followUpQuestions((string) ($knowledge[0]['title'] ?? ''), $message),
         ];
+    }
+
+    private static function contextualQuery(string $message, array $history): string
+    {
+        if (count(self::tokens($message)) > 4) {
+            return $message;
+        }
+        foreach (array_reverse($history) as $item) {
+            if (($item['role'] ?? '') === 'user' && trim((string) ($item['content'] ?? '')) !== '') {
+                return mb_substr(trim((string) $item['content']) . ' ' . $message, 0, 1000);
+            }
+        }
+        return $message;
+    }
+
+    /** @return array{answer: string, source_ids: array<int, int>, ambassador_ids: array<int, int>, suggested_questions: array<int, string>}|null */
+    private static function clarification(string $message, bool $hasKnowledge): ?array
+    {
+        $hasMajor = preg_match('/\b(CNTT|AI|IT|trí tuệ nhân tạo|công nghệ thông tin|khoa học máy tính|kỹ thuật phần mềm|an ninh mạng|vi mạch|điện tử|quản trị|kinh doanh|logistics|marketing|thương mại điện tử|truyền thông|quan hệ công chúng|thiết kế|đồ họa|tiếng Trung|Trung Quốc|tiếng Hàn|Hàn Quốc)\b/ui', $message) === 1;
+        if (preg_match('/\bhọc phí\b/ui', $message) === 1 && !$hasMajor) {
+            return [
+                'answer' => 'Được chứ. Học phí CMC khác nhau theo nhóm ngành, nên bạn đang quan tâm ngành nào để mình báo đúng mức?',
+                'source_ids' => [],
+                'ambassador_ids' => [],
+                'suggested_questions' => ['Công nghệ Thông tin', 'Digital Marketing', 'Thiết kế Đồ họa'],
+            ];
+        }
+        if (preg_match('/\bđiểm chuẩn\b/ui', $message) === 1 && !$hasMajor) {
+            return [
+                'answer' => 'Bạn muốn xem điểm chuẩn của ngành nào? Nếu cho mình thêm phương thức xét tuyển, mình sẽ trả đúng thang điểm luôn.',
+                'source_ids' => [],
+                'ambassador_ids' => [],
+                'suggested_questions' => ['Trí tuệ Nhân tạo · thi THPT', 'Công nghệ Thông tin · học bạ', 'Digital Marketing · CMC-TEST'],
+            ];
+        }
+        if (!$hasKnowledge) {
+            $isGreeting = preg_match('/^(xin chào|chào|hello|hi|alo|ê)\b/ui', trim($message)) === 1;
+            return [
+                'answer' => $isGreeting
+                    ? 'Chào bạn 👋 Bạn đang muốn tìm hiểu về tuyển sinh CMC, chọn ngành hay nói chuyện với một đại sứ sinh viên?'
+                    : 'Mình chưa có dữ liệu đã duyệt đủ để trả lời chắc câu này. Bạn muốn mình làm rõ thông tin tuyển sinh hay tìm một đại sứ để chia sẻ trải nghiệm thực tế?',
+                'source_ids' => [],
+                'ambassador_ids' => [],
+                'suggested_questions' => ['Tìm hiểu ngành học', 'Xem học phí và học bổng', 'Tìm đại sứ phù hợp'],
+            ];
+        }
+        return null;
+    }
+
+    /** @return array<int, string> */
+    private static function followUpQuestions(string $title, string $message): array
+    {
+        if (str_contains($title, 'Học phí')) {
+            return ['Tiếng Anh dự bị tính phí thế nào?', 'Chương trình học trong bao lâu?', 'Ngành khác có học phí bao nhiêu?'];
+        }
+        if (str_contains($title, 'Điểm chuẩn')) {
+            if (preg_match('/học bạ/ui', $message)) {
+                return ['So sánh với điểm thi THPT', 'So sánh với CMC-TEST', 'Điểm sàn khác điểm chuẩn ra sao?'];
+            }
+            if (preg_match('/CMC-?TEST/ui', $message)) {
+                return ['So sánh với điểm thi THPT', 'So sánh với học bạ', 'CMC-TEST được thi như thế nào?'];
+            }
+            if (preg_match('/THPT/ui', $message)) {
+                return ['So sánh với học bạ', 'So sánh với CMC-TEST', 'Điểm sàn khác điểm chuẩn ra sao?'];
+            }
+            return ['Điểm học bạ của ngành này là bao nhiêu?', 'CMC-TEST được tính thế nào?', 'Điểm sàn khác điểm chuẩn ra sao?'];
+        }
+        if (str_contains($title, 'Học bổng')) {
+            return ['Điều kiện giữ học bổng là gì?', 'Mình phù hợp mức học bổng nào?', 'Có ưu đãi thiết bị không?'];
+        }
+        if (str_contains($title, 'Ngành')) {
+            return ['Ngành này học trong bao lâu?', 'Học phí ngành này thế nào?', 'Gợi ý đại sứ đang học ngành này'];
+        }
+        return ['Mình đang phân vân chọn ngành', 'Gợi ý đại sứ phù hợp với mình', 'Cho mình xem thông tin tuyển sinh 2026'];
+    }
+
+    private static function formatPassage(string $title, string $passage, string $message): string
+    {
+        $passage = ltrim($passage, "- \t");
+        if (str_contains($title, 'Điểm chuẩn') && preg_match('/^(.+?):\s*([\d,.]+)\s*\|\s*([\d,.]+)\s*\|\s*([\d,.]+)\s*\|\s*([\d,.]+)/u', $passage, $match)) {
+            $values = [2 => rtrim($match[2], '.,'), 3 => rtrim($match[3], '.,'), 4 => rtrim($match[4], '.,'), 5 => rtrim($match[5], '.,')];
+            if (preg_match('/học bạ/ui', $message)) {
+                return $match[1] . ' theo học bạ THPT thang 40 là ' . $values[4] . ' điểm.';
+            }
+            if (preg_match('/CMC-?TEST/ui', $message)) {
+                return $match[1] . ' theo CMC-TEST thang 80 là ' . $values[5] . ' điểm.';
+            }
+            if (preg_match('/THPT/ui', $message)) {
+                $converted = preg_match('/quy đổi|thang 40/ui', $message) === 1;
+                return $match[1] . ' theo điểm thi THPT ' . ($converted ? 'quy đổi thang 40 là ' . $values[3] : 'thang 30 là ' . $values[2]) . ' điểm.';
+            }
+        }
+        return $passage;
+    }
+
+    private static function closingQuestion(string $title, string $message): string
+    {
+        if (str_contains($title, 'Học phí')) {
+            return ' Bạn muốn xem thêm phí tiếng Anh dự bị hay một ngành khác?';
+        }
+        if (str_contains($title, 'Điểm chuẩn')) {
+            return preg_match('/THPT|học bạ|CMC-?TEST/ui', $message)
+                ? ' Bạn có muốn mình so sánh thêm với phương thức khác không?'
+                : ' Bạn đang xét theo phương thức nào để mình giải thích kỹ hơn?';
+        }
+        if (str_contains($title, 'Học bổng')) {
+            return ' Bạn muốn mình kiểm tra kỹ điều kiện của mức nào?';
+        }
+        if (str_contains($title, 'Ngành')) {
+            return ' Bạn muốn tìm hiểu sâu hơn ngành nào?';
+        }
+        return ' Bạn muốn mình giải thích thêm phần nào?';
     }
 
     /** @return array{answer: string, source_ids: array<int, int>, ambassador_ids: array<int, int>, suggested_questions: array<int, string>}|null */
@@ -234,7 +363,7 @@ PROMPT;
     /** @return array<int, string> */
     private static function tokens(string $text): array
     {
-        $stop = ['và', 'là', 'có', 'cho', 'mình', 'tôi', 'em', 'bạn', 'được', 'không', 'của', 'với', 'thì', 'về', 'nào', 'như', 'gì', 'ơi', 'đại', 'sứ', 'ngành', 'tìm', 'muốn', 'phù', 'hợp', 'hỏi', 'tư', 'vấn', 'học', 'năm', 'bao', 'nhiêu'];
+        $stop = ['và', 'là', 'có', 'cho', 'mình', 'tôi', 'em', 'bạn', 'được', 'không', 'của', 'với', 'thì', 'về', 'nào', 'như', 'gì', 'ơi', 'đại', 'sứ', 'ngành', 'tìm', 'muốn', 'phù', 'hợp', 'hỏi', 'tư', 'vấn', 'học', 'năm', 'bao', 'nhiêu', 'trường', 'thông', 'tin'];
         $parts = preg_split('/[^\p{L}\p{N}]+/u', mb_strtolower($text)) ?: [];
         return array_values(array_unique(array_filter($parts, static fn(string $token): bool => mb_strlen($token) >= 2 && !in_array($token, $stop, true))));
     }
