@@ -305,6 +305,24 @@ final class Database
                 'offline, email, phản hồi, đặt lịch, tư vấn',
             ]);
         }
+
+        self::seedOfficialAiKnowledge($db);
+    }
+
+    private static function seedOfficialAiKnowledge(PDO $db): void
+    {
+        $entries = require dirname(__DIR__) . '/data/official_ai_knowledge.php';
+        $exists = $db->prepare('SELECT 1 FROM ai_knowledge_entries WHERE title = ? LIMIT 1');
+        $update = $db->prepare('UPDATE ai_knowledge_entries SET category = ?, content = ?, keywords = ? WHERE title = ?');
+        $insert = $db->prepare('INSERT INTO ai_knowledge_entries (category, title, content, keywords, is_active) VALUES (?, ?, ?, ?, 1)');
+        foreach ($entries as $entry) {
+            $exists->execute([$entry['title']]);
+            if ($exists->fetchColumn()) {
+                $update->execute([$entry['category'], $entry['content'], $entry['keywords'], $entry['title']]);
+            } else {
+                $insert->execute([$entry['category'], $entry['title'], $entry['content'], $entry['keywords']]);
+            }
+        }
     }
 
     private static function addColumn(PDO $db, string $table, string $column, string $definition): void

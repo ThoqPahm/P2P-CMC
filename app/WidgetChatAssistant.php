@@ -34,7 +34,7 @@ PROMPT;
         $ambassadors = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM users WHERE role = 'ambassador' AND status = 'active' ORDER BY is_online DESC, name");
         $matchedKnowledge = self::matchKnowledge($message, $knowledge);
         $officialPolicyQuestion = preg_match('/\b(học phí|học bổng|điểm chuẩn|chỉ tiêu|tuyển sinh|xét tuyển|thời hạn hồ sơ|chính sách)\b/ui', $message) === 1;
-        $recommended = $officialPolicyQuestion && !$matchedKnowledge ? [] : self::recommendAmbassadors($message, $ambassadors);
+        $recommended = $officialPolicyQuestion ? [] : self::recommendAmbassadors($message, $ambassadors);
         $fallback = self::fallback($message, $matchedKnowledge, $recommended);
         $provider = 'local';
         $model = 'grounded-rules-v1';
@@ -167,10 +167,26 @@ PROMPT;
     /** @return array{answer: string, source_ids: array<int, int>, ambassador_ids: array<int, int>, suggested_questions: array<int, string>} */
     private static function fallback(string $message, array $knowledge, array $recommended): array
     {
-        $sourceIds = array_map(static fn(array $item): int => (int) $item['id'], array_slice($knowledge, 0, 2));
+        $sourceIds = array_map(static fn(array $item): int => (int) $item['id'], array_slice($knowledge, 0, 1));
         $ambassadorIds = array_map(static fn(array $item): int => (int) $item['id'], $recommended);
         if ($knowledge) {
-            $answer = implode(' ', array_map(static fn(array $item): string => trim((string) $item['content']), array_slice($knowledge, 0, 2)));
+            $primary = $knowledge[0];
+            $questionTokens = self::tokens($message);
+            $passages = array_values(array_filter(array_map('trim', preg_split('/\R+/u', (string) $primary['content']) ?: [])));
+            $bestPassage = $passages[0] ?? (string) $primary['content'];
+            $bestScore = -1;
+            foreach ($passages as $passage) {
+                if (str_starts_with($passage, 'Nguồn chính thức:')) {
+                    continue;
+                }
+                $passageTokens = self::tokens($passage);
+                $score = count(array_intersect($questionTokens, $passageTokens));
+                if ($score > $bestScore) {
+                    $bestScore = $score;
+                    $bestPassage = $passage;
+                }
+            }
+            $answer = (string) $primary['title'] . ': ' . ltrim($bestPassage, "- \t");
         } else {
             $answer = 'Mình chưa có dữ liệu chính thức đủ để trả lời chắc chắn câu này. Bạn có thể chọn một đại sứ phù hợp để hỏi trải nghiệm thực tế, hoặc kiểm tra kênh thông tin chính thức của trường.';
         }
