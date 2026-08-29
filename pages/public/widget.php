@@ -3,7 +3,31 @@ $widgetToken = bin2hex(random_bytes(24));
 $statement = $db->prepare("INSERT INTO widget_access_tokens (token, expires_at) VALUES (?, datetime('now', '+12 hours'))");
 $statement->execute([$widgetToken]);
 $db->exec("DELETE FROM widget_access_tokens WHERE expires_at <= datetime('now')");
-$ambassadors = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM users WHERE role = 'ambassador' AND status = 'active' ORDER BY is_online DESC, name");
+$ambassadors = rows(<<<'SQL'
+    SELECT u.id, u.name, u.major, u.hometown, u.interests, u.bio, u.avatar, u.study_year, u.is_online,
+           COALESCE(conversation_stats.conversation_count, 0) AS conversation_count,
+           COALESCE(message_stats.answer_count, 0) AS answer_count,
+           COALESCE(content_stats.content_count, 0) AS content_count
+    FROM users u
+    LEFT JOIN (
+        SELECT ambassador_id, COUNT(*) AS conversation_count
+        FROM conversations
+        GROUP BY ambassador_id
+    ) conversation_stats ON conversation_stats.ambassador_id = u.id
+    LEFT JOIN (
+        SELECT sender_id, COUNT(*) AS answer_count
+        FROM messages
+        GROUP BY sender_id
+    ) message_stats ON message_stats.sender_id = u.id
+    LEFT JOIN (
+        SELECT user_id, COUNT(*) AS content_count
+        FROM submissions
+        WHERE status = 'approved'
+        GROUP BY user_id
+    ) content_stats ON content_stats.user_id = u.id
+    WHERE u.role = 'ambassador' AND u.status = 'active'
+    ORDER BY u.is_online DESC, u.name
+SQL);
 $answeredQuestions = (int) scalar("SELECT COUNT(*) FROM messages m JOIN users u ON u.id = m.sender_id WHERE u.role = 'ambassador'");
 $publishedContent = rows(<<<'SQL'
     SELECT s.id, s.content_type, s.content_url, s.caption, s.platform, s.blog_title, s.blog_excerpt, s.blog_body,
@@ -25,6 +49,10 @@ $widgetData = array_map(static fn(array $item): array => [
     'study_year' => (int) $item['study_year'],
     'online' => (bool) $item['is_online'],
     'initials' => initials($item['name']),
+    'photo' => trim((string) ($item['avatar'] ?? '')),
+    'conversationCount' => (int) $item['conversation_count'],
+    'answerCount' => (int) $item['answer_count'],
+    'contentCount' => (int) $item['content_count'],
 ], $ambassadors);
 $contentData = array_map(static fn(array $item): array => [
     'id' => (int) $item['id'],
@@ -53,7 +81,7 @@ $contentData = array_map(static fn(array $item): array => [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/widget.css?v=7" rel="stylesheet">
+    <link href="assets/css/widget.css?v=8" rel="stylesheet">
 </head>
 <body class="widget-body">
 <main class="widget-shell" id="widgetShell">
@@ -102,8 +130,21 @@ $contentData = array_map(static fn(array $item): array => [
     </article>
 
     <section class="widget-view widget-profile is-hidden" id="profileView" aria-live="polite">
-        <div class="profile-cover"><span class="profile-avatar" id="profileAvatar"></span><span class="profile-status" id="profileStatus"></span></div>
-        <div class="profile-content"><span class="profile-verified"><i class="bi bi-patch-check-fill"></i> Đại sứ sinh viên đã xác minh</span><h1 id="profileName"></h1><p class="profile-major" id="profileMajor"></p><p class="profile-location" id="profileLocation"></p><p class="profile-bio" id="profileBio"></p><div class="profile-tags" id="profileTags"></div><div class="profile-action" id="profileAction"></div><p class="privacy-note"><i class="bi bi-shield-check"></i> Thông tin chỉ dùng để duy trì tư vấn và bảo đảm an toàn.</p></div>
+        <div class="profile-cover"><span class="profile-route" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div class="profile-summary">
+            <span class="profile-avatar" id="profileAvatar"></span>
+            <div class="profile-identity"><span class="profile-verified"><i class="bi bi-patch-check-fill"></i> Hồ sơ đã xác minh</span><h1 id="profileName"></h1><p id="profileMajor"></p></div>
+            <div class="profile-status" id="profileStatus"><span><i></i><strong id="profileStatusLabel"></strong></span><small id="profileStatusDetail"></small></div>
+        </div>
+        <div class="profile-content">
+            <div class="profile-facts" aria-label="Thông tin đại sứ"><div><span><i class="bi bi-mortarboard"></i></span><small>Ngành học</small><strong id="profileFieldMajor"></strong></div><div><span><i class="bi bi-calendar3"></i></span><small>Hiện tại</small><strong id="profileStudyYear"></strong></div><div><span><i class="bi bi-geo-alt"></i></span><small>Đến từ</small><strong id="profileLocation"></strong></div></div>
+            <div class="profile-availability" id="profileAvailability"><span class="profile-availability-icon"><i class="bi"></i></span><div><strong id="profileAvailabilityTitle"></strong><p id="profileAvailabilityCopy"></p></div></div>
+            <div class="profile-action" id="profileAction"></div>
+            <section class="profile-about"><h2>Chia sẻ từ đại sứ</h2><p class="profile-bio" id="profileBio"></p></section>
+            <div class="profile-metrics" aria-label="Hoạt động trên eAmbassador"><div><strong id="profileConversationCount"></strong><span>Lượt tư vấn</span></div><div><strong id="profileAnswerCount"></strong><span>Câu trả lời</span></div><div><strong id="profileContentCount"></strong><span>Nội dung đã duyệt</span></div></div>
+            <section class="profile-topics"><h2>Bạn có thể hỏi về</h2><div class="profile-tags" id="profileTags"></div></section>
+            <p class="privacy-note"><i class="bi bi-shield-check"></i> Hồ sơ đã được xác minh. Cuộc trò chuyện được lưu để bảo đảm an toàn cho cả hai bên.</p>
+        </div>
     </section>
 
     <section class="widget-view widget-chat is-hidden" id="chatView">
@@ -142,6 +183,6 @@ $contentData = array_map(static fn(array $item): array => [
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=7"></script>
+<script src="assets/js/widget.js?v=8"></script>
 </body>
 </html>
