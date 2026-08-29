@@ -11,6 +11,7 @@ $isLogin = ($page ?? '') === 'login';
     <meta name="description" content="eAmbassador - Hệ sinh thái đại sứ sinh viên số và truyền thông ngang hàng.">
     <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
     <title><?= e($pageTitle === 'eAmbassador' ? 'eAmbassador' : $pageTitle . ' · eAmbassador') ?></title>
+    <link rel="icon" href="assets/img/cmc-university.svg" type="image/svg+xml">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
