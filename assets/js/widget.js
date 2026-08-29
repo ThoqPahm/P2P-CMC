@@ -296,7 +296,6 @@
     const showEmailPrompt = (message) => {
         pendingOfflineMessage = message;
         $('#offlineEmailStep').classList.remove('is-hidden');
-        $('#offlineSentStep').classList.add('is-hidden');
         $('#offlineMessageTitle').textContent = selectedAmbassador.online ? 'Xác nhận email để gửi' : 'Nhận phản hồi qua email';
         $('#offlineEmailDescription').textContent = selectedAmbassador.online
             ? `Nhập email để duy trì cuộc trò chuyện với ${selectedAmbassador.name}.`
@@ -308,16 +307,6 @@
         const dialog = $('#offlineMessageDialog');
         dialog.showModal();
         $('#offlineReplyEmail').focus();
-    };
-
-    const showOfflineSentConfirmation = (contact) => {
-        offlineContact = contact;
-        $('#offlineEmailStep').classList.add('is-hidden');
-        $('#offlineSentStep').classList.remove('is-hidden');
-        $('#offlineRecipientName').textContent = selectedAmbassador.name;
-        $('#offlineNotificationEmail').textContent = contact.email;
-        const dialog = $('#offlineMessageDialog');
-        if (!dialog.open) dialog.showModal();
     };
 
     $('#widgetMessageForm').addEventListener('submit', async (event) => {
@@ -367,13 +356,8 @@
             $('#widgetMessageInput').value = '';
             await loadMessages();
             startMessagePolling();
-            if (ambassadorOnline) {
-                $('#offlineMessageDialog').close();
-                showToast('Tin nhắn đã được gửi.');
-                $('#widgetMessageInput').focus();
-            } else {
-                showOfflineSentConfirmation(offlineContact);
-            }
+            $('#offlineMessageDialog').close();
+            $('#widgetMessageInput').focus();
         } catch (caught) {
             error.textContent = caught.message;
             error.classList.remove('is-hidden');
@@ -494,15 +478,6 @@
     $('#scheduleBeforeMessage').addEventListener('click', () => {
         offlineContact = { name: '', email: $('#offlineReplyEmail').value.trim(), question: pendingOfflineMessage };
         $('#offlineMessageDialog').close();
-        openSchedule('chatView', offlineContact);
-    });
-    $('#continueOfflineChat').addEventListener('click', () => {
-        $('#offlineMessageDialog').close();
-        $('#widgetMessageInput').focus();
-    });
-    $('#scheduleFromMessage').addEventListener('click', () => {
-        $('#offlineMessageDialog').close();
-        stopMessagePolling();
         openSchedule('chatView', offlineContact);
     });
     $('#widgetClose').addEventListener('click', () => window.parent.postMessage({ type: 'eambassador:close' }, '*'));

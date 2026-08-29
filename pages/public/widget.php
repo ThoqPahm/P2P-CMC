@@ -142,12 +142,6 @@ $contentData = array_map(static fn(array $item): array => [
                 <p id="offlineEmailDescription"></p>
                 <form class="offline-email-form" id="offlineEmailForm"><label><span id="offlineReplyEmailLabel">Email của bạn</span><input id="offlineReplyEmail" name="email" type="email" autocomplete="email" required placeholder="ban@email.com"></label><p class="offline-email-error is-hidden" id="offlineEmailError"></p><div class="offline-dialog-actions" id="offlineEmailActions"><button class="secondary-action" id="scheduleBeforeMessage" type="button">Đặt lịch</button><button class="primary-action" type="submit"><i class="bi bi-send-fill"></i> Gửi tin nhắn</button></div></form>
             </div>
-            <div class="is-hidden" id="offlineSentStep">
-                <span class="offline-dialog-icon"><i class="bi bi-envelope-check"></i></span>
-                <h2>Tin nhắn đã được gửi</h2>
-                <p><strong id="offlineRecipientName"></strong> hiện đang offline. Khi có phản hồi, eAmbassador sẽ thông báo qua <strong id="offlineNotificationEmail"></strong>.</p>
-                <div class="offline-dialog-actions"><button class="secondary-action" id="continueOfflineChat" type="button">Tiếp tục chat</button><button class="primary-action" id="scheduleFromMessage" type="button"><i class="bi bi-calendar2-check"></i> Đặt lịch tư vấn</button></div>
-            </div>
         </div>
     </dialog>
     <footer class="widget-footer"><span class="widget-trust"><i class="bi bi-shield-check"></i> Kết nối an toàn · Thông tin được bảo vệ</span></footer>
@@ -156,6 +150,6 @@ $contentData = array_map(static fn(array $item): array => [
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=13"></script>
+<script src="assets/js/widget.js?v=14"></script>
 </body>
 </html>
