@@ -172,6 +172,8 @@ final class Database
         self::addColumn($db, 'messages', 'moderation_provider', "TEXT NOT NULL DEFAULT 'manual'");
         self::addColumn($db, 'messages', 'moderation_model', 'TEXT');
         self::addColumn($db, 'messages', 'moderation_categories', 'TEXT');
+        self::addColumn($db, 'messages', 'moderation_confidence', 'REAL');
+        self::addColumn($db, 'messages', 'moderation_reason', 'TEXT');
         self::addColumn($db, 'messages', 'moderated_at', 'TEXT');
 
         $count = (int) $db->query('SELECT COUNT(*) FROM users')->fetchColumn();

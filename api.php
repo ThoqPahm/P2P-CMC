@@ -24,15 +24,15 @@ function verify_widget_access(): string
 }
 
 /**
- * @return array{flagged: bool, provider: string, model: string, categories: array<int, string>}
+ * @return array{flagged: bool, provider: string, model: string, categories: array<int, string>, confidence: float, reason: string}
  */
 function store_chat_message(PDO $db, int $conversationId, int $senderId, string $content): array
 {
     $cleanContent = mb_substr(trim($content), 0, 1000);
     $moderation = ContentModerator::check($cleanContent);
     $statement = $db->prepare(
-        'INSERT INTO messages (conversation_id, sender_id, content, is_flagged, moderation_provider, moderation_model, moderation_categories, moderated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)'
+        'INSERT INTO messages (conversation_id, sender_id, content, is_flagged, moderation_provider, moderation_model, moderation_categories, moderation_confidence, moderation_reason, moderated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)'
     );
     $statement->execute([
         $conversationId,
@@ -42,6 +42,8 @@ function store_chat_message(PDO $db, int $conversationId, int $senderId, string 
         $moderation['provider'],
         $moderation['model'],
         json_encode($moderation['categories'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        $moderation['confidence'],
+        $moderation['reason'],
     ]);
 
     return $moderation;

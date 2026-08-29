@@ -28,13 +28,16 @@ Mở `http://127.0.0.1:8000`. Database và dữ liệu mẫu được tự độ
 
 ### Kiểm duyệt tin nhắn
 
-Chat được kiểm duyệt phía server trước khi hiển thị cho người nhận. Để dùng OpenAI Moderation API, truyền API key khi chạy ứng dụng:
+Chat được kiểm duyệt phía server trước khi hiển thị cho người nhận. Có thể dùng bất kỳ nhà cung cấp AI nào hỗ trợ API Chat Completions tương thích OpenAI bằng cách truyền URL endpoint, API key và model khi chạy ứng dụng:
 
 ```bash
-OPENAI_API_KEY="your-key" php -S 127.0.0.1:8000 router.php
+AI_MODERATION_API_URL="https://provider.example/v1/chat/completions" \
+AI_MODERATION_API_KEY="your-key" \
+AI_MODERATION_MODEL="provider-model-name" \
+php -S 127.0.0.1:8000 router.php
 ```
 
-Hệ thống mặc định dùng `omni-moderation-latest`. Có thể đặt `OPENAI_MODERATION_MODEL` nếu cần ghim một phiên bản model. Khi chưa có key hoặc API tạm thời không khả dụng, bộ lọc an toàn cục bộ sẽ tiếp quản. Không đưa API key vào JavaScript hoặc commit key vào repository.
+Rule kiểm duyệt nằm trong ứng dụng và yêu cầu model trả về JSON gồm quyết định, nhóm vi phạm, độ tin cậy và lý do. Ngưỡng chặn mặc định là `0.65`, có thể chỉnh bằng `AI_MODERATION_THRESHOLD`. Khi thiếu cấu hình hoặc API tạm thời không khả dụng, bộ lọc tiếng Việt cục bộ sẽ tiếp quản. Không đưa API key vào JavaScript hoặc commit key vào repository.
 
 ## Tài khoản demo
 
