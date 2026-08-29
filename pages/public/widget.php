@@ -53,7 +53,7 @@ $contentData = array_map(static fn(array $item): array => [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/widget.css?v=8" rel="stylesheet">
+    <link href="assets/css/widget.css?v=9" rel="stylesheet">
 </head>
 <body class="widget-body">
 <main class="widget-shell" id="widgetShell">
@@ -110,8 +110,11 @@ $contentData = array_map(static fn(array $item): array => [
             <div class="profile-presence" id="profilePresence"><span><i class="bi" id="profilePresenceIcon"></i></span><div><strong id="profileStatusLabel"></strong><p id="profileStatusDetail"></p></div><small id="profileResponseBadge"></small></div>
             <div class="profile-action" id="profileAction"></div>
             <div class="profile-facts" aria-label="Thông tin đại sứ"><div><span><i class="bi bi-mortarboard"></i></span><small>Ngành học</small><strong id="profileFieldMajor"></strong></div><div><span><i class="bi bi-calendar3"></i></span><small>Năm học</small><strong id="profileStudyYear"></strong></div><div><span><i class="bi bi-geo-alt"></i></span><small>Quê quán</small><strong id="profileLocation"></strong></div></div>
-            <section class="profile-section"><h2>Chia sẻ từ đại sứ</h2><p class="profile-bio" id="profileBio"></p></section>
-            <section class="profile-section"><h2>Bạn có thể hỏi về</h2><div class="profile-tags" id="profileTags"></div></section>
+            <section class="profile-section profile-about"><h2>Về mình</h2><p class="profile-about-lead" id="profileAboutLead"></p><p class="profile-bio" id="profileBio"></p></section>
+            <div class="profile-detail-grid">
+                <section class="profile-section"><h2>Sở thích &amp; mối quan tâm</h2><p class="profile-section-note">Những chủ đề đại sứ yêu thích và thường xuyên tìm hiểu.</p><div class="profile-tags" id="profileTags"></div></section>
+                <section class="profile-section"><h2>Có thể chia sẻ cùng bạn</h2><p class="profile-section-note">Bắt đầu bằng một trong những chủ đề dưới đây.</p><ul class="profile-share-list" id="profileShareList"></ul></section>
+            </div>
             <p class="privacy-note"><i class="bi bi-shield-check"></i> Hồ sơ đã được xác minh. Cuộc trò chuyện được lưu để bảo đảm an toàn cho cả hai bên.</p>
         </div>
     </section>
@@ -152,6 +155,6 @@ $contentData = array_map(static fn(array $item): array => [
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=8"></script>
+<script src="assets/js/widget.js?v=9"></script>
 </body>
 </html>

@@ -151,8 +151,15 @@
         $('#profileFieldMajor').textContent = selectedAmbassador.major;
         $('#profileStudyYear').textContent = `Năm ${selectedAmbassador.study_year}`;
         $('#profileLocation').textContent = selectedAmbassador.hometown;
+        $('#profileAboutLead').textContent = `Mình là ${selectedAmbassador.name}, hiện là sinh viên năm ${selectedAmbassador.study_year} ngành ${selectedAmbassador.major} tại CMC University và đến từ ${selectedAmbassador.hometown}.`;
         $('#profileBio').textContent = selectedAmbassador.bio;
         $('#profileTags').innerHTML = (selectedAmbassador.interests || []).map((interest) => `<span><i class="bi bi-check2"></i>${escapeHtml(interest)}</span>`).join('');
+        const shareTopics = [
+            `Trải nghiệm học tập ngành ${selectedAmbassador.major}`,
+            `Nhịp sống của sinh viên năm ${selectedAmbassador.study_year}`,
+            ...(selectedAmbassador.interests || []).slice(0, 2).map((interest) => `Góc nhìn thực tế về ${interest.toLocaleLowerCase('vi')}`),
+        ];
+        $('#profileShareList').innerHTML = shareTopics.map((topic) => `<li><i class="bi bi-chat-square-heart"></i><span>${escapeHtml(topic)}</span></li>`).join('');
         $('#profileStatusLabel').textContent = online ? 'Đang online và sẵn sàng trò chuyện' : 'Hiện đang offline';
         $('#profileStatusDetail').textContent = online
             ? 'Bạn có thể gửi câu hỏi ngay để nhận chia sẻ trực tiếp.'

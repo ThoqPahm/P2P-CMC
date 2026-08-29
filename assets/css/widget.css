@@ -163,10 +163,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .profile-facts strong { margin-top: 2px; color: var(--widget-navy); font-size: .7rem; }
 .profile-section { margin-top: 12px; padding: 16px; background: #fff; border: 1px solid var(--widget-line); border-radius: 12px; }
 .profile-section h2 { margin: 0; color: var(--widget-navy); font-size: .86rem; }
-.profile-bio { margin: 8px 0 0; color: #455f73; font-size: .84rem; line-height: 1.7; }
+.profile-about-lead { margin: 9px 0 0; color: var(--widget-navy); font-size: .82rem; font-weight: 650; line-height: 1.65; }
+.profile-bio { margin: 8px 0 0; color: #455f73; font-size: .82rem; line-height: 1.7; }
+.profile-section-note { margin: 6px 0 0; color: var(--widget-muted); font-size: .68rem; line-height: 1.5; }
+.profile-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.profile-detail-grid .profile-section { min-width: 0; }
 .profile-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
 .profile-tags span { display: inline-flex; align-items: center; gap: 5px; padding: 7px 9px; color: #42677d; background: var(--widget-soft); border-radius: 6px; font-size: .68rem; font-weight: 650; }
 .profile-tags i { color: var(--widget-blue); }
+.profile-share-list { display: grid; gap: 8px; margin: 11px 0 0; padding: 0; list-style: none; }
+.profile-share-list li { display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; color: #455f73; font-size: .68rem; line-height: 1.45; }
+.profile-share-list i { display: grid; width: 28px; height: 28px; place-items: center; color: var(--widget-blue-strong); background: var(--widget-soft); border-radius: 6px; }
 .profile-action { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
 .profile-action:has(.primary-action:only-child) { grid-template-columns: 1fr; }
 .primary-action, .secondary-action { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; padding: 10px 16px; border-radius: 11px; font-weight: 700; }
@@ -282,6 +289,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     .profile-facts > div { padding: 12px 14px; }
     .profile-facts > div + div::before { top: 0; right: 14px; bottom: auto; left: 14px; width: auto; height: 1px; }
     .profile-facts small, .profile-facts strong { white-space: normal; }
+    .profile-detail-grid { grid-template-columns: 1fr; gap: 0; }
     .profile-action { grid-template-columns: 1fr; }
     .widget-chat { height: calc(100vh - 118px); }
     .widget-footer { padding: 0 12px; }
