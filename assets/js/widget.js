@@ -24,10 +24,6 @@
         return element.innerHTML;
     };
 
-    const avatarMarkup = (item, profile = false) => item.photo
-        ? `<img src="${escapeHtml(item.photo)}" alt="${profile ? `Ảnh đại sứ ${escapeHtml(item.name)}` : ''}">`
-        : `<span>${escapeHtml(item.initials)}</span>`;
-
     const showView = (id, previous = null) => {
         views.forEach((view) => view.classList.toggle('is-hidden', view.id !== id));
         currentView = id;
@@ -89,7 +85,7 @@
         $('#resultCount').textContent = `${filtered.length} đại sứ phù hợp`;
         $('#ambassadorList').innerHTML = filtered.map((item) => `
             <button class="widget-ambassador" type="button" data-ambassador-id="${item.id}">
-                <span class="ambassador-card-head"><span class="ambassador-avatar">${avatarMarkup(item)}</span><span class="ambassador-copy"><strong>${escapeHtml(item.name)} <i class="bi bi-patch-check-fill"></i></strong><span>${escapeHtml(item.major)} · Năm ${item.study_year}</span></span><span class="availability ${item.online ? 'online' : 'offline'}" aria-label="${item.online ? 'Đang online, có thể phản hồi ngay' : 'Đang offline, sẽ phản hồi sau'}"><i></i>${item.online ? 'Online' : 'Offline'}</span></span>
+                <span class="ambassador-card-head"><span class="ambassador-avatar">${escapeHtml(item.initials)}</span><span class="ambassador-copy"><strong>${escapeHtml(item.name)} <i class="bi bi-patch-check-fill"></i></strong><span>${escapeHtml(item.major)} · Năm ${item.study_year}</span></span><span class="availability ${item.online ? 'online' : 'offline'}"><i></i>${item.online ? 'Online' : 'Offline'}</span></span>
                 <span class="ambassador-bio">${escapeHtml(item.bio || 'Sẵn sàng chia sẻ trải nghiệm học tập và đời sống tại CMC.')}</span>
                 <span class="ambassador-facts"><span><small>Quê quán</small><strong>${escapeHtml(item.hometown)}</strong></span><span><small>Có thể chia sẻ</small><strong>${escapeHtml((item.interests || []).slice(0, 2).join(', ') || 'Đời sống CMC')}</strong></span></span>
                 <span class="ambassador-cta">Gửi tin nhắn <i class="bi bi-arrow-right"></i></span>
@@ -146,27 +142,13 @@
     const openProfile = (id) => {
         selectedAmbassador = ambassadors.find((item) => item.id === id) || null;
         if (!selectedAmbassador) return;
-        const online = selectedAmbassador.online;
-        $('#profileView').classList.toggle('is-online', online);
-        $('#profileView').classList.toggle('is-offline', !online);
-        $('#profileAvatar').innerHTML = avatarMarkup(selectedAmbassador, true);
+        $('#profileAvatar').textContent = selectedAmbassador.initials;
         $('#profileName').textContent = selectedAmbassador.name;
-        $('#profileMajor').textContent = `${selectedAmbassador.major} · Sinh viên năm ${selectedAmbassador.study_year}`;
-        $('#profileFieldMajor').textContent = selectedAmbassador.major;
-        $('#profileStudyYear').textContent = `Sinh viên năm ${selectedAmbassador.study_year}`;
-        $('#profileLocation').textContent = selectedAmbassador.hometown;
+        $('#profileMajor').innerHTML = `<i class="bi bi-book"></i> ${escapeHtml(selectedAmbassador.major)} · Năm ${selectedAmbassador.study_year}`;
+        $('#profileLocation').innerHTML = `<i class="bi bi-geo-alt"></i> ${escapeHtml(selectedAmbassador.hometown)}`;
         $('#profileBio').textContent = selectedAmbassador.bio;
-        $('#profileTags').innerHTML = (selectedAmbassador.interests || []).map((interest) => `<span><i class="bi bi-check2"></i>${escapeHtml(interest)}</span>`).join('');
-        $('#profileConversationCount').textContent = Number(selectedAmbassador.conversationCount || 0).toLocaleString('vi-VN');
-        $('#profileAnswerCount').textContent = Number(selectedAmbassador.answerCount || 0).toLocaleString('vi-VN');
-        $('#profileContentCount').textContent = Number(selectedAmbassador.contentCount || 0).toLocaleString('vi-VN');
-        $('#profileStatusLabel').textContent = online ? 'Đang online' : 'Đang offline';
-        $('#profileStatusDetail').textContent = online ? 'Có thể phản hồi ngay' : 'Bạn vẫn có thể để lại tin nhắn';
-        $('#profileAvailabilityTitle').textContent = online ? 'Sẵn sàng trò chuyện cùng bạn' : 'Tin nhắn vẫn được chuyển đến đại sứ';
-        $('#profileAvailabilityCopy').textContent = online
-            ? 'Gửi câu hỏi ngay để nhận chia sẻ trực tiếp từ trải nghiệm của đại sứ.'
-            : 'Khi đại sứ phản hồi, eAmbassador sẽ gửi thông báo đến email của bạn.';
-        $('.profile-availability-icon i').className = `bi ${online ? 'bi-chat-heart-fill' : 'bi-envelope-check-fill'}`;
+        $('#profileTags').innerHTML = (selectedAmbassador.interests || []).slice(0, 4).map((interest) => `<span>${escapeHtml(interest)}</span>`).join('');
+        $('#profileStatus').innerHTML = `<i></i> ${selectedAmbassador.online ? 'Đang online' : 'Hiện đang offline'}`;
         $('#profileAction').innerHTML = '<button class="primary-action" id="openChatForm" type="button"><i class="bi bi-send-fill"></i> Gửi tin nhắn</button>'
             + (selectedAmbassador.online ? '' : '<button class="secondary-action" id="openScheduleForm" type="button"><i class="bi bi-calendar2-check"></i> Đặt lịch tư vấn</button>');
         $('#openChatForm')?.addEventListener('click', () => openChat());
