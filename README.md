@@ -26,6 +26,16 @@ php -S 127.0.0.1:8000 router.php
 
 Mở `http://127.0.0.1:8000`. Database và dữ liệu mẫu được tự động tạo ở `data/p2p_cmc.sqlite` trong lần chạy đầu tiên.
 
+### Kiểm duyệt tin nhắn
+
+Chat được kiểm duyệt phía server trước khi hiển thị cho người nhận. Để dùng OpenAI Moderation API, truyền API key khi chạy ứng dụng:
+
+```bash
+OPENAI_API_KEY="your-key" php -S 127.0.0.1:8000 router.php
+```
+
+Hệ thống mặc định dùng `omni-moderation-latest`. Có thể đặt `OPENAI_MODERATION_MODEL` nếu cần ghim một phiên bản model. Khi chưa có key hoặc API tạm thời không khả dụng, bộ lọc an toàn cục bộ sẽ tiếp quản. Không đưa API key vào JavaScript hoặc commit key vào repository.
+
 ## Tài khoản demo
 
 Tất cả tài khoản dùng mật khẩu `123456`.

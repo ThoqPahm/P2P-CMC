@@ -169,6 +169,10 @@ final class Database
         self::addColumn($db, 'conversations', 'crm_status', "TEXT NOT NULL DEFAULT 'new'");
         self::addColumn($db, 'conversations', 'public_token', 'TEXT');
         self::addColumn($db, 'messages', 'is_ai', 'INTEGER NOT NULL DEFAULT 0');
+        self::addColumn($db, 'messages', 'moderation_provider', "TEXT NOT NULL DEFAULT 'manual'");
+        self::addColumn($db, 'messages', 'moderation_model', 'TEXT');
+        self::addColumn($db, 'messages', 'moderation_categories', 'TEXT');
+        self::addColumn($db, 'messages', 'moderated_at', 'TEXT');
 
         $count = (int) $db->query('SELECT COUNT(*) FROM users')->fetchColumn();
         if ($count === 0) {

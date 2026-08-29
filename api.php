@@ -23,6 +23,52 @@ function verify_widget_access(): string
     return $token;
 }
 
+/**
+ * @return array{flagged: bool, provider: string, model: string, categories: array<int, string>}
+ */
+function store_chat_message(PDO $db, int $conversationId, int $senderId, string $content): array
+{
+    $cleanContent = mb_substr(trim($content), 0, 1000);
+    $moderation = ContentModerator::check($cleanContent);
+    $statement = $db->prepare(
+        'INSERT INTO messages (conversation_id, sender_id, content, is_flagged, moderation_provider, moderation_model, moderation_categories, moderated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)'
+    );
+    $statement->execute([
+        $conversationId,
+        $senderId,
+        $cleanContent,
+        $moderation['flagged'] ? 1 : 0,
+        $moderation['provider'],
+        $moderation['model'],
+        json_encode($moderation['categories'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+    ]);
+
+    return $moderation;
+}
+
+function refresh_conversation_quality(PDO $db, int $conversationId): int
+{
+    $messageCount = (int) scalar('SELECT COUNT(*) FROM messages WHERE conversation_id = ?', [$conversationId]);
+    $flaggedCount = (int) scalar('SELECT COUNT(*) FROM messages WHERE conversation_id = ? AND is_flagged = 1', [$conversationId]);
+    $qualityScore = max(0, min(100, 58 + ($messageCount * 6) - ($flaggedCount * 24)));
+    $db->prepare('UPDATE conversations SET last_message_at = CURRENT_TIMESTAMP, quality_score = ? WHERE id = ?')->execute([$qualityScore, $conversationId]);
+    return $qualityScore;
+}
+
+function reject_flagged_message(array $moderation): void
+{
+    if (!$moderation['flagged']) {
+        return;
+    }
+
+    json_response([
+        'ok' => false,
+        'code' => 'content_blocked',
+        'message' => 'Tin nhắn có nội dung không phù hợp với tiêu chuẩn cộng đồng. Hãy chỉnh lại rồi gửi nhé.',
+    ], 422);
+}
+
 try {
     $widgetActions = ['widget_start_chat', 'widget_send_message', 'widget_schedule'];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -71,10 +117,9 @@ try {
             }
             $firstMessage = trim((string) ($_POST['message'] ?? ''));
             if ($firstMessage !== '') {
-                $flagged = preg_match('/\b(lừa đảo|chửi|ngu ngốc)\b/ui', $firstMessage) ? 1 : 0;
-                $statement = $db->prepare('INSERT INTO messages (conversation_id, sender_id, content, is_flagged) VALUES (?, ?, ?, ?)');
-                $statement->execute([$conversationId, $prospectId, mb_substr($firstMessage, 0, 1000), $flagged]);
-                $db->prepare('UPDATE conversations SET last_message_at = CURRENT_TIMESTAMP, quality_score = ? WHERE id = ?')->execute([$flagged ? 34 : 64, $conversationId]);
+                $moderation = store_chat_message($db, $conversationId, $prospectId, $firstMessage);
+                refresh_conversation_quality($db, $conversationId);
+                reject_flagged_message($moderation);
             }
             json_response([
                 'ok' => true,
@@ -92,7 +137,7 @@ try {
             if (!$conversation) {
                 json_response(['ok' => false, 'message' => 'Cuộc trò chuyện không còn khả dụng.'], 403);
             }
-            $messages = rows('SELECT m.id, m.content, m.created_at, m.sender_id, u.name AS sender_name, u.role AS sender_role FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.conversation_id = ? ORDER BY m.id', [$conversationId]);
+            $messages = rows('SELECT m.id, m.content, m.created_at, m.sender_id, u.name AS sender_name, u.role AS sender_role FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.conversation_id = ? AND m.is_flagged = 0 ORDER BY m.id', [$conversationId]);
             json_response(['ok' => true, 'messages' => $messages, 'current_user_id' => (int) $conversation['prospect_id']]);
 
         case 'widget_send_message':
@@ -103,15 +148,11 @@ try {
             if (!$conversation || $content === '') {
                 throw new InvalidArgumentException('Tin nhắn không hợp lệ.');
             }
-            $flagged = preg_match('/\b(lừa đảo|chửi|ngu ngốc)\b/ui', $content) ? 1 : 0;
             $db->beginTransaction();
-            $statement = $db->prepare('INSERT INTO messages (conversation_id, sender_id, content, is_flagged) VALUES (?, ?, ?, ?)');
-            $statement->execute([$conversationId, (int) $conversation['prospect_id'], mb_substr($content, 0, 1000), $flagged]);
-            $messageCount = (int) scalar('SELECT COUNT(*) FROM messages WHERE conversation_id = ?', [$conversationId]);
-            $flaggedCount = (int) scalar('SELECT COUNT(*) FROM messages WHERE conversation_id = ? AND is_flagged = 1', [$conversationId]);
-            $qualityScore = max(0, min(100, 58 + ($messageCount * 6) - ($flaggedCount * 24)));
-            $db->prepare('UPDATE conversations SET last_message_at = CURRENT_TIMESTAMP, quality_score = ? WHERE id = ?')->execute([$qualityScore, $conversationId]);
+            $moderation = store_chat_message($db, $conversationId, (int) $conversation['prospect_id'], $content);
+            $qualityScore = refresh_conversation_quality($db, $conversationId);
             $db->commit();
+            reject_flagged_message($moderation);
             json_response(['ok' => true, 'quality_score' => $qualityScore]);
 
         case 'widget_schedule':
@@ -166,8 +207,9 @@ try {
             }
             $firstMessage = trim((string) ($_POST['message'] ?? ''));
             if ($firstMessage !== '') {
-                $statement = $db->prepare('INSERT INTO messages (conversation_id, sender_id, content) VALUES (?, ?, ?)');
-                $statement->execute([$conversationId, $current['id'], $firstMessage]);
+                $moderation = store_chat_message($db, $conversationId, (int) $current['id'], $firstMessage);
+                refresh_conversation_quality($db, $conversationId);
+                reject_flagged_message($moderation);
             }
             json_response(['ok' => true, 'conversation_id' => $conversationId]);
 
@@ -181,7 +223,8 @@ try {
             if (!$allowed && $current['role'] !== 'admin') {
                 json_response(['ok' => false, 'message' => 'Không có quyền'], 403);
             }
-            $messages = rows('SELECT m.id, m.content, m.created_at, m.sender_id, u.name AS sender_name, u.role AS sender_role FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.conversation_id = ? ORDER BY m.id', [$conversationId]);
+            $visibilityClause = $current['role'] === 'admin' ? '' : ' AND m.is_flagged = 0';
+            $messages = rows('SELECT m.id, m.content, m.created_at, m.sender_id, u.name AS sender_name, u.role AS sender_role FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.conversation_id = ?' . $visibilityClause . ' ORDER BY m.id', [$conversationId]);
             json_response(['ok' => true, 'messages' => $messages, 'current_user_id' => (int) $current['id']]);
 
         case 'send_message':
@@ -195,16 +238,11 @@ try {
             if (!$allowed || $content === '') {
                 throw new InvalidArgumentException('Tin nhắn không hợp lệ.');
             }
-            $flagged = preg_match('/\b(lừa đảo|chửi|ngu ngốc)\b/ui', $content) ? 1 : 0;
             $db->beginTransaction();
-            $statement = $db->prepare('INSERT INTO messages (conversation_id, sender_id, content, is_flagged) VALUES (?, ?, ?, ?)');
-            $statement->execute([$conversationId, $current['id'], mb_substr($content, 0, 1000), $flagged]);
-            $messageCount = (int) scalar('SELECT COUNT(*) FROM messages WHERE conversation_id = ?', [$conversationId]);
-            $flaggedCount = (int) scalar('SELECT COUNT(*) FROM messages WHERE conversation_id = ? AND is_flagged = 1', [$conversationId]);
-            $qualityScore = max(0, min(100, 58 + ($messageCount * 6) - ($flaggedCount * 24)));
-            $statement = $db->prepare('UPDATE conversations SET last_message_at = CURRENT_TIMESTAMP, quality_score = ? WHERE id = ?');
-            $statement->execute([$qualityScore, $conversationId]);
+            $moderation = store_chat_message($db, $conversationId, (int) $current['id'], $content);
+            $qualityScore = refresh_conversation_quality($db, $conversationId);
             $db->commit();
+            reject_flagged_message($moderation);
             json_response(['ok' => true, 'quality_score' => $qualityScore]);
 
         case 'copilot_generate':
