@@ -19,7 +19,7 @@
     let offlineContact = null;
     let pendingOfflineMessage = '';
     const inboxStorageKey = 'eambassador.widget.conversations.v1';
-    const assistantStorageKey = 'eambassador.widget.ai-chat.v1';
+    const assistantStorageKey = 'eambassador.widget.ai-chat.v2';
     let storedConversations = [];
     let assistantHistory = [];
     const aiSuggestionCache = new Map();

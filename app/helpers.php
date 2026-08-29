@@ -145,7 +145,7 @@ function ui_setting_defaults(): array
         'widget_ai_enabled' => '1',
         'widget_ai_provider' => 'gemini',
         'widget_ai_name' => 'CMC AI',
-        'widget_ai_welcome' => 'Chào bạn! Mình có thể giải đáp thông tin chung từ dữ liệu của trường hoặc giúp bạn tìm đại sứ phù hợp.',
+        'widget_ai_welcome' => 'Chào bạn, mình là CMC AI. Bạn đang quan tâm điều gì ở CMC? Cứ nói tự nhiên nhé, chưa biết bắt đầu từ đâu cũng không sao.',
         'widget_ai_rules' => 'Chỉ trả lời từ dữ liệu được phê duyệt. Không suy đoán học phí, học bổng, điểm chuẩn, cam kết việc làm hoặc chính sách tuyển sinh. Khi thiếu dữ liệu, nói rõ và gợi ý đại sứ phù hợp.',
         'widget_theme_primary' => '#008fd5',
         'widget_theme_navy' => '#002757',

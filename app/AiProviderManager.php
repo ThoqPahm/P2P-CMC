@@ -217,13 +217,32 @@ final class AiProviderManager
         throw $lastError ?? new RuntimeException('Không còn API key khả dụng.');
     }
 
-    public static function requestJson(string $systemPrompt, array $context, array $config, int $maxTokens = 600): array
+    public static function requestJson(string $systemPrompt, array $context, array $config, int $maxTokens = 600, bool $allowPlainAnswer = false): array
     {
-        $content = self::request([['role' => 'system', 'content' => $systemPrompt], ['role' => 'user', 'content' => json_encode($context, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)]], $config, $maxTokens);
+        $jsonConfig = $config;
+        $jsonConfig['json_mode'] = true;
+        $content = self::request([['role' => 'system', 'content' => $systemPrompt], ['role' => 'user', 'content' => json_encode($context, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)]], $jsonConfig, $maxTokens);
         if (str_starts_with($content, '```')) {
             $content = preg_replace('/^```(?:json)?\s*|\s*```$/ui', '', $content) ?? $content;
         }
         if (preg_match('/\{.*\}/su', $content, $match) !== 1) {
+            if ($allowPlainAnswer && !str_starts_with(ltrim($content), '{') && !str_starts_with(ltrim($content), '[')) {
+                $answer = mb_substr(trim(strip_tags($content)), 0, 900);
+                if ($answer !== '') {
+                    $guidance = is_array($context['CONVERSATION_GUIDANCE'] ?? null) ? $context['CONVERSATION_GUIDANCE'] : [];
+                    $knowledgeIds = array_values(array_filter(array_map(
+                        static fn(mixed $item): int => (int) (is_array($item) ? ($item['id'] ?? 0) : 0),
+                        is_array($context['KNOWLEDGE'] ?? null) ? array_slice($context['KNOWLEDGE'], 0, 1) : []
+                    )));
+                    return [
+                        'answer' => $answer,
+                        'intent' => $guidance ? 'clarify' : 'general',
+                        'source_ids' => $guidance['source_ids'] ?? $knowledgeIds,
+                        'ambassador_ids' => [],
+                        'suggested_questions' => $guidance['suggested_questions'] ?? [],
+                    ];
+                }
+            }
             throw new RuntimeException('Phản hồi AI không chứa JSON.');
         }
         $result = json_decode($match[0], true, 64, JSON_THROW_ON_ERROR);
@@ -238,7 +257,11 @@ final class AiProviderManager
         if (!function_exists('curl_init')) {
             throw new RuntimeException('PHP cURL extension is not available.');
         }
-        $body = json_encode(['model' => $config['model'], 'messages' => $messages, 'temperature' => 0.2, 'max_tokens' => $maxTokens], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $payload = ['model' => $config['model'], 'messages' => $messages, 'temperature' => 0.2, 'max_tokens' => $maxTokens];
+        if (($config['json_mode'] ?? false) === true) {
+            $payload['response_format'] = ['type' => 'json_object'];
+        }
+        $body = json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $handle = curl_init($config['endpoint']);
         if ($handle === false) {
             throw new RuntimeException('Không thể khởi tạo kết nối AI.');
