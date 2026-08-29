@@ -86,7 +86,6 @@ PROMPT;
                     ),
                 ],
             ],
-            'temperature' => 0,
             'max_tokens' => 220,
         ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 

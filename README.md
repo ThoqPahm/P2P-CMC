@@ -39,6 +39,26 @@ php -S 127.0.0.1:8000 router.php
 
 Rule kiểm duyệt nằm trong ứng dụng và yêu cầu model trả về JSON gồm quyết định, nhóm vi phạm, độ tin cậy và lý do. Ngưỡng chặn mặc định là `0.65`, có thể chỉnh bằng `AI_MODERATION_THRESHOLD`. Khi thiếu cấu hình hoặc API tạm thời không khả dụng, bộ lọc tiếng Việt cục bộ sẽ tiếp quản. Không đưa API key vào JavaScript hoặc commit key vào repository.
 
+Ví dụ với Gemini API:
+
+```bash
+AI_MODERATION_API_URL="https://generativelanguage.googleapis.com/v1beta/openai/chat/completions" \
+AI_MODERATION_API_KEY="your-gemini-key" \
+AI_MODERATION_MODEL="gemini-3.1-flash-lite" \
+php -S 127.0.0.1:8000 router.php
+```
+
+Ví dụ với Qwen trên Alibaba Cloud Model Studio, region Singapore:
+
+```bash
+AI_MODERATION_API_URL="https://YOUR_WORKSPACE_ID.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions" \
+AI_MODERATION_API_KEY="your-dashscope-key" \
+AI_MODERATION_MODEL="qwen-plus" \
+php -S 127.0.0.1:8000 router.php
+```
+
+Với Qwen, API key, workspace và endpoint phải cùng region. Thay `YOUR_WORKSPACE_ID` bằng Workspace ID trong Alibaba Cloud Model Studio.
+
 ## Tài khoản demo
 
 Tất cả tài khoản dùng mật khẩu `123456`.
