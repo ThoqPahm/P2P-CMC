@@ -7,13 +7,21 @@
     const particleHost = particleCanvas.closest('[data-cmc-particles]');
     if (!particleHost) return;
 
-    const particleContext = particleCanvas.getContext('2d', { alpha: true, desynchronized: true });
+    // Keep the canvas on the browser's normal compositing path. Chromium on
+    // Windows may present a desynchronized alpha canvas as an opaque black
+    // surface when ANGLE switches between its D3D backends.
+    const particleContext = particleCanvas.getContext('2d', { alpha: true });
     const maskCanvas = document.createElement('canvas');
     const maskContext = maskCanvas.getContext('2d', { willReadFrequently: true });
-    if (!particleContext || !maskContext) {
+    const particleContextAttributes = particleContext && typeof particleContext.getContextAttributes === 'function'
+        ? particleContext.getContextAttributes()
+        : null;
+    if (!particleContext || !maskContext || particleContextAttributes?.alpha === false) {
         particleHost.classList.add('is-particle-failed');
         return;
     }
+    particleCanvas.style.backgroundColor = 'transparent';
+    particleContext.globalCompositeOperation = 'source-over';
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const particles = [];
@@ -198,6 +206,7 @@
         particleCanvas.width = Math.round(canvasWidth * pixelRatio);
         particleCanvas.height = Math.round(canvasHeight * pixelRatio);
         particleContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        particleContext.globalCompositeOperation = 'source-over';
         if (particleReady) drawParticles();
     };
 
