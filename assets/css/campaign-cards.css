@@ -1,0 +1,120 @@
+/* Campaign pages only. Preserve Bootstrap, CMC tokens and existing workflows.
+   Taste preserve-mode: variance 3, motion 2, density 5. */
+.campaign-card,
+.mission-card {
+    min-width: 0;
+    box-shadow: 0 2px 6px rgb(0 39 87 / 3%);
+}
+.campaign-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+.campaign-card h3,
+.mission-body h3 {
+    margin: 1rem 0 .5rem;
+    font-size: 1.0625rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+.campaign-card > p,
+.mission-body > p {
+    margin: 0 0 1.25rem;
+    font-size: .875rem;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+.campaign-top { min-height: 40px; align-items: center; }
+.campaign-top .badge,
+.mission-body .badge { padding: .45rem .65rem; line-height: 1.2; }
+.campaign-meta {
+    margin-top: auto;
+    padding: 1rem 0;
+    flex-wrap: wrap;
+    gap: .65rem 1rem;
+    font-size: .8125rem;
+}
+.campaign-meta > span,
+.mission-footer > strong,
+.mission-body .deadline {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+}
+.campaign-meta .bi,
+.mission-footer .bi,
+.mission-body .deadline .bi { flex-shrink: 0; }
+.campaign-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 0;
+    padding: 1rem 0;
+    margin-bottom: .25rem;
+}
+.campaign-stats > div { min-width: 0; padding: 0 .75rem; }
+.campaign-stats > div:first-child { padding-left: 0; }
+.campaign-stats > div:last-child { padding-right: 0; }
+.campaign-stats > div + div { border-left: 1px solid var(--line); }
+.campaign-stats strong {
+    display: block;
+    font-size: 1.125rem;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+.campaign-stats span {
+    display: block;
+    margin-top: .3rem;
+    font-size: .75rem;
+    line-height: 1.4;
+}
+.campaign-card > .btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 42px;
+    padding: .65rem .85rem;
+}
+.mission-visual {
+    min-height: 88px;
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+    border-bottom: 1px solid var(--line);
+}
+.mission-visual > span { flex-shrink: 0; width: 40px; height: 40px; }
+.mission-visual em {
+    font-size: .8125rem;
+    font-weight: 600;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+.mission-body { padding: 1.25rem; min-width: 0; }
+.mission-body > .d-flex { align-items: center; flex-wrap: wrap; gap: .5rem; min-height: 26px; }
+.mission-body .brief-box { padding: .875rem 1rem; margin-bottom: 1.25rem; }
+.mission-body .brief-box > strong { display: block; font-size: .8125rem; margin-bottom: .4rem; }
+.mission-body .brief-box > p {
+    margin: 0;
+    color: var(--muted);
+    font-size: .8125rem;
+    line-height: 1.65;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+.mission-footer { padding-top: 1rem; flex-wrap: wrap; gap: .75rem; }
+.mission-footer > strong { font-size: .875rem; white-space: nowrap; }
+.mission-footer .btn { min-height: 40px; padding: .55rem .85rem; white-space: nowrap; }
+.campaign-card .btn:focus-visible,
+.mission-card .btn:focus-visible { outline: 3px solid var(--cmc-blue-dark); outline-offset: 3px; }
+@media (min-width: 992px) {
+    .campaign-card h3,
+    .mission-body h3 { min-height: 3.08rem; }
+    .campaign-card > p,
+    .mission-body > p { min-height: 2.8875rem; }
+}
+@media (max-width: 575.98px) {
+    .campaign-card, .mission-body { padding: 1rem; }
+    .mission-visual { padding: .875rem 1rem; min-height: 72px; }
+    .mission-footer .btn { flex: 1 1 auto; }
+    .campaign-stats > div { padding-inline: .5rem; }
+}
