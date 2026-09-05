@@ -19,14 +19,15 @@ $pendingAppointments = (int) scalar("SELECT COUNT(*) FROM consultation_appointme
 $onlineAmbassadors = (int) scalar("SELECT COUNT(*) FROM users WHERE role = 'ambassador' AND status = 'active' AND is_online = 1");
 ?>
 <div class="widget-admin-head">
-    <div><h2>Đưa eAmbassador lên website chính thức</h2><p>Một điểm chạm tập trung để học sinh tìm đúng đại sứ, trò chuyện ngay hoặc đặt lịch khi người phù hợp đang offline.</p></div>
+    <div><h2>Tích hợp widget & quản lý lịch tư vấn</h2><p>Lấy mã nhúng cho website, xem trải nghiệm học sinh và xử lý yêu cầu đặt lịch tại một nơi.</p></div>
     <button class="btn btn-brand" type="button" data-bs-toggle="modal" data-bs-target="#widgetDemo"><i class="bi bi-play-circle-fill"></i> Xem demo học sinh</button>
 </div>
 
 <div class="widget-admin-layout">
     <section class="widget-build-panel">
-        <header><div><h3>Mã nhúng đang sẵn sàng</h3><p>Dán một dòng trước thẻ đóng <code>&lt;/body&gt;</code> của website.</p></div><span class="widget-ready"><i></i> Hoạt động</span></header>
-        <div class="embed-code-block"><code><?= e($embedCode) ?></code><button type="button" data-copy="<?= e($embedCode) ?>"><i class="bi bi-copy"></i> Sao chép mã</button></div>
+        <header><div><h3>Mã nhúng website</h3><p>Dán đoạn mã vào layout chung, trước thẻ <code>&lt;/body&gt;</code>.</p></div><span class="widget-ready">Sẵn sàng sao chép</span></header>
+        <div class="embed-code-block"><div class="embed-code-toolbar"><span>HTML / JavaScript</span><button type="button" data-copy="<?= e($embedCode) ?>"><i class="bi bi-copy"></i> Sao chép mã</button></div><code><?= e($embedCode) ?></code></div>
+        <?php if (in_array(strtolower(explode(':', $host)[0]), ['localhost', '127.0.0.1'], true)): ?><p class="embed-local-note"><i class="bi bi-info-circle" aria-hidden="true"></i><span>Đây là mã nhúng từ máy local. Khi triển khai, hãy mở trang này trên tên miền thật để lấy đúng URL.</span></p><?php endif; ?>
         <div class="embed-options">
             <div><span class="option-icon"><i class="bi bi-window-stack"></i></span><p><strong>Hiển thị</strong><small>Nút nổi góc phải, tự mở thành cửa sổ tư vấn.</small></p></div>
             <div><span class="option-icon"><i class="bi bi-phone"></i></span><p><strong>Responsive</strong><small>Desktop dạng panel; mobile tự chuyển toàn màn hình.</small></p></div>
@@ -36,16 +37,39 @@ $onlineAmbassadors = (int) scalar("SELECT COUNT(*) FROM users WHERE role = 'amba
     </section>
 
     <aside class="widget-admin-summary">
-        <div class="widget-live-preview"><div class="preview-site"><span></span><span></span><span></span><div><b>WEBSITE CMC UNIVERSITY</b><small>Nội dung website chính thức</small></div></div><button type="button" data-bs-toggle="modal" data-bs-target="#widgetDemo"><span><i class="bi bi-chat-dots-fill"></i></span> Hỏi đại sứ CMC</button></div>
-        <dl><div><dt>Đại sứ online</dt><dd><?= $onlineAmbassadors ?></dd></div><div><dt>Lịch chờ xác nhận</dt><dd><?= $pendingAppointments ?></dd></div><div><dt>Bộ lọc khả dụng</dt><dd>4</dd></div></dl>
+        <h3>Tình hình hỗ trợ</h3>
+        <p class="widget-summary-note">Số liệu tại thời điểm tải trang.</p>
+        <dl><div><dt>Đại sứ online</dt><dd><?= $onlineAmbassadors ?></dd></div><div><dt>Lịch chờ xác nhận</dt><dd><?= $pendingAppointments ?></dd></div></dl>
+        <a class="widget-queue-link" href="#widgetAppointments">Xử lý lịch tư vấn <i class="bi bi-chevron-down"></i></a>
+        <div class="widget-summary-divider"></div>
+        <h3>Kiểm tra trước khi nhúng</h3>
+        <p class="widget-summary-note">Mở trải nghiệm hiện tại để kiểm tra hiển thị và các thao tác phía học sinh.</p>
         <a href="<?= e($widgetUrl) ?>" target="_blank" rel="noopener">Mở widget trong tab mới <i class="bi bi-arrow-up-right"></i></a>
     </aside>
 </div>
 
-<section class="panel-card widget-appointment-panel">
-    <div class="panel-head"><div><h3>Lịch tư vấn từ widget</h3><p>Yêu cầu của học sinh khi đại sứ được chọn đang offline.</p></div><span class="panel-chip"><?= $pendingAppointments ?> lịch đang chờ</span></div>
-    <div class="table-responsive"><table class="table clean-table align-middle"><thead><tr><th>Học sinh</th><th>Đại sứ</th><th>Thời gian mong muốn</th><th>Nội dung</th><th>Trạng thái</th><th></th></tr></thead><tbody>
-        <?php foreach ($appointments as $appointment): ?><tr><td><strong><?= e($appointment['student_name']) ?></strong><small class="d-block text-muted"><?= e($appointment['email']) ?><?= $appointment['phone'] ? ' · ' . e($appointment['phone']) : '' ?></small></td><td><strong><?= e($appointment['ambassador_name']) ?></strong><small class="d-block text-muted"><?= e($appointment['ambassador_major']) ?></small></td><td><?= date('H:i d/m/Y', strtotime($appointment['preferred_at'])) ?></td><td><span class="appointment-question"><?= e($appointment['question'] ?: 'Chưa ghi nội dung') ?></span></td><td><span class="status-label status-<?= $appointment['status'] === 'completed' ? 'success' : ($appointment['status'] === 'cancelled' ? 'danger' : 'warning') ?>"><?= e(match ($appointment['status']) { 'confirmed' => 'Đã xác nhận', 'completed' => 'Hoàn thành', 'cancelled' => 'Đã hủy', default => 'Chờ xác nhận' }) ?></span></td><td><form method="post" action="actions.php?action=update_appointment_status" class="appointment-action"><?= csrf_field() ?><input type="hidden" name="appointment_id" value="<?= (int) $appointment['id'] ?>"><select class="form-select form-select-sm" name="status"><option value="pending" <?= $appointment['status'] === 'pending' ? 'selected' : '' ?>>Chờ xác nhận</option><option value="confirmed" <?= $appointment['status'] === 'confirmed' ? 'selected' : '' ?>>Đã xác nhận</option><option value="completed" <?= $appointment['status'] === 'completed' ? 'selected' : '' ?>>Hoàn thành</option><option value="cancelled" <?= $appointment['status'] === 'cancelled' ? 'selected' : '' ?>>Đã hủy</option></select><button class="btn btn-sm btn-light border" type="submit">Lưu</button></form></td></tr><?php endforeach; ?>
+<section class="panel-card widget-appointment-panel" id="widgetAppointments">
+    <div class="panel-head"><div><h3>Lịch tư vấn từ widget</h3><p>Hiển thị tối đa 12 yêu cầu, ưu tiên lịch chờ xác nhận và thời gian mong muốn.</p></div><span class="panel-chip"><?= $pendingAppointments ?> lịch đang chờ</span></div>
+    <div class="table-responsive"><table class="table clean-table align-middle"><thead><tr><th scope="col">Học sinh</th><th scope="col">Đại sứ</th><th scope="col">Thời gian mong muốn</th><th scope="col">Nội dung</th><th scope="col">Trạng thái</th><th scope="col">Cập nhật</th></tr></thead><tbody>
+        <?php foreach ($appointments as $appointment): ?>
+            <tr>
+                <td><strong><?= e($appointment['student_name']) ?></strong><small class="d-block text-muted"><?= e($appointment['email']) ?></small><?php if ($appointment['phone']): ?><small class="d-block text-muted"><?= e($appointment['phone']) ?></small><?php endif; ?></td>
+                <td><strong><?= e($appointment['ambassador_name']) ?></strong><small class="d-block text-muted"><?= e($appointment['ambassador_major']) ?></small></td>
+                <td><time datetime="<?= e(date('c', strtotime($appointment['preferred_at']))) ?>"><strong><?= date('H:i', strtotime($appointment['preferred_at'])) ?></strong><small class="d-block text-muted"><?= date('d/m/Y', strtotime($appointment['preferred_at'])) ?></small></time></td>
+                <td><details class="appointment-question"><summary>Xem nội dung</summary><p><?= e($appointment['question'] ?: 'Chưa ghi nội dung') ?></p></details></td>
+                <td><span class="status-label status-<?= $appointment['status'] === 'completed' ? 'success' : ($appointment['status'] === 'cancelled' ? 'danger' : 'warning') ?>"><?= e(match ($appointment['status']) { 'confirmed' => 'Đã xác nhận', 'completed' => 'Hoàn thành', 'cancelled' => 'Đã hủy', default => 'Chờ xác nhận' }) ?></span></td>
+                <td><form method="post" action="actions.php?action=update_appointment_status" class="appointment-action">
+                    <?= csrf_field() ?><input type="hidden" name="appointment_id" value="<?= (int) $appointment['id'] ?>">
+                    <label class="visually-hidden" for="appointment-status-<?= (int) $appointment['id'] ?>">Trạng thái lịch của <?= e($appointment['student_name']) ?></label>
+                    <select class="form-select form-select-sm" id="appointment-status-<?= (int) $appointment['id'] ?>" name="status">
+                        <option value="pending" <?= $appointment['status'] === 'pending' ? 'selected' : '' ?>>Chờ xác nhận</option>
+                        <option value="confirmed" <?= $appointment['status'] === 'confirmed' ? 'selected' : '' ?>>Đã xác nhận</option>
+                        <option value="completed" <?= $appointment['status'] === 'completed' ? 'selected' : '' ?>>Hoàn thành</option>
+                        <option value="cancelled" <?= $appointment['status'] === 'cancelled' ? 'selected' : '' ?>>Đã hủy</option>
+                    </select><button class="btn btn-sm btn-light border" type="submit" aria-label="Lưu trạng thái lịch của <?= e($appointment['student_name']) ?>">Lưu</button>
+                </form></td>
+            </tr>
+        <?php endforeach; ?>
         <?php if (!$appointments): ?><tr><td colspan="6"><div class="widget-appointments-empty"><i class="bi bi-calendar2-check"></i><div><strong>Chưa có lịch tư vấn</strong><p>Các yêu cầu đặt lịch từ widget sẽ xuất hiện tại đây.</p></div></div></td></tr><?php endif; ?>
     </tbody></table></div>
 </section>
