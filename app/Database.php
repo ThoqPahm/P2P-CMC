@@ -229,6 +229,10 @@ final class Database
         self::addColumn($db, 'conversations', 'quality_score', 'INTEGER NOT NULL DEFAULT 0');
         self::addColumn($db, 'conversations', 'crm_status', "TEXT NOT NULL DEFAULT 'new'");
         self::addColumn($db, 'conversations', 'public_token', 'TEXT');
+        self::addColumn($db, 'users', 'last_seen_at', 'TEXT');
+        self::addColumn($db, 'users', 'contact_email', 'TEXT');
+        self::addColumn($db, 'consultation_appointments', 'public_token', 'TEXT');
+        self::addColumn($db, 'consultation_appointments', 'conversation_id', 'INTEGER REFERENCES conversations(id)');
         self::addColumn($db, 'messages', 'is_ai', 'INTEGER NOT NULL DEFAULT 0');
         self::addColumn($db, 'messages', 'moderation_provider', "TEXT NOT NULL DEFAULT 'manual'");
         self::addColumn($db, 'messages', 'moderation_model', 'TEXT');
@@ -237,11 +241,29 @@ final class Database
         self::addColumn($db, 'messages', 'moderation_reason', 'TEXT');
         self::addColumn($db, 'messages', 'moderated_at', 'TEXT');
 
+        // Chapter 4: Quản lý nguồn tin chính thức & xác minh (Bảng 15, Bảng 21, Bảng 23)
+        self::addColumn($db, 'ai_knowledge_entries', 'source_reference', "TEXT NOT NULL DEFAULT ''");
+        self::addColumn($db, 'ai_knowledge_entries', 'verified_by_role', "TEXT NOT NULL DEFAULT ''");
+        self::addColumn($db, 'ai_knowledge_entries', 'verified_at', "TEXT NOT NULL DEFAULT ''");
+
+        // Chapter 4: Khảo sát sau tương tác (Bảng 19, Bảng 26) & Chuyển tuyến câu hỏi (Sơ đồ 7, Bảng 23)
+        self::addColumn($db, 'conversations', 'clarity_rating', 'INTEGER');
+        self::addColumn($db, 'conversations', 'helpfulness_rating', 'INTEGER');
+        self::addColumn($db, 'conversations', 'feedback_note', 'TEXT');
+        self::addColumn($db, 'conversations', 'is_escalated', 'INTEGER NOT NULL DEFAULT 0');
+        self::addColumn($db, 'conversations', 'escalation_reason', 'TEXT');
+        self::addColumn($db, 'conversations', 'escalation_status', "TEXT NOT NULL DEFAULT 'none'");
+        self::addColumn($db, 'conversations', 'official_answer', 'TEXT');
+        self::addColumn($db, 'conversations', 'answered_by', 'INTEGER');
+        self::addColumn($db, 'conversations', 'answered_at', 'TEXT');
+
         $count = (int) $db->query('SELECT COUNT(*) FROM users')->fetchColumn();
         if ($count === 0) {
             self::seed($db);
         }
 
+        // Demo initialization runs only for a new database, not on every request.
+        if ($count === 0) {
         $db->exec(<<<'SQL'
             INSERT INTO submissions (
                 campaign_id, user_id, content_url, caption, status, feedback, platform,
@@ -269,7 +291,7 @@ final class Database
         $db->exec("UPDATE conversations SET crm_status = 'active' WHERE crm_status NOT IN ('new', 'active', 'resolved')");
         $db->exec("UPDATE submissions SET platform = COALESCE((SELECT platform FROM campaigns WHERE campaigns.id = submissions.campaign_id), 'TikTok / Reels') WHERE platform = ''");
         $db->exec("UPDATE submissions SET views = 18400, likes = 1290, comments = 86, shares = 94 WHERE content_url = 'https://www.youtube.com/shorts/demo' AND views = 0");
-        $db->exec("UPDATE wallet_transactions SET description = 'Thưởng hiệu quả nội dung UGC', reference_type = 'submission' WHERE reference_type IS NOT NULL AND reference_type <> 'submission'");
+        }
 
         $db->exec(<<<'SQL'
             INSERT OR IGNORE INTO ai_provider_configs (provider, endpoint, model) VALUES
@@ -310,20 +332,17 @@ final class Database
             ]);
         }
 
-        self::seedOfficialAiKnowledge($db);
+        if ($count === 0) { self::seedOfficialAiKnowledge($db); }
     }
 
     private static function seedOfficialAiKnowledge(PDO $db): void
     {
         $entries = require dirname(__DIR__) . '/data/official_ai_knowledge.php';
         $exists = $db->prepare('SELECT 1 FROM ai_knowledge_entries WHERE title = ? LIMIT 1');
-        $update = $db->prepare('UPDATE ai_knowledge_entries SET category = ?, content = ?, keywords = ? WHERE title = ?');
         $insert = $db->prepare('INSERT INTO ai_knowledge_entries (category, title, content, keywords, is_active) VALUES (?, ?, ?, ?, 1)');
         foreach ($entries as $entry) {
             $exists->execute([$entry['title']]);
-            if ($exists->fetchColumn()) {
-                $update->execute([$entry['category'], $entry['content'], $entry['keywords'], $entry['title']]);
-            } else {
+            if (!$exists->fetchColumn()) {
                 $insert->execute([$entry['category'], $entry['title'], $entry['content'], $entry['keywords']]);
             }
         }
@@ -375,7 +394,7 @@ final class Database
             $db->exec("INSERT INTO submissions (campaign_id, user_id, content_url, caption, status, platform, views, likes, comments, shares) VALUES (1, 2, 'https://www.tiktok.com/@demo/video/001', 'Góc học bài có nắng đẹp nhất CMC', 'pending', 'TikTok', 0, 0, 0, 0)");
             $db->exec("INSERT INTO submissions (campaign_id, user_id, content_url, caption, status, feedback, platform, views, likes, comments, shares) VALUES (2, 3, 'https://www.youtube.com/shorts/demo', 'Một ngày chạy deadline cùng sinh viên Marketing', 'approved', 'Nội dung tự nhiên, đúng brief.', 'YouTube Shorts', 18400, 1290, 86, 94)");
 
-            $db->exec("INSERT INTO wallet_transactions (user_id, type, points, description, reference_type, reference_id) VALUES (2, 'credit', 50, 'Hoàn thành nhiệm vụ tháng 7', 'submission', 1), (3, 'credit', 120, 'Bài nộp UGC có hiệu quả tốt', 'submission', 2)");
+            $db->exec("INSERT INTO wallet_transactions (user_id, type, points, description, reference_type, reference_id) VALUES (3, 'credit', 120, 'Bài nộp UGC có hiệu quả tốt', 'submission', 2)");
             $db->exec("INSERT INTO conversations (prospect_id, ambassador_id, status, rating, last_message_at) VALUES (6, 3, 'open', NULL, CURRENT_TIMESTAMP)");
             $db->exec("INSERT INTO messages (conversation_id, sender_id, content, is_flagged) VALUES (1, 6, 'Chị ơi ngành Marketing có học nhiều toán không ạ?', 0), (1, 3, 'Chào em! Ngành có một số môn số liệu nền tảng, nhưng phần lớn tập trung vào tư duy khách hàng, nội dung và chiến lược. Chị có thể kể kỹ hơn về từng năm học nhé.', 0)");
 

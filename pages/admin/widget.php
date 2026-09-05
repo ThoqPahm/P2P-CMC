@@ -16,7 +16,7 @@ $appointments = rows(<<<'SQL'
     LIMIT 12
 SQL);
 $pendingAppointments = (int) scalar("SELECT COUNT(*) FROM consultation_appointments WHERE status = 'pending'");
-$onlineAmbassadors = (int) scalar("SELECT COUNT(*) FROM users WHERE role = 'ambassador' AND status = 'active' AND is_online = 1");
+$onlineAmbassadors = (int) scalar("SELECT COUNT(*) FROM eligible_ambassadors WHERE 1=1 AND is_online = 1");
 ?>
 <div class="widget-admin-head">
     <div><h2>Tích hợp widget & quản lý lịch tư vấn</h2><p>Lấy mã nhúng cho website, xem trải nghiệm học sinh và xử lý yêu cầu đặt lịch tại một nơi.</p></div>

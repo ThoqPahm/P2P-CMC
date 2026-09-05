@@ -3,7 +3,7 @@ $widgetToken = bin2hex(random_bytes(24));
 $statement = $db->prepare("INSERT INTO widget_access_tokens (token, expires_at) VALUES (?, datetime('now', '+12 hours'))");
 $statement->execute([$widgetToken]);
 $db->exec("DELETE FROM widget_access_tokens WHERE expires_at <= datetime('now')");
-$ambassadors = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM users WHERE role = 'ambassador' AND status = 'active' ORDER BY is_online DESC, name");
+$ambassadors = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM eligible_ambassadors WHERE 1=1 ORDER BY is_online DESC, name");
 $answeredQuestions = (int) scalar("SELECT COUNT(*) FROM messages m JOIN users u ON u.id = m.sender_id WHERE u.role = 'ambassador'");
 $publishedContent = rows(<<<'SQL'
     SELECT s.id, s.content_type, s.content_url, s.caption, s.platform, s.blog_title, s.blog_excerpt, s.blog_body,
@@ -138,11 +138,12 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
     <section class="widget-view widget-inbox is-hidden" id="inboxView">
         <div class="inbox-heading"><div><h1>Hộp thư của bạn</h1><p>Mở lại những cuộc trò chuyện đã lưu trên trình duyệt này.</p></div><span id="inboxCount">0 cuộc trò chuyện</span></div>
         <div class="inbox-list" id="inboxList"></div>
+        <details id="appointmentHistory"><summary>Lịch tư vấn đã gửi</summary><div id="appointmentHistoryList" aria-live="polite"></div></details>
         <div class="widget-empty inbox-empty is-hidden" id="inboxEmpty"><i class="bi bi-chat-square-heart"></i><h2>Chưa có cuộc trò chuyện</h2><p>Chọn một đại sứ và gửi câu hỏi đầu tiên. Cuộc chat sẽ xuất hiện tại đây.</p><button type="button" id="inboxBrowseAmbassadors">Tìm đại sứ</button></div>
     </section>
 
     <section class="widget-view widget-chat is-hidden" id="chatView">
-        <div class="chat-person"><span class="mini-avatar" id="chatHeaderAvatar"></span><div><strong id="chatHeaderName"></strong><small id="chatHeaderStatus"><i></i> Đang online</small></div></div>
+        <div class="chat-person"><span class="mini-avatar" id="chatHeaderAvatar"></span><div><strong id="chatHeaderName"></strong><small id="chatHeaderStatus"><i></i> Đang online</small></div><button class="chat-rate-btn is-hidden" id="chatRateBtn" type="button" aria-label="Đánh giá tư vấn" title="Đánh giá chất lượng tư vấn"><i class="bi bi-star-fill"></i><span>Đánh giá</span></button></div>
         <div class="chat-ai-panel is-hidden" id="chatAiPanel"><div><i class="bi bi-stars"></i><strong>Gợi ý từ AI</strong></div><div class="ai-question-list compact" id="chatAiSuggestions"></div></div>
         <div class="widget-messages" id="widgetMessages"></div>
         <div class="chat-ai-rewrite"><button id="widgetAiRewrite" type="button"><i class="bi bi-magic"></i> AI làm rõ câu hỏi</button><small>AI chỉ sửa câu nháp, không tự gửi.</small></div>
@@ -151,11 +152,11 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
     </section>
 
     <section class="widget-view widget-form-view is-hidden" id="scheduleView">
-        <div class="form-heading"><span class="form-icon"><i class="bi bi-calendar2-check"></i></span><h1>Đặt lịch tư vấn</h1><p><span id="scheduleAmbassadorName"></span> đang offline. Chọn thời gian thuận tiện để được liên hệ lại.</p></div>
+        <div class="form-heading"><span class="form-icon"><i class="bi bi-calendar2-check"></i></span><h1>Đặt lịch tư vấn</h1><p>Đặt lịch với <span id="scheduleAmbassadorName"></span>. Chọn thời gian mong muốn; lịch chỉ có hiệu lực sau khi được xác nhận.</p></div>
         <form class="widget-form" id="scheduleForm"><input type="hidden" name="ambassador_id" id="scheduleAmbassadorId"><label><span>Tên của bạn</span><input name="name" autocomplete="name" required></label><label><span>Email</span><input name="email" type="email" autocomplete="email" required></label><label><span>Số điện thoại <small>(không bắt buộc)</small></span><input name="phone" type="tel" autocomplete="tel"></label><label><span>Thời gian mong muốn</span><input name="preferred_at" id="preferredAt" type="datetime-local" required></label><label><span>Nội dung cần tư vấn</span><textarea name="question" rows="3" placeholder="Bạn đang quan tâm điều gì?"></textarea></label><p class="form-error is-hidden" id="scheduleError"></p><button class="primary-action" type="submit">Gửi yêu cầu đặt lịch <i class="bi bi-calendar2-check"></i></button></form>
     </section>
 
-    <section class="widget-view widget-success is-hidden" id="successView"><span><i class="bi bi-check-lg"></i></span><h1>Đã ghi nhận lịch của bạn</h1><p>Đội ngũ eAmbassador sẽ xác nhận thời gian tư vấn qua email.</p><button type="button" id="backToDirectory">Tiếp tục khám phá đại sứ</button></section>
+    <section class="widget-view widget-success is-hidden" id="successView"><span><i class="bi bi-check-lg"></i></span><h1>Đã ghi nhận lịch của bạn</h1><p>Lịch đang chờ xác nhận. Bạn có thể xem trạng thái trong Inbox trên trình duyệt này.</p><button type="button" id="backToDirectory">Tiếp tục khám phá đại sứ</button></section>
     <dialog class="offline-message-dialog" id="offlineMessageDialog" aria-label="Trạng thái tin nhắn">
         <div class="offline-dialog-card">
             <button class="offline-dialog-close" id="offlineDialogClose" type="button" aria-label="Đóng thông báo"><i class="bi bi-x-lg"></i></button>
@@ -167,12 +168,50 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
             </div>
         </div>
     </dialog>
+    <dialog class="feedback-dialog" id="feedbackDialog" aria-label="Đánh giá buổi tư vấn">
+        <div class="feedback-dialog-card">
+            <button class="feedback-dialog-close" id="feedbackDialogClose" type="button" aria-label="Đóng"><i class="bi bi-x-lg"></i></button>
+            <div class="feedback-content">
+                <span class="feedback-icon"><i class="bi bi-patch-check-fill"></i></span>
+                <h2>Đánh giá buổi tư vấn</h2>
+                <p>Khảo sát chất lượng tư vấn theo chuẩn Bảng 19 & Bảng 26 Khóa luận tốt nghiệp.</p>
+                <form id="feedbackForm">
+                    <div class="feedback-field">
+                        <label class="feedback-label">Mức độ rõ ràng (Clarity):</label>
+                        <div class="star-rating" id="clarityStars">
+                            <button type="button" data-val="1">★</button>
+                            <button type="button" data-val="2">★</button>
+                            <button type="button" data-val="3">★</button>
+                            <button type="button" data-val="4">★</button>
+                            <button type="button" data-val="5" class="is-active">★</button>
+                        </div>
+                    </div>
+                    <div class="feedback-field">
+                        <label class="feedback-label">Mức độ hữu ích (Helpfulness):</label>
+                        <div class="star-rating" id="helpfulnessStars">
+                            <button type="button" data-val="1">★</button>
+                            <button type="button" data-val="2">★</button>
+                            <button type="button" data-val="3">★</button>
+                            <button type="button" data-val="4">★</button>
+                            <button type="button" data-val="5" class="is-active">★</button>
+                        </div>
+                    </div>
+                    <div class="feedback-field">
+                        <label class="feedback-label" for="feedbackNote">Cảm nhận của bạn (không bắt buộc):</label>
+                        <textarea id="feedbackNote" rows="2" placeholder="Chia sẻ cảm nhận sau khi trao đổi cùng đại sứ..."></textarea>
+                    </div>
+                    <p class="feedback-error is-hidden" id="feedbackError"></p>
+                    <button class="primary-action" type="submit"><i class="bi bi-check2-circle"></i> Gửi đánh giá</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
     <footer class="widget-footer"><span class="widget-trust"><i class="bi bi-shield-check"></i> Kết nối an toàn · Thông tin được bảo vệ</span></footer>
     <div class="widget-toast is-hidden" id="widgetToast" role="status"></div>
  </main>
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData, 'ai' => ['enabled' => $widgetAiEnabled, 'name' => $widgetSettings['widget_ai_name'], 'welcome' => $widgetSettings['widget_ai_welcome']]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=18"></script>
+<script src="assets/js/widget.js?v=19"></script>
 </body>
 </html>

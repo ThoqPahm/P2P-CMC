@@ -12,10 +12,14 @@ $members = rows(<<<'SQL'
 SQL);
 $approved = (int) scalar("SELECT COUNT(*) FROM users WHERE role IN ('student','ambassador') AND policy_status = 'approved'");
 $activeAmbassadors = (int) scalar("SELECT COUNT(*) FROM users WHERE role = 'ambassador' AND status = 'active'");
+$rewardReview = rows('SELECT r.*,u.name,c.title,s.status FROM submission_reward_state r JOIN submissions s ON s.id=r.submission_id JOIN users u ON u.id=s.user_id JOIN campaigns c ON c.id=s.campaign_id WHERE r.legacy_review_required=1 ORDER BY r.submission_id');
 ?>
+<?php if ($rewardReview): ?>
+<section class="panel-card mb-4"><h3 class="h6">Điểm lịch sử cần đối soát</h3><p class="text-muted small">Giữ nguyên số dư cũ. Các bài bên dưới tạm khóa thao tác đổi kết quả duyệt để tránh cộng hoặc trừ nhầm điểm.</p><details><summary>Xem <?= count($rewardReview) ?> bài cần kiểm tra</summary><div class="table-responsive"><table class="table"><thead><tr><th>Bài</th><th>Thành viên</th><th>Chiến dịch</th><th>Trạng thái</th><th>Điểm đã ghi</th></tr></thead><tbody><?php foreach ($rewardReview as $review): ?><tr><td>#<?= (int)$review['submission_id'] ?></td><td><?= e($review['name']) ?></td><td><?= e($review['title']) ?></td><td><?= e($review['status']) ?></td><td><?= (int)$review['awarded_points'] ?></td></tr><?php endforeach; ?></tbody></table></div></details></section>
+<?php endif; ?>
 <div class="reward-overview">
-    <div><p class="eyebrow">MÔ HÌNH GHI NHẬN</p><h2>Thưởng theo chất lượng, hiệu quả và cấp độ</h2><p>Điểm được tính từ nội dung UGC đã duyệt, chỉ số tương tác, chất lượng tư vấn và hệ số phân hạng.</p></div>
-    <div class="reward-formula"><span>UGC + bonus</span><i class="bi bi-plus-lg"></i><span>Views & tương tác</span><i class="bi bi-plus-lg"></i><span>Chat quality</span><i class="bi bi-x-lg"></i><strong>Tier</strong></div>
+    <div><p class="eyebrow">MÔ HÌNH GHI NHẬN</p><h2>Thưởng theo bài nộp và cấp độ</h2><p>Điểm chốt khi duyệt: (điểm chiến dịch + bonus) × hệ số cấp độ. Bonus 40 điểm khi đạt 10.000 lượt xem, 100 bình luận hoặc điểm nội dung từ 85. Cập nhật chỉ số thống kê không tự thay đổi điểm đã chốt; muốn điều chỉnh cần duyệt lại. Điểm chat được theo dõi riêng, chưa quy đổi thành thưởng.</p></div>
+    <div class="reward-formula"><span>Điểm chiến dịch + bonus</span><i class="bi bi-x-lg"></i><strong>Hệ số cấp độ</strong></div>
 </div>
 
 <div class="row g-4 metric-grid mb-4">

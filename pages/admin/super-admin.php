@@ -23,10 +23,10 @@ $activeLoginTheme = active_login_theme();
     <nav class="super-console-nav" aria-label="Khu vực cấu hình"><a href="#runtime"><i class="bi bi-sliders"></i> Runtime</a><a href="#providers"><i class="bi bi-cpu"></i> Providers</a><a href="#knowledge"><i class="bi bi-database-check"></i> Dữ liệu gốc</a><a href="#theme"><i class="bi bi-palette"></i> Theme widget</a><a href="index.php?page=appearance-studio"><i class="bi bi-window-sidebar"></i> Theme đăng nhập · <?= e($loginThemes[$activeLoginTheme]['name']) ?></a><a href="#logs"><i class="bi bi-activity"></i> Nhật ký</a></nav>
 
     <div class="super-status-strip">
-        <span><i class="bi bi-power"></i><strong>Chatbot</strong><?= $settings['widget_ai_enabled'] === '1' ? 'Đang bật' : 'Đang tắt' ?></span>
-        <span><i class="bi bi-cpu"></i><strong>Provider chính</strong><?= e($providers[$settings['widget_ai_provider']]['name'] ?? 'Chưa chọn') ?></span>
-        <span><i class="bi bi-key"></i><strong>Gemini key đang bật</strong><?= (int) $providers['gemini']['enabled_key_count'] ?>/<?= (int) $providers['gemini']['key_count'] ?> slot</span>
-        <span><i class="bi bi-database-check"></i><strong>Nguồn đủ điều kiện cho AI</strong><?= $eligibleKnowledgeCount ?> / <?= $activeKnowledgeCount ?> mục bật</span>
+        <span><i class="bi bi-power"></i><strong>Chatbot</strong><em><?= $settings['widget_ai_enabled'] === '1' ? 'Đang bật' : 'Đang tắt' ?></em></span>
+        <span><i class="bi bi-cpu"></i><strong>Provider chính</strong><em><?= e($providers[$settings['widget_ai_provider']]['name'] ?? 'Chưa chọn') ?></em></span>
+        <span><i class="bi bi-key"></i><strong>Gemini key đang bật</strong><em><?= (int) $providers['gemini']['enabled_key_count'] ?>/<?= (int) $providers['gemini']['key_count'] ?> slot</em></span>
+        <span><i class="bi bi-database-check"></i><strong>Nguồn đủ điều kiện cho AI</strong><em><?= $eligibleKnowledgeCount ?> / <?= $activeKnowledgeCount ?> mục bật</em></span>
     </div>
 
     <form method="post" action="actions.php?action=save_super_admin_ai" class="super-settings-form">
@@ -110,7 +110,7 @@ $activeLoginTheme = active_login_theme();
 
     <section class="super-section" id="knowledge">
         <p class="mb-3"><a class="btn btn-outline-brand" href="index.php?page=ambassador-program&tab=knowledge"><i class="bi bi-patch-check"></i> Kiểm chứng nguồn & lịch sử xác nhận</a></p>
-        <div class="super-section-heading"><div><h3>Dữ liệu gốc của trường</h3><p>Mục đang bật cần được kiểm chứng và còn hạn trước khi chatbot sử dụng.</p></div><span class="knowledge-count"><?= $activeKnowledgeCount ?> mục đang bật</span></div>
+        <div class="super-section-heading"><div><h3>Dữ liệu gốc của trường</h3><p>Mục đang bật cần được kiểm chứng và còn hạn trước khi chatbot sử dụng.</p></div><span class="knowledge-count"><?= $eligibleKnowledgeCount ?> mục AI dùng được / <?= $activeKnowledgeCount ?> đang bật</span></div>
         <div class="knowledge-layout">
             <form class="knowledge-editor" method="post" action="actions.php?action=save_ai_knowledge">
                 <?= csrf_field() ?><input type="hidden" name="knowledge_id" value="<?= (int) ($editingKnowledge['id'] ?? 0) ?>">

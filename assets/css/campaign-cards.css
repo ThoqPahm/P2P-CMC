@@ -76,6 +76,9 @@
     min-height: 42px;
     padding: .65rem .85rem;
 }
+.campaign-details summary { display: flex; align-items: center; justify-content: space-between; min-height: 42px; list-style: none; }
+.campaign-details summary::-webkit-details-marker { display: none; }
+.campaign-details > p { font-size: .875rem; line-height: 1.65; overflow-wrap: anywhere; }
 .mission-visual {
     min-height: 88px;
     padding: 1rem 1.25rem;

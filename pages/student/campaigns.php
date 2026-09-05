@@ -1,7 +1,7 @@
 <?php
 require_auth(['student', 'ambassador']);
 $pageTitle = 'Khám phá nhiệm vụ';
-$campaigns = rows("SELECT c.*, EXISTS(SELECT 1 FROM submissions s WHERE s.campaign_id = c.id AND s.user_id = ?) AS submitted FROM campaigns c WHERE c.status = 'active' ORDER BY c.deadline", [user()['id']]);
+$campaigns = rows("SELECT c.*, EXISTS(SELECT 1 FROM submissions s WHERE s.campaign_id = c.id AND s.user_id = ?) AS submitted FROM campaigns c WHERE c.status = 'active' AND c.deadline >= date('now', '+7 hours') ORDER BY c.deadline", [user()['id']]);
 $selected = (int) ($_GET['campaign'] ?? 0);
 ?>
 <div class="page-actions"><p class="page-intro">Chọn một brief hợp gu và kể câu chuyện CMC bằng chất riêng của bạn.</p><span class="summary-pills"><span><i class="online"></i> <?= count($campaigns) ?> nhiệm vụ đang mở</span></span></div>

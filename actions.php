@@ -7,6 +7,7 @@ require_once __DIR__ . '/app/bootstrap.php';
 $action = (string) ($_GET['action'] ?? $_POST['action'] ?? '');
 
 if ($action === 'logout') {
+    if (user()) { $db->prepare('UPDATE users SET is_online=0,last_seen_at=NULL WHERE id=?')->execute([user()['id']]); }
     $_SESSION = [];
     session_destroy();
     session_start();
@@ -44,9 +45,24 @@ try {
             if ($title === '' || $description === '' || $brief === '' || $deadline === '') {
                 throw new InvalidArgumentException('Vui lòng điền đủ thông tin chiến dịch.');
             }
+            $parsedDeadline = DateTimeImmutable::createFromFormat('!Y-m-d', $deadline);
+            if (!$parsedDeadline || $parsedDeadline->format('Y-m-d') !== $deadline || $deadline < date('Y-m-d') || !in_array($_POST['status'] ?? '', ['active','draft'], true)) {
+                throw new InvalidArgumentException('Ngày kết thúc hoặc trạng thái chiến dịch không hợp lệ.');
+            }
             $statement = $db->prepare('INSERT INTO campaigns (title, description, brief, platform, reward_points, status, deadline, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
             $statement->execute([$title, $description, $brief, trim((string) $_POST['platform']), max(0, (int) $_POST['reward_points']), (string) $_POST['status'], $deadline, user()['id']]);
             flash('success', 'Đã tạo chiến dịch mới.');
+            redirect('index.php?page=admin-campaigns');
+
+        case 'update_campaign_status':
+            require_auth(['admin']);
+            $campaignId=(int)($_POST['campaign_id']??0);
+            $status=(string)($_POST['status']??'');
+            if (!in_array($status,['active','draft','closed'],true)) { throw new InvalidArgumentException('Trạng thái không hợp lệ.'); }
+            $campaign=rows('SELECT * FROM campaigns WHERE id=?',[$campaignId])[0]??null;
+            if (!$campaign || ($status==='active' && $campaign['deadline']<date('Y-m-d'))) { throw new InvalidArgumentException('Không thể mở chiến dịch không tồn tại hoặc đã quá hạn.'); }
+            $db->prepare('UPDATE campaigns SET status=? WHERE id=?')->execute([$status,$campaignId]);
+            flash('success','Đã cập nhật trạng thái chiến dịch.');
             redirect('index.php?page=admin-campaigns');
 
         case 'set_login_theme':
@@ -172,8 +188,8 @@ try {
                 $statement = $db->prepare('INSERT INTO ai_knowledge_entries (category, title, content, keywords, updated_by) VALUES (?, ?, ?, ?, ?)');
                 $statement->execute([$category, $title, $content, $keywords, user()['id']]);
             }
-            flash('success', $id > 0 ? 'Đã cập nhật dữ liệu gốc.' : 'Đã thêm dữ liệu gốc mới.');
-            redirect('index.php?page=super-admin#knowledge');
+            flash('success', 'Đã lưu nội dung. Hãy xác nhận nguồn và thời hạn trước khi cho chatbot sử dụng.');
+            redirect('index.php?page=ambassador-program&tab=knowledge');
 
         case 'toggle_ai_knowledge':
             require_super_admin();
@@ -189,7 +205,7 @@ try {
             if ($campaignId < 1 || !filter_var($url, FILTER_VALIDATE_URL)) {
                 throw new InvalidArgumentException('Vui lòng nhập đường dẫn nội dung hợp lệ.');
             }
-            $campaign = rows('SELECT platform FROM campaigns WHERE id = ? AND status = ?', [$campaignId, 'active'])[0] ?? null;
+            $campaign = WorkflowIntegrity::requireOpenCampaign($db, $campaignId);
             if (!$campaign) {
                 throw new RuntimeException('Chiến dịch không còn hoạt động.');
             }
@@ -212,7 +228,7 @@ try {
             if ($sourceUrl !== '' && !filter_var($sourceUrl, FILTER_VALIDATE_URL)) {
                 throw new InvalidArgumentException('Đường dẫn tham khảo chưa hợp lệ.');
             }
-            $campaign = rows('SELECT id FROM campaigns WHERE id = ? AND status = ?', [$campaignId, 'active'])[0] ?? null;
+            $campaign = WorkflowIntegrity::requireOpenCampaign($db, $campaignId);
             if (!$campaign) {
                 throw new RuntimeException('Brief này không còn hoạt động.');
             }
@@ -241,13 +257,9 @@ try {
             $bonusPoints = ($views >= 10000 || $comments >= 100 || $aiScore >= 85) ? 40 : 0;
             $statement = $db->prepare('UPDATE submissions SET status = ?, feedback = ?, views = ?, likes = ?, comments = ?, shares = ?, ai_score = ?, bonus_points = ? WHERE id = ?');
             $statement->execute([$status, trim((string) ($_POST['feedback'] ?? '')), $views, $likes, $comments, $shares, $aiScore, $status === 'approved' ? $bonusPoints : 0, $submissionId]);
-            if ($status === 'approved' && $submission['status'] !== 'approved') {
-                $multipliers = ['junior' => 1.0, 'senior' => 1.3];
-                $multiplier = $multipliers[$submission['ambassador_tier']] ?? 1.0;
-                $awardedPoints = (int) round(((int) $submission['reward_points'] + $bonusPoints) * $multiplier);
-                $wallet = $db->prepare("INSERT INTO wallet_transactions (user_id, type, points, description, reference_type, reference_id) VALUES (?, 'credit', ?, 'Bài nộp UGC được duyệt', 'submission', ?)");
-                $wallet->execute([$submission['user_id'], $awardedPoints, $submissionId]);
-            }
+            $multiplier = $submission['ambassador_tier'] === 'senior' ? 1.3 : 1.0;
+            $awardedPoints = (int) round(((int) $submission['reward_points'] + $bonusPoints) * $multiplier);
+            WorkflowIntegrity::reconcileReward($db, $submission, $status, $awardedPoints);
             $db->commit();
             flash('success', 'Đã cập nhật kết quả duyệt bài.');
             redirect('index.php?page=admin-submissions');
@@ -316,8 +328,53 @@ try {
             $id = (int) ($_POST['message_id'] ?? 0);
             $statement = $db->prepare('UPDATE messages SET is_flagged = CASE WHEN is_flagged = 1 THEN 0 ELSE 1 END WHERE id = ?');
             $statement->execute([$id]);
+            $conversationId = (int) scalar('SELECT conversation_id FROM messages WHERE id=?', [$id]);
+            if ($conversationId) { WorkflowIntegrity::quality($db, $conversationId); }
             flash('success', 'Đã cập nhật trạng thái kiểm duyệt.');
-            redirect('index.php?page=admin-moderation');
+            redirect('index.php?page=admin-moderation&conversation=' . $conversationId);
+
+        case 'escalate_question':
+            require_auth(['ambassador']);
+            $conversationId = (int) ($_POST['conversation_id'] ?? 0);
+            $reason = trim((string) ($_POST['reason'] ?? ''));
+            $conversation = rows('SELECT * FROM conversations WHERE id = ? AND ambassador_id = ?', [$conversationId, user()['id']])[0] ?? null;
+            if (!$conversation) {
+                throw new InvalidArgumentException('Cuộc trò chuyện không tồn tại.');
+            }
+            if (($conversation['escalation_status']??'')==='pending') { throw new InvalidArgumentException('Hội thoại đã có yêu cầu chuyển tuyến đang chờ.'); }
+            $db->beginTransaction();
+            $db->prepare('INSERT INTO program_audit(actor_id,entity,entity_id,action,snapshot) VALUES(?,?,?,?,?)')->execute([user()['id'],'conversation',$conversationId,'escalation_requested',json_encode(['previous_reason'=>$conversation['escalation_reason']??null,'previous_answer'=>$conversation['official_answer']??null,'reason'=>$reason],JSON_UNESCAPED_UNICODE)]);
+            $statement = $db->prepare("UPDATE conversations SET is_escalated = 1, escalation_reason = ?, escalation_status = 'pending' WHERE id = ?");
+            $statement->execute([$reason !== '' ? $reason : 'Cần cán bộ tuyển sinh xác nhận chính sách/học phí/học bổng.', $conversationId]);
+            $db->commit();
+            flash('success', 'Đã chuyển tuyến câu hỏi đến Ban Tuyển sinh.');
+            redirect('index.php?page=inbox&conversation=' . $conversationId);
+
+        case 'answer_escalated_question':
+            require_auth(['admin']);
+            $conversationId = (int) ($_POST['conversation_id'] ?? 0);
+            $officialAnswer = trim((string) ($_POST['official_answer'] ?? ''));
+            if ($officialAnswer === '') {
+                throw new InvalidArgumentException('Vui lòng nhập nội dung xác nhận chính thức.');
+            }
+            $conversation = rows('SELECT * FROM conversations WHERE id = ?', [$conversationId])[0] ?? null;
+            if (!$conversation) {
+                throw new InvalidArgumentException('Cuộc trò chuyện không tồn tại.');
+            }
+            if (empty($conversation['is_escalated']) || $conversation['escalation_status'] !== 'pending') {
+                throw new InvalidArgumentException('Yêu cầu đã được trả lời hoặc chưa được chuyển tuyến.');
+            }
+            $db->beginTransaction();
+            $statement = $db->prepare("UPDATE conversations SET official_answer = ?, answered_by = ?, answered_at = CURRENT_TIMESTAMP, escalation_status = 'answered', crm_status = 'active' WHERE id = ? AND escalation_status='pending'");
+            $statement->execute([$officialAnswer, user()['id'], $conversationId]);
+            if ($statement->rowCount() !== 1) { throw new InvalidArgumentException('Yêu cầu vừa được xử lý. Hãy tải lại hội thoại.'); }
+
+            $msgStmt = $db->prepare("INSERT INTO messages (conversation_id, sender_id, content, is_flagged, moderation_provider) VALUES (?, ?, ?, 0, 'official')");
+            $msgStmt->execute([$conversationId, user()['id'], "【Xác nhận từ Ban Tuyển sinh CMC】\n" . $officialAnswer]);
+            WorkflowIntegrity::quality($db, $conversationId, true);
+            $db->commit();
+            flash('success', 'Đã gửi xác nhận chính thức từ Ban Tuyển sinh.');
+            redirect('index.php?page=admin-moderation&conversation=' . $conversationId);
 
         default:
             throw new InvalidArgumentException('Thao tác không hợp lệ.');

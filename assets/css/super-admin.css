@@ -11,7 +11,8 @@
 .super-status-strip span { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 1px 9px; min-width: 0; padding: 16px 18px; color: #60788d; font-size: .78rem; }
 .super-status-strip span + span { border-left: 1px solid var(--super-line); }
 .super-status-strip i { grid-row: 1 / 3; display: grid; width: 30px; height: 30px; place-items: center; color: #006eaa; background: var(--super-soft); border-radius: 8px; }
-.super-status-strip strong { overflow: hidden; color: #102a43; font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
+.super-status-strip strong { overflow: hidden; color: #60788d; font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.super-status-strip em { font-style: normal; color: #102a43; font-size: .84rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .super-settings-form { display: grid; gap: 20px; }
 .super-section { scroll-margin-top: 150px; padding: 24px; background: #fff; border: 1px solid var(--super-line); border-radius: 16px; }
 .super-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--super-line); }

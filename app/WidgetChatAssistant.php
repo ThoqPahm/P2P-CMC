@@ -36,7 +36,7 @@ PROMPT;
         }
 
         $knowledge = AmbassadorProgram::knowledge(Database::connection(), true);
-        $ambassadors = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM users WHERE role = 'ambassador' AND status = 'active' ORDER BY is_online DESC, name");
+        $ambassadors = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM eligible_ambassadors WHERE 1=1 ORDER BY is_online DESC, name");
         $retrievalMessage = self::contextualQuery($message, $history);
         $matchedKnowledge = self::matchKnowledge($retrievalMessage, $knowledge);
         $clarification = self::clarification($message, $retrievalMessage, $matchedKnowledge, $knowledge, $history);
@@ -109,9 +109,18 @@ PROMPT;
 
         $sourceIds = array_map('intval', $result['source_ids']);
         $sourceTitles = [];
+        $sources = [];
         foreach ($knowledge as $item) {
             if (in_array((int) $item['id'], $sourceIds, true)) {
                 $sourceTitles[] = (string) $item['title'];
+                $sources[] = [
+                    'id' => (int) $item['id'],
+                    'title' => (string) $item['title'],
+                    'category' => (string) $item['category'],
+                    'reference' => (string) ($item['source_reference'] ?? ''),
+                    'verified_by' => (string) ($item['verified_by_role'] ?? ''),
+                    'verified_at' => (string) (!empty($item['verified_at']) ? date('d/m/Y', strtotime((string) $item['verified_at'])) : ''),
+                ];
             }
         }
         self::log($message, $result['answer'], $provider, $model, $sourceIds, $result['ambassador_ids']);
@@ -120,6 +129,7 @@ PROMPT;
             'provider' => $provider,
             'model' => $model,
             'source_titles' => $sourceTitles,
+            'sources' => $sources,
             'ambassador_ids' => $result['ambassador_ids'],
             'suggested_questions' => $result['suggested_questions'],
         ];

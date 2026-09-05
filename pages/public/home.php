@@ -1,8 +1,8 @@
 <?php
 $pageTitle = 'Kết nối thật, chọn đúng tương lai';
-$ambassadors = rows("SELECT * FROM users WHERE role = 'ambassador' AND status = 'active' ORDER BY is_online DESC, id LIMIT 3");
+$ambassadors = rows("SELECT * FROM eligible_ambassadors WHERE 1=1 ORDER BY is_online DESC, id LIMIT 3");
 $stats = [
-    'ambassadors' => scalar("SELECT COUNT(*) FROM users WHERE role = 'ambassador' AND status = 'active'"),
+    'ambassadors' => scalar("SELECT COUNT(*) FROM eligible_ambassadors WHERE 1=1"),
     'conversations' => scalar('SELECT COUNT(*) FROM conversations'),
     'submissions' => scalar("SELECT COUNT(*) FROM submissions WHERE status = 'approved'"),
 ];

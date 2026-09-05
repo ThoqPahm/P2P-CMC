@@ -15,9 +15,12 @@ function user(): ?array
 
     static $cachedUser = false;
     if ($cachedUser === false) {
-        $statement = Database::connection()->prepare('SELECT * FROM users WHERE id = ?');
+        $statement = Database::connection()->prepare("SELECT * FROM users WHERE id = ? AND status = 'active'");
         $statement->execute([(int) $_SESSION['user_id']]);
         $cachedUser = $statement->fetch() ?: null;
+        if ($cachedUser) {
+            Database::connection()->prepare("UPDATE users SET last_seen_at=CURRENT_TIMESTAMP, is_online=1 WHERE id=? AND (last_seen_at IS NULL OR last_seen_at<datetime('now','-30 seconds'))")->execute([$cachedUser['id']]);
+        }
     }
 
     return $cachedUser ?: null;

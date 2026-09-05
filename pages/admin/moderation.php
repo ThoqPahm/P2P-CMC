@@ -62,6 +62,26 @@ $moderationCategoryLabels = [
             </div>
         <?php endif; ?>
 
+        <?php if ($selectedConversation && !empty($selectedConversation['is_escalated'])): ?>
+            <div class="escalation-banner p-3 mb-3 rounded-2 bg-light border border-warning">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="badge text-bg-warning"><i class="bi bi-shield-exclamation"></i> Chuyển tuyến cán bộ (Sơ đồ 7 & Bảng 23)</span>
+                    <small class="text-muted">Trạng thái: <strong><?= e($selectedConversation['escalation_status'] === 'answered' ? 'Đã phản hồi' : 'Chờ xác nhận') ?></strong></small>
+                </div>
+                <p class="mb-2"><strong>Nội dung đại sứ chuyển tiếp:</strong> <?= e($selectedConversation['escalation_reason']) ?></p>
+                <?php if ($selectedConversation['escalation_status'] !== 'answered'): ?>
+                    <form method="post" action="actions.php?action=answer_escalated_question" class="d-flex gap-2">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="conversation_id" value="<?= $selected ?>">
+                        <input class="form-control form-control-sm" name="official_answer" placeholder="Nhập xác nhận chính thức từ Ban Tuyển sinh..." required>
+                        <button class="btn btn-sm btn-brand text-nowrap" type="submit"><i class="bi bi-check-circle"></i> Gửi xác nhận</button>
+                    </form>
+                <?php else: ?>
+                    <p class="mb-0 small text-success"><i class="bi bi-check2-circle"></i> <strong>Đã xác nhận:</strong> <?= e($selectedConversation['official_answer']) ?></p>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
         <div class="moderation-messages">
             <?php if (!$messages): ?>
                 <div class="moderation-empty"><strong><?= $selectedConversation ? 'Chưa có tin nhắn' : 'Chưa có hội thoại được chọn' ?></strong><p><?= $selectedConversation ? 'Tin nhắn sẽ xuất hiện tại đây khi cuộc trò chuyện bắt đầu.' : 'Chọn một cuộc trò chuyện trong danh sách để xem và kiểm duyệt nội dung.' ?></p></div>

@@ -3,7 +3,7 @@ $pageTitle = 'Gặp đại sứ sinh viên';
 $major = trim((string) ($_GET['major'] ?? ''));
 $hometown = trim((string) ($_GET['hometown'] ?? ''));
 $search = trim((string) ($_GET['search'] ?? ''));
-$sql = "SELECT * FROM users WHERE role = 'ambassador' AND status = 'active'";
+$sql = "SELECT * FROM eligible_ambassadors WHERE 1=1";
 $params = [];
 if ($major !== '') { $sql .= ' AND major = ?'; $params[] = $major; }
 if ($hometown !== '') { $sql .= ' AND hometown = ?'; $params[] = $hometown; }

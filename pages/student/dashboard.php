@@ -5,19 +5,19 @@ $nameParts = explode(' ', $current['name']);
 $pageTitle = 'Chào ' . end($nameParts) . '!';
 $balance = (int) scalar("SELECT COALESCE(SUM(CASE WHEN type='credit' THEN points ELSE -points END),0) FROM wallet_transactions WHERE user_id = ?", [$current['id']]);
 $submissionCount = (int) scalar('SELECT COUNT(*) FROM submissions WHERE user_id = ?', [$current['id']]);
-$campaigns = rows("SELECT * FROM campaigns WHERE status = 'active' ORDER BY deadline ASC LIMIT 3");
+$campaigns = rows("SELECT * FROM campaigns WHERE status = 'active' AND deadline >= date('now', '+7 hours') ORDER BY deadline ASC LIMIT 3");
 $userCampaignRows = rows(<<<'SQL'
     SELECT c.*, s.status AS submission_status, s.submitted_at
     FROM submissions s
     JOIN campaigns c ON c.id = s.campaign_id
-    WHERE s.user_id = ? AND c.status = 'active'
+    WHERE s.user_id = ? AND c.status = 'active' AND c.deadline >= date('now', '+7 hours')
     ORDER BY s.id DESC
     LIMIT 1
 SQL, [$current['id']]);
 $recommendedCampaignRows = rows(<<<'SQL'
     SELECT c.*
     FROM campaigns c
-    WHERE c.status = 'active'
+    WHERE c.status = 'active' AND c.deadline >= date('now', '+7 hours')
       AND NOT EXISTS (
           SELECT 1 FROM submissions s WHERE s.campaign_id = c.id AND s.user_id = ?
       )

@@ -1,7 +1,7 @@
 <?php
 require_auth(['student', 'ambassador']);
 $pageTitle = 'AI Copilot sáng tạo';
-$campaigns = rows("SELECT id, title, brief, platform FROM campaigns WHERE status = 'active' ORDER BY deadline");
+$campaigns = rows("SELECT id, title, brief, platform FROM campaigns WHERE status = 'active' AND deadline >= date('now', '+7 hours') ORDER BY deadline");
 $history = rows('SELECT ar.*, c.title AS campaign_title FROM ai_requests ar LEFT JOIN campaigns c ON c.id = ar.campaign_id WHERE ar.user_id = ? ORDER BY ar.id DESC LIMIT 5', [user()['id']]);
 $selectedCampaign = (int) ($_GET['campaign'] ?? 0);
 ?>
