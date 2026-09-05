@@ -1,15 +1,19 @@
 <?php
-require_auth(['admin']);
+ChatPrivacy::requireAccess();
 $pageTitle = 'Kiểm duyệt hội thoại';
-$conversations = rows('SELECT c.*, p.name AS prospect_name, a.name AS ambassador_name, COUNT(m.id) AS message_count, SUM(m.is_flagged) AS flagged_count FROM conversations c JOIN users p ON p.id = c.prospect_id JOIN users a ON a.id = c.ambassador_id LEFT JOIN messages m ON m.conversation_id = c.id GROUP BY c.id ORDER BY flagged_count DESC, c.last_message_at DESC');
+$conversations = rows("SELECT c.*, p.name AS prospect_name, a.name AS ambassador_name, COUNT(m.id) AS message_count, SUM(m.is_flagged) AS flagged_count FROM conversations c JOIN users p ON p.id = c.prospect_id JOIN users a ON a.id = c.ambassador_id LEFT JOIN messages m ON m.conversation_id = c.id GROUP BY c.id HAVING SUM(m.is_flagged)>0 OR c.escalation_status='pending' ORDER BY flagged_count DESC, c.last_message_at DESC");
 $selected = (int) ($_GET['conversation'] ?? ($conversations[0]['id'] ?? 0));
-$messages = $selected ? rows('SELECT m.*, u.name AS sender_name, u.role AS sender_role FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.conversation_id = ? ORDER BY m.id', [$selected]) : [];
+$messages = [];
 $selectedConversation = null;
 foreach ($conversations as $conversation) {
     if ((int) $conversation['id'] === $selected) {
         $selectedConversation = $conversation;
         break;
     }
+}
+if ($selectedConversation) {
+    $messages = ChatPrivacy::context($db, $selected);
+    ChatPrivacy::audit($db, (int)user()['id'], $selected, 'review_opened', array_column($messages, 'id'));
 }
 $moderationCategoryLabels = [
     'harassment' => 'Quấy rối',
@@ -39,11 +43,11 @@ $moderationCategoryLabels = [
                 <?php if ($conversation['flagged_count']): ?><b aria-label="<?= (int) $conversation['flagged_count'] ?> tin bị đánh dấu"><i class="bi bi-flag-fill" aria-hidden="true"></i> <?= (int) $conversation['flagged_count'] ?></b><?php endif; ?>
             </a>
         <?php endforeach; ?>
-        <?php if (!$conversations): ?><p class="moderation-empty-list">Chưa có cuộc trò chuyện nào để kiểm duyệt.</p><?php endif; ?>
+        <?php if (!$conversations): ?><p class="moderation-empty-list">Không có tin nhắn bị đánh dấu hoặc câu hỏi chuyển tiếp cần xử lý.</p><?php endif; ?>
     </aside>
 
     <section class="moderation-chat panel-card">
-        <div class="panel-head"><div><p class="eyebrow">CHẾ ĐỘ KIỂM DUYỆT</p><h3><?= $selectedConversation ? 'Nội dung cuộc trò chuyện #' . $selected : 'Nội dung cuộc trò chuyện' ?></h3></div><span class="panel-chip"><?= count($messages) ?> tin nhắn</span></div>
+        <div class="panel-head"><div><p class="eyebrow">CHẾ ĐỘ KIỂM DUYỆT</p><h3><?= $selectedConversation ? 'Vụ việc #' . $selected : 'Nội dung cần xử lý' ?></h3></div><span class="panel-chip"><?= count($messages) ?> tin nhắn</span></div>
         <?php if ($selectedConversation): ?>
             <div class="conversation-quality">
                 <div><span>Điểm chất lượng</span><strong><?= (int) $selectedConversation['quality_score'] ?>/100</strong></div>
@@ -65,7 +69,7 @@ $moderationCategoryLabels = [
         <?php if ($selectedConversation && !empty($selectedConversation['is_escalated'])): ?>
             <div class="escalation-banner p-3 mb-3 rounded-2 bg-light border border-warning">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="badge text-bg-warning"><i class="bi bi-shield-exclamation"></i> Chuyển tuyến cán bộ (Sơ đồ 7 & Bảng 23)</span>
+                    <span class="badge text-bg-warning"><i class="bi bi-shield-exclamation"></i> Cần phản hồi từ nhà trường</span>
                     <small class="text-muted">Trạng thái: <strong><?= e($selectedConversation['escalation_status'] === 'answered' ? 'Đã phản hồi' : 'Chờ xác nhận') ?></strong></small>
                 </div>
                 <p class="mb-2"><strong>Nội dung đại sứ chuyển tiếp:</strong> <?= e($selectedConversation['escalation_reason']) ?></p>
@@ -84,7 +88,7 @@ $moderationCategoryLabels = [
 
         <div class="moderation-messages">
             <?php if (!$messages): ?>
-                <div class="moderation-empty"><strong><?= $selectedConversation ? 'Chưa có tin nhắn' : 'Chưa có hội thoại được chọn' ?></strong><p><?= $selectedConversation ? 'Tin nhắn sẽ xuất hiện tại đây khi cuộc trò chuyện bắt đầu.' : 'Chọn một cuộc trò chuyện trong danh sách để xem và kiểm duyệt nội dung.' ?></p></div>
+                <div class="moderation-empty"><strong><?= $selectedConversation ? 'Chưa có tin nhắn' : 'Chưa có hội thoại được chọn' ?></strong><p><?= $selectedConversation ? 'Chỉ hiển thị câu hỏi được chuyển tiếp ở trên; không mở lịch sử tin nhắn.' : 'Chọn một vụ việc để xem nội dung cần xử lý.' ?></p></div>
             <?php endif; ?>
             <?php foreach ($messages as $message): ?>
                 <?php
@@ -104,14 +108,14 @@ $moderationCategoryLabels = [
                         </div>
                         <?php if (!empty($message['moderation_reason'])): ?><p class="small text-danger mb-2"><strong>Lý do:</strong> <?= e($message['moderation_reason']) ?></p><?php endif; ?>
                     <?php endif; ?>
-                    <form method="post" action="actions.php?action=flag_message">
+                    <?php if ($message['is_flagged']): ?><form method="post" action="actions.php?action=flag_message">
                         <?= csrf_field() ?>
                         <input type="hidden" name="message_id" value="<?= (int) $message['id'] ?>">
                         <button class="btn btn-sm <?= $message['is_flagged'] ? 'btn-danger' : 'btn-light' ?>"><i class="bi bi-flag"></i> <?= $message['is_flagged'] ? 'Cho phép hiển thị' : 'Ẩn & đánh dấu' ?></button>
-                    </form>
+                    </form><?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
-        <div class="safety-note"><i class="bi bi-shield-lock-fill"></i><p><strong>Quyền riêng tư & an toàn</strong><small>Tin bị hệ thống đánh dấu sẽ được ẩn khỏi cuộc trò chuyện cho tới khi quản trị viên cho phép.</small></p></div>
+        <div class="safety-note"><i class="bi bi-shield-lock-fill"></i><p><strong>Quyền riêng tư & an toàn</strong><small>Chỉ hiển thị tối đa 5 tin bị đánh dấu, mỗi tin kèm 2 tin trước và 2 tin sau. Truy cập được ghi nhật ký; không có quyền mở toàn bộ lịch sử.</small></p></div>
     </section>
 </div>

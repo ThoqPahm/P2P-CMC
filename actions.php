@@ -306,8 +306,9 @@ try {
             redirect('index.php?page=admin-rewards');
 
         case 'update_support_status':
-            require_auth(['admin']);
+            ChatPrivacy::requireAccess();
             $conversationId = (int) ($_POST['conversation_id'] ?? 0);
+            if (!ChatPrivacy::pending($db, $conversationId)) { throw new InvalidArgumentException('Không có yêu cầu cần xử lý.'); }
             $crmStatus = in_array($_POST['support_status'] ?? '', ['new', 'active', 'resolved'], true) ? (string) $_POST['support_status'] : 'new';
             $statement = $db->prepare('UPDATE conversations SET crm_status = ? WHERE id = ?');
             $statement->execute([$crmStatus, $conversationId]);
@@ -324,12 +325,18 @@ try {
             redirect('index.php?page=admin-widget');
 
         case 'flag_message':
-            require_auth(['admin']);
+            ChatPrivacy::requireAccess();
             $id = (int) ($_POST['message_id'] ?? 0);
-            $statement = $db->prepare('UPDATE messages SET is_flagged = CASE WHEN is_flagged = 1 THEN 0 ELSE 1 END WHERE id = ?');
+            $conversationId = (int) scalar('SELECT conversation_id FROM messages WHERE id=?', [$id]);
+            if (!(int)scalar('SELECT COUNT(*) FROM messages WHERE id=? AND is_flagged=1', [$id]) || !in_array($id, array_column(ChatPrivacy::context($db, $conversationId), 'id'), true)) { throw new InvalidArgumentException('Tin nhắn nằm ngoài phạm vi kiểm duyệt hoặc đã được xử lý.'); }
+            $db->beginTransaction();
+            $statement = $db->prepare('UPDATE messages SET is_flagged = 0 WHERE id = ? AND is_flagged=1');
             $statement->execute([$id]);
+            if ($statement->rowCount() !== 1) { throw new InvalidArgumentException('Tin nhắn vừa được xử lý. Hãy tải lại trang.'); }
             $conversationId = (int) scalar('SELECT conversation_id FROM messages WHERE id=?', [$id]);
             if ($conversationId) { WorkflowIntegrity::quality($db, $conversationId); }
+            ChatPrivacy::audit($db, (int)user()['id'], $conversationId, 'message_restored', [$id]);
+            $db->commit();
             flash('success', 'Đã cập nhật trạng thái kiểm duyệt.');
             redirect('index.php?page=admin-moderation&conversation=' . $conversationId);
 
@@ -351,7 +358,7 @@ try {
             redirect('index.php?page=inbox&conversation=' . $conversationId);
 
         case 'answer_escalated_question':
-            require_auth(['admin']);
+            ChatPrivacy::requireAccess();
             $conversationId = (int) ($_POST['conversation_id'] ?? 0);
             $officialAnswer = trim((string) ($_POST['official_answer'] ?? ''));
             if ($officialAnswer === '') {

@@ -4,11 +4,18 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 // Render-only fixtures: no real database, authentication session or writes.
 set_error_handler(static function(int $severity, string $message): never { throw new RuntimeException($message); });
 function require_auth(array $roles): void {}
+function user(): array { return ['id'=>1]; }
+final class ChatPrivacy {
+    public static function requireAccess(): void {}
+    public static function context(mixed $db,int $id): array { return $GLOBALS['fixtureMessages']; }
+    public static function audit(mixed $db,int $actor,int $id,string $action,array $ids=[]): void {}
+}
 function e(mixed $value): string { return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'); }
 function initials(string $name): string { return 'QA'; }
 function csrf_field(): string { return '<input type="hidden" name="csrf_token" value="fixture">'; }
 function rows(string $sql, array $params = []): array { return str_contains($sql, 'FROM conversations') ? $GLOBALS['fixtureConversations'] : $GLOBALS['fixtureMessages']; }
 function renderModeration(array $conversations, array $messages, array $query = []): string {
+    $db=null;
     $GLOBALS['fixtureConversations'] = $conversations;
     $GLOBALS['fixtureMessages'] = $messages;
     $_GET = $query;
@@ -23,7 +30,7 @@ function check(bool $ok, string $label): void {
     echo "PASS: $label\n";
 }
 $empty = renderModeration([], []);
-check(str_contains($empty, 'Chưa có cuộc trò chuyện nào'), 'empty conversation list');
+check(str_contains($empty, 'Không có tin nhắn bị đánh dấu'), 'empty conversation list');
 check(!str_contains($empty, 'trò chuyện #0'), 'no misleading conversation zero');
 $conversation = ['id'=>1, 'prospect_name'=>'Người hỏi', 'ambassador_name'=>'Đại sứ', 'message_count'=>1, 'flagged_count'=>1, 'quality_score'=>150, 'crm_status'=>'active'];
 $noMessages = renderModeration([$conversation], []);

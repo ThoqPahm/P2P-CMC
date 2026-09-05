@@ -71,6 +71,8 @@ check($status===302,'legacy page redirects to clean route');
 check($status===200 && str_contains($html,'<base href="/">'),'nested route sets asset base');
 check(!preg_match('~href="index\.php~',$html),'navigation emits clean URLs');
 check(str_contains($html,'/admin/widget?qa_role=admin#widgetAppointments'),'fragment stays on current page');
+[$status]=request($base.'/api.php?action=messages&conversation_id='.$first['conversation_id']);
+check($status===403,'admin cannot fetch private conversation through messages API');
 [$status]=request($base.'/does-not-exist?page=login');
 check($status===404,'unknown paths cannot be overridden by query page');
 [$status]=request($base.'/admin/diem-thuong?page=login&qa_role=student');

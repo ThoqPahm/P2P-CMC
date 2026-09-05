@@ -34,6 +34,7 @@ if ($currentUser['role'] === 'ambassador') {
     <nav class="sidebar-nav">
         <p class="sidebar-label">Điều hướng</p>
         <?php foreach ($navItems as [$slug, $icon, $label]): ?>
+            <?php if ($slug === 'admin-moderation' && !ChatPrivacy::allowed($currentUser)) { continue; } ?>
             <a class="sidebar-link <?= $activePage === $slug || ($activePage === 'dashboard' && str_contains($slug, 'dashboard')) ? 'active' : '' ?>" href="index.php?page=<?= e($slug) ?>"><i class="bi <?= e($icon) ?>"></i><span><?= e($label) ?></span><?php if ($slug === 'inbox'): ?><em><?= (int) scalar("SELECT COUNT(*) FROM conversations WHERE ambassador_id = ? AND status = 'open'", [$currentUser['id']]) ?></em><?php endif; ?></a>
         <?php endforeach; ?>
     </nav>

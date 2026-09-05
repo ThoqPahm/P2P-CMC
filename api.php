@@ -311,10 +311,10 @@ try {
                 json_response(['ok' => false, 'message' => 'Chưa đăng nhập'], 401);
             }
             $allowed = (int) scalar('SELECT COUNT(*) FROM conversations WHERE id = ? AND ((prospect_id = ? AND public_token IS NULL) OR ambassador_id = ?)', [$conversationId, $current['id'], $current['id']]);
-            if (!$allowed && $current['role'] !== 'admin') {
+            if (!$allowed) {
                 json_response(['ok' => false, 'message' => 'Không có quyền'], 403);
             }
-            $visibilityClause = $current['role'] === 'admin' ? '' : ' AND m.is_flagged = 0';
+            $visibilityClause = ' AND m.is_flagged = 0';
             $messages = rows('SELECT m.id, m.content, m.created_at, m.sender_id, u.name AS sender_name, u.role AS sender_role FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.conversation_id = ?' . $visibilityClause . ' ORDER BY m.id', [$conversationId]);
             json_response(['ok' => true, 'messages' => $messages, 'current_user_id' => (int) $current['id']]);
 

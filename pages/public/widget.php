@@ -132,7 +132,7 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
                 <section class="profile-section"><h2>Có thể chia sẻ cùng bạn</h2><p class="profile-section-note">Bắt đầu bằng một trong những chủ đề dưới đây.</p><ul class="profile-share-list" id="profileShareList"></ul></section>
             </div>
             <section class="profile-section profile-ai-panel"><div class="profile-ai-heading"><span><i class="bi bi-stars"></i></span><div><h2>AI gợi ý câu hỏi</h2><p>Đề xuất theo ngành học và sở thích của đại sứ.</p></div><button id="refreshAiQuestions" type="button"><i class="bi bi-arrow-clockwise"></i> Làm mới</button></div><div class="ai-question-list" id="profileAiSuggestions"></div><small><i class="bi bi-info-circle"></i> AI chỉ hỗ trợ cách hỏi; câu trả lời vẫn đến từ đại sứ sinh viên.</small></section>
-            <p class="privacy-note"><i class="bi bi-shield-check"></i> Hồ sơ đã được xác minh. Cuộc trò chuyện được lưu để bảo đảm an toàn cho cả hai bên.</p>
+            <p class="privacy-note"><i class="bi bi-shield-check"></i> Tin nhắn được kiểm tra tự động. Người phụ trách chỉ xem tin bị đánh dấu và ngữ cảnh gần đó để xử lý; không xem toàn bộ lịch sử. Không chia sẻ mật khẩu hoặc giấy tờ cá nhân.</p>
         </div>
     </section>
 
