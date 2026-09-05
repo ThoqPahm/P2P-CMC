@@ -1,0 +1,44 @@
+/* Taste: conservative extension of CMC's existing product UI; screenshot routes excluded. */
+.program-workspace{max-width:1180px;margin-inline:auto;color:var(--cmc-navy,#082c54)}
+.program-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:12px 0 28px;border-bottom:1px solid #d6e3eb}
+.program-heading h2{font-size:clamp(24px,2.3vw,34px);line-height:1.25;letter-spacing:-.035em;margin:0 0 12px;max-width:700px}
+.program-heading p:last-child{color:#566d80;margin:0;line-height:1.7;max-width:640px}
+.program-eyebrow{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:750;color:#467084;margin:0 0 12px}
+.program-tabs{display:flex;gap:28px;border-bottom:1px solid #d6e3eb;margin-bottom:24px;overflow:auto}
+.program-tabs a{padding:18px 0 14px;color:#526b80;font-weight:650;white-space:nowrap;text-decoration:none;border-bottom:3px solid transparent}
+.program-tabs a[aria-current]{color:#007db1;border-color:#008fca}
+.program-workspace .btn{line-height:1.45;min-height:42px;white-space:normal;gap:8px;max-width:100%}
+.program-workspace .form-select{padding-right:2.5rem}
+.program-workspace :focus-visible{outline:3px solid #078ac5;outline-offset:3px}
+.program-note{display:flex;align-items:flex-start;gap:12px;background:#edf6fa;border-left:3px solid #008dbe;padding:16px 18px;margin:20px 0;color:#34576f;line-height:1.65;font-size:13px;overflow-wrap:anywhere}
+.program-note p{margin:0}.program-note i{margin-top:3px}
+.program-section-title{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:30px 0 16px}
+.program-section-title h3{font-size:19px;margin:0;line-height:1.4}.program-section-title>span{font-size:12px;color:#647c8d}
+.program-list{display:grid;gap:12px}.program-record{background:white;border:1px solid #d6e3eb;border-radius:10px;overflow:hidden}
+.program-record>summary{display:flex;align-items:center;justify-content:space-between;gap:20px;cursor:pointer;padding:20px;list-style:none}
+.program-record>summary::-webkit-details-marker{display:none}.program-record>summary>span:first-child{display:grid;gap:6px;min-width:0}
+.program-record summary strong{font-size:15px;line-height:1.5;overflow-wrap:anywhere}.program-record summary small{font-size:12px;color:#647787;line-height:1.5}
+.program-record[open]>summary{border-bottom:1px solid #d6e3eb;background:#f8fbfd}
+.program-record-body{padding:24px}.program-status{font-size:11px;font-weight:650;color:#77531a;background:#fff4dd;padding:5px 9px;border-radius:4px;flex-shrink:0;max-width:45%;line-height:1.5}
+.program-status.is-complete{color:#196b55;background:#e8f5ef}
+.program-prose{line-height:1.8;font-size:14px;overflow-wrap:anywhere;white-space:normal;max-width:85ch}
+.program-form{display:grid;gap:18px;margin:20px 0}.program-form>button{justify-self:start}
+.program-form label:not(.program-check){display:grid;gap:8px;font-size:13px;font-weight:650;line-height:1.6;min-width:0}
+.program-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.program-form textarea{resize:vertical;min-height:88px}.program-form .form-control,.program-form .form-select{font-weight:400;font-size:14px;line-height:1.5;min-width:0;width:100%}
+.program-form-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:16px 0}.program-form-footer small{color:#657b8b}
+.program-check{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.7;font-weight:400;padding:5px 0}.program-check input{margin-top:5px;flex-shrink:0;width:16px;height:16px;accent-color:#008dcc}
+.program-form legend{font-size:14px;font-weight:650;line-height:1.6;margin-bottom:12px}
+.program-panel{padding:24px;background:white;border:1px solid #d6e3eb;border-radius:10px;margin-top:24px}.program-panel .program-section-title{margin-top:0}
+.program-muted{font-size:13px;line-height:1.7;color:#587080}.program-empty{padding:32px 24px;border:1px dashed #b7cdda;border-radius:10px;color:#526c80;font-size:14px;line-height:1.7;background:#f9fcfd}
+.program-empty i{display:block;font-size:26px;margin-bottom:12px;color:#008dbe}.program-empty h3{font-size:18px}.program-empty p{margin-bottom:0}
+.program-details{display:grid;gap:16px;font-size:14px}.program-details dt{font-size:12px;color:#667c8c;margin-bottom:6px}.program-details dd{margin:0;line-height:1.7;overflow-wrap:anywhere}
+.program-history{margin-top:24px;border-top:1px solid #d6e3eb;padding-top:16px}.program-history summary{cursor:pointer;font-size:13px;font-weight:650;line-height:1.6}
+.program-history article,.program-review{padding:16px 0;border-bottom:1px solid #e2ebf0;font-size:13px;overflow-wrap:anywhere}.program-history small,.program-review small{display:block;color:#637a8b;margin:6px 0}
+.program-steps{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}.program-steps span{font-size:12px;font-weight:650;border-bottom:2px solid #89c9e0;padding:10px 0;flex:1;min-width:120px}
+.program-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.program-metric{background:#fff;border:1px solid #d6e3eb;border-radius:10px;padding:24px}.program-metric h3{font-size:20px;line-height:1.4;margin-bottom:20px}.program-metric dl{margin-bottom:20px}
+.program-metric dl>div{display:flex;justify-content:space-between;align-items:baseline;gap:20px;padding:12px 0;border-bottom:1px solid #e4edf2}.program-metric dt{font-size:13px;font-weight:400;color:#526b80}.program-metric dd{margin:0;font-weight:700;font-size:15px;text-align:right;font-variant-numeric:tabular-nums}.program-metric p{font-size:12px;line-height:1.8;color:#607687;margin:0}
+.program-record-body h4{font-size:15px}
+.program-record>summary{position:relative;padding-right:48px}.program-record>summary::after{content:'+';position:absolute;right:20px;top:20px;color:#467084;font-size:20px;font-weight:400}.program-record[open]>summary::after{content:'−'}.program-record>summary>i{display:none}
+@media(max-width:700px){.program-heading{align-items:flex-start;flex-direction:column;gap:16px}.program-fields,.program-metrics{grid-template-columns:minmax(0,1fr)}.program-tabs{gap:22px}.program-record>summary{padding:16px;gap:12px;align-items:flex-start;flex-direction:column}.program-status{max-width:100%}.program-record-body,.program-panel,.program-metric{padding:18px}.program-section-title{align-items:flex-start;flex-direction:column;gap:6px}.program-heading h2{font-size:27px}.program-metric dl>div{gap:14px}.program-metric dd{font-size:14px}.program-form-footer{align-items:stretch;flex-direction:column}}

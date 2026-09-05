@@ -15,3 +15,5 @@ require_once __DIR__ . '/WidgetAiAssistant.php';
 require_once __DIR__ . '/WidgetChatAssistant.php';
 
 $db = Database::connection();
+require_once __DIR__ . '/AmbassadorProgram.php';
+AmbassadorProgram::migrate($db);

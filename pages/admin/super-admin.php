@@ -1,5 +1,6 @@
 <?php
 require_super_admin();
+$eligibleKnowledgeCount = count(AmbassadorProgram::knowledge($db, true));
 $pageTitle = 'Super Admin Console';
 $settings = ui_settings();
 $providers = AiProviderManager::allConfigs();
@@ -25,7 +26,7 @@ $activeLoginTheme = active_login_theme();
         <span><i class="bi bi-power"></i><strong>Chatbot</strong><?= $settings['widget_ai_enabled'] === '1' ? 'Đang bật' : 'Đang tắt' ?></span>
         <span><i class="bi bi-cpu"></i><strong>Provider chính</strong><?= e($providers[$settings['widget_ai_provider']]['name'] ?? 'Chưa chọn') ?></span>
         <span><i class="bi bi-key"></i><strong>Gemini key đang bật</strong><?= (int) $providers['gemini']['enabled_key_count'] ?>/<?= (int) $providers['gemini']['key_count'] ?> slot</span>
-        <span><i class="bi bi-database-check"></i><strong>Dữ liệu đang dùng</strong><?= $activeKnowledgeCount ?> mục</span>
+        <span><i class="bi bi-database-check"></i><strong>Nguồn đủ điều kiện cho AI</strong><?= $eligibleKnowledgeCount ?> / <?= $activeKnowledgeCount ?> mục bật</span>
     </div>
 
     <form method="post" action="actions.php?action=save_super_admin_ai" class="super-settings-form">
@@ -108,7 +109,8 @@ $activeLoginTheme = active_login_theme();
     </form>
 
     <section class="super-section" id="knowledge">
-        <div class="super-section-heading"><div><h3>Dữ liệu gốc của trường</h3><p>Chỉ những mục đang bật mới được đưa vào ngữ cảnh trả lời.</p></div><span class="knowledge-count"><?= $activeKnowledgeCount ?> mục đang hoạt động</span></div>
+        <p class="mb-3"><a class="btn btn-outline-brand" href="index.php?page=ambassador-program&tab=knowledge"><i class="bi bi-patch-check"></i> Kiểm chứng nguồn & lịch sử xác nhận</a></p>
+        <div class="super-section-heading"><div><h3>Dữ liệu gốc của trường</h3><p>Mục đang bật cần được kiểm chứng và còn hạn trước khi chatbot sử dụng.</p></div><span class="knowledge-count"><?= $activeKnowledgeCount ?> mục đang bật</span></div>
         <div class="knowledge-layout">
             <form class="knowledge-editor" method="post" action="actions.php?action=save_ai_knowledge">
                 <?= csrf_field() ?><input type="hidden" name="knowledge_id" value="<?= (int) ($editingKnowledge['id'] ?? 0) ?>">

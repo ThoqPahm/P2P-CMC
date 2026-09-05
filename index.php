@@ -32,6 +32,7 @@ $routes = [
     'admin-rewards' => 'pages/admin/rewards.php',
     'appearance-studio' => 'pages/admin/appearance.php',
     'super-admin' => 'pages/admin/super-admin.php',
+    'ambassador-program' => 'pages/program.php',
     'student-dashboard' => 'pages/student/dashboard.php',
     'campaigns' => 'pages/student/campaigns.php',
     'my-submissions' => 'pages/student/submissions.php',

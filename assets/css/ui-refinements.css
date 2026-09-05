@@ -1,0 +1,24 @@
+/* Never loaded on thesis figures 5–8. Preserve their existing layout and typography. */
+:root{--cmc-muted:var(--muted,#64788b);--cmc-line:var(--line,#dce6ee);--cmc-soft:var(--surface-soft,#f1f7fb)}
+.app-content .btn{line-height:1.45;gap:7px;white-space:normal}
+.app-content .form-select{padding-right:2.5rem;line-height:1.5}
+.page-actions,.page-actions>div:last-child{flex-wrap:wrap;row-gap:12px}
+.app-content .panel-head{gap:14px}
+.app-content .panel-head h3{line-height:1.45}
+.super-console-head h2{color:#fff;line-height:1.2}
+.super-console-head>div{min-width:0}
+.super-console-actions{flex-wrap:wrap}
+.super-console label,.super-console input,.super-console select,.super-console textarea{min-width:0;max-width:100%}
+.super-console .super-field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.super-console .provider-fields{grid-template-columns:minmax(0,1.5fr) minmax(0,.65fr) minmax(0,1fr)}
+.super-console .provider-fields-gemini{grid-template-columns:minmax(0,1.5fr) minmax(0,.65fr)}
+.super-console .key-pool-add{grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr) auto}
+.review-metrics{display:flex;flex-wrap:wrap;gap:12px 20px;margin:16px 0}
+.review-metrics>div{display:grid;gap:5px}.review-metrics strong{font-variant-numeric:tabular-nums}
+.bonus-rule,.eligibility-note{line-height:1.65;overflow-wrap:anywhere}
+.inbox-shell .message-meta{display:flex;flex-wrap:wrap;gap:5px 12px;margin-bottom:6px;line-height:1.5}
+.inbox-shell .safety-note{display:flex;gap:10px;line-height:1.6;padding:16px}
+.inbox-shell .safety-note small{display:block;margin-top:5px}
+.app-content :is(th,td){vertical-align:middle}
+@media(max-width:1199px){.super-console .provider-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.super-console .provider-endpoint{grid-column:1/-1}}
+@media(max-width:700px){.super-console .super-field-grid,.super-console .provider-fields,.super-console .key-pool-add{grid-template-columns:minmax(0,1fr)}.app-content .page-actions{align-items:stretch}.app-content .page-actions>div{min-width:0}.app-content .page-actions .btn{max-width:100%}.super-console-head{padding:22px}.super-console .super-console-nav{max-width:100%}}

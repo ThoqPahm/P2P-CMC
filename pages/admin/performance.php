@@ -1,5 +1,9 @@
 <?php
 require_auth(['admin']);
+$_GET['tab'] ??= 'ugc';
+if ($_GET['tab'] !== 'ugc') {
+    redirect('index.php?page=ambassador-program&tab=quality');
+}
 $pageTitle = 'Hiệu quả UGC';
 $summary = rows(<<<'SQL'
     SELECT COALESCE(SUM(views), 0) AS views,

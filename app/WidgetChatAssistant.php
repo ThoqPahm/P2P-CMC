@@ -35,7 +35,7 @@ PROMPT;
             throw new InvalidArgumentException('Câu hỏi chưa phù hợp để trợ lý hỗ trợ. Hãy diễn đạt lại nội dung.');
         }
 
-        $knowledge = rows('SELECT id, category, title, content, keywords FROM ai_knowledge_entries WHERE is_active = 1 ORDER BY updated_at DESC, id DESC');
+        $knowledge = AmbassadorProgram::knowledge(Database::connection(), true);
         $ambassadors = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM users WHERE role = 'ambassador' AND status = 'active' ORDER BY is_online DESC, name");
         $retrievalMessage = self::contextualQuery($message, $history);
         $matchedKnowledge = self::matchKnowledge($retrievalMessage, $knowledge);
