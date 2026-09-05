@@ -25,7 +25,7 @@ $html=renderWidgetAdmin([$item], 'school.example', '/portal/index.php', true);
 check(str_contains($html, 'https://school.example/portal/assets/js/eambassador-widget.js?v=2'), 'production embed path unchanged');
 check(str_contains($html, 'data-position=&quot;right&quot; async'), 'embed configuration unchanged');
 check(!str_contains($html, 'Đây là mã nhúng từ máy local'), 'no local warning on production');
-check(str_contains($html, '<iframe src="https://school.example/portal/index.php?page=widget"'), 'original widget iframe target');
+check(str_contains($html, '<iframe src="https://school.example/portal/widget"'), 'clean widget iframe target');
 check(!str_contains($html, '<script>'), 'user-provided content escaped');
 check(str_contains($html, '<details class="appointment-question">'), 'full question disclosure');
 check(str_contains($html, 'for="appointment-status-9"'), 'status label associated');

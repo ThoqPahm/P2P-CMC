@@ -48,6 +48,7 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
 <!doctype html>
 <html lang="vi">
 <head>
+    <base href="<?= e(Routes::base()) ?>">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">

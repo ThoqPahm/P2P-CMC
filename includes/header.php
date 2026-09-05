@@ -6,6 +6,7 @@ $isLogin = ($page ?? '') === 'login';
 <!doctype html>
 <html lang="vi">
 <head>
+    <base href="<?= e(Routes::base()) ?>">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="eAmbassador - Hệ sinh thái đại sứ sinh viên số và truyền thông ngang hàng.">

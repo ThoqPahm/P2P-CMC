@@ -60,7 +60,7 @@ function require_super_admin(): void
 
 function redirect(string $url): never
 {
-    header('Location: ' . $url);
+    header('Location: ' . Routes::legacy($url));
     exit;
 }
 

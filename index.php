@@ -4,6 +4,24 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/app/bootstrap.php';
 
+$resolved = Routes::resolve($_SERVER['REQUEST_URI'] ?? '/');
+if ($resolved === null) {
+    $_GET['page'] = 'not-found';
+} elseif ($resolved) {
+    // Path parameters take precedence over query-string overrides.
+    $_GET = array_replace($_GET, $resolved);
+} elseif (isset($_GET['page']) && is_string($_GET['page']) && isset(Routes::PAGES[$_GET['page']]) && in_array($_SERVER['REQUEST_METHOD'], ['GET','HEAD'], true)) {
+    $params = $_GET;
+    unset($params['page']);
+    header('Location: '.Routes::url($_GET['page'], $params), true, 302);
+    exit;
+}
+if ($resolved === [] && !isset($_GET['page']) && basename((string)parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH)) === 'index.php' && in_array($_SERVER['REQUEST_METHOD'], ['GET','HEAD'], true)) {
+    header('Location: '.Routes::url('dashboard', $_GET), true, 302);
+    exit;
+}
+ob_start([Routes::class, 'html']);
+
 $page = (string) ($_GET['page'] ?? (user() ? 'dashboard' : 'login'));
 $page = $page === 'home' ? (user() ? 'dashboard' : 'login') : $page;
 

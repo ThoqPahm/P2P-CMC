@@ -22,5 +22,10 @@ if (in_array($_GET['qa_role']??'', ['admin','student','ambassador','prospect'],t
     $_SESSION['user_id']=(int)$stmt->fetchColumn();
 }
 $allowed=['/index.php'=>'index.php','/program-actions.php'=>'program-actions.php','/actions.php'=>'actions.php','/api.php'=>'api.php'];
-if (!isset($allowed[$path])) { http_response_code(404); exit; }
-require __DIR__.'/../'.$allowed[$path];
+if (!isset($allowed[$path])) {
+    $_SERVER['SCRIPT_NAME'] = '/index.php';
+    require __DIR__.'/../index.php';
+} else {
+    $_SERVER['SCRIPT_NAME'] = $path;
+    require __DIR__.'/../'.$allowed[$path];
+}

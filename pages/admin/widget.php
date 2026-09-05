@@ -5,7 +5,7 @@ $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' :
 $host = $_SERVER['HTTP_HOST'] ?? '127.0.0.1:8765';
 $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/');
 $baseUrl = $scheme . '://' . $host . ($basePath === '' ? '' : $basePath);
-$widgetUrl = $baseUrl . '/index.php?page=widget';
+$widgetUrl = $baseUrl . '/widget';
 $scriptUrl = $baseUrl . '/assets/js/eambassador-widget.js?v=2';
 $embedCode = '<script src="' . $scriptUrl . '" data-widget-url="' . $widgetUrl . '" data-position="right" async></script>';
 $appointments = rows(<<<'SQL'

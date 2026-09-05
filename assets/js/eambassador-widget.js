@@ -3,7 +3,7 @@
 
     const script = document.currentScript;
     if (!script || document.getElementById('eambassador-widget-root')) return;
-    const widgetUrl = script.dataset.widgetUrl || new URL('../../index.php?page=widget', script.src).href;
+    const widgetUrl = script.dataset.widgetUrl || new URL('../../widget', script.src).href;
     const position = script.dataset.position === 'left' ? 'left' : 'right';
     const label = script.dataset.label || 'Hỏi đại sứ CMC';
     const host = document.createElement('div');

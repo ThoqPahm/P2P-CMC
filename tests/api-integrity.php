@@ -3,10 +3,10 @@ declare(strict_types=1);
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 $base=$argv[1]??'';
 if (!preg_match('~^http://127\.0\.0\.1:\d+$~',$base)) throw new RuntimeException('Loopback QA URL required');
-function request(string $url, ?array $post=null): array {
+function request(string $url, ?array $post=null, bool $follow=true): array {
     static $curl=null;
     if ($curl===null) { $curl=curl_init(); curl_setopt($curl,CURLOPT_COOKIEFILE,''); }
-    curl_setopt_array($curl,[CURLOPT_URL=>$url,CURLOPT_RETURNTRANSFER=>true,CURLOPT_TIMEOUT=>15,CURLOPT_HTTPGET=>true]);
+    curl_setopt_array($curl,[CURLOPT_URL=>$url,CURLOPT_RETURNTRANSFER=>true,CURLOPT_TIMEOUT=>15,CURLOPT_HTTPGET=>true,CURLOPT_FOLLOWLOCATION=>$post===null && $follow,CURLOPT_MAXREDIRS=>5]);
     if($post!==null)curl_setopt_array($curl,[CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>http_build_query($post)]);
     $body=curl_exec($curl); $status=curl_getinfo($curl,CURLINFO_HTTP_CODE);
     if($body===false)throw new RuntimeException(curl_error($curl));
@@ -65,4 +65,14 @@ foreach(['student-dashboard','campaigns','my-submissions','my-performance','wall
 check($status===200 && !preg_match('/(?:Fatal error|Warning:|Parse error)/',$html),'inbox rejects stale selection without PHP errors');
 [$status]=request($base.'/index.php?page=admin-rewards&qa_role=student');
 check($status===403,'student cannot open rewards administration');
+[$status]=request($base.'/index.php?page=widget',null,false);
+check($status===302,'legacy page redirects to clean route');
+[$status,$html]=request($base.'/admin/widget?qa_role=admin');
+check($status===200 && str_contains($html,'<base href="/">'),'nested route sets asset base');
+check(!preg_match('~href="index\.php~',$html),'navigation emits clean URLs');
+check(str_contains($html,'/admin/widget?qa_role=admin#widgetAppointments'),'fragment stays on current page');
+[$status]=request($base.'/does-not-exist?page=login');
+check($status===404,'unknown paths cannot be overridden by query page');
+[$status]=request($base.'/admin/diem-thuong?page=login&qa_role=student');
+check($status===403,'clean path retains authorization despite query override');
 echo "$checks checks passed.\n";
