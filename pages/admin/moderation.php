@@ -33,20 +33,21 @@ $moderationCategoryLabels = [
     <aside class="conversation-list">
         <div class="conversation-list-head"><p class="eyebrow">HỘI THOẠI</p><h3><?= count($conversations) ?> cuộc trò chuyện</h3></div>
         <?php foreach ($conversations as $conversation): ?>
-            <a class="conversation-row <?= $selected === (int) $conversation['id'] ? 'active' : '' ?>" href="index.php?page=admin-moderation&conversation=<?= (int) $conversation['id'] ?>">
+            <a class="conversation-row <?= $selected === (int) $conversation['id'] ? 'active' : '' ?>" <?= $selected === (int) $conversation['id'] ? 'aria-current="true"' : '' ?> href="index.php?page=admin-moderation&conversation=<?= (int) $conversation['id'] ?>">
                 <span class="avatar avatar-sm"><?= e(initials($conversation['prospect_name'])) ?></span>
                 <div><strong><?= e($conversation['prospect_name']) ?></strong><small>với <?= e($conversation['ambassador_name']) ?></small><em><?= (int) $conversation['message_count'] ?> tin nhắn</em></div>
-                <?php if ($conversation['flagged_count']): ?><b><i class="bi bi-flag-fill"></i> <?= (int) $conversation['flagged_count'] ?></b><?php endif; ?>
+                <?php if ($conversation['flagged_count']): ?><b aria-label="<?= (int) $conversation['flagged_count'] ?> tin bị đánh dấu"><i class="bi bi-flag-fill" aria-hidden="true"></i> <?= (int) $conversation['flagged_count'] ?></b><?php endif; ?>
             </a>
         <?php endforeach; ?>
+        <?php if (!$conversations): ?><p class="moderation-empty-list">Chưa có cuộc trò chuyện nào để kiểm duyệt.</p><?php endif; ?>
     </aside>
 
     <section class="moderation-chat panel-card">
-        <div class="panel-head"><div><p class="eyebrow">CHẾ ĐỘ KIỂM DUYỆT</p><h3>Nội dung cuộc trò chuyện #<?= $selected ?></h3></div><span class="panel-chip"><i></i> <?= count($messages) ?> tin nhắn</span></div>
+        <div class="panel-head"><div><p class="eyebrow">CHẾ ĐỘ KIỂM DUYỆT</p><h3><?= $selectedConversation ? 'Nội dung cuộc trò chuyện #' . $selected : 'Nội dung cuộc trò chuyện' ?></h3></div><span class="panel-chip"><?= count($messages) ?> tin nhắn</span></div>
         <?php if ($selectedConversation): ?>
             <div class="conversation-quality">
-                <div><span>Quality score</span><strong><?= (int) $selectedConversation['quality_score'] ?>/100</strong></div>
-                <div class="quality-meter"><i style="width: <?= (int) $selectedConversation['quality_score'] ?>%"></i></div>
+                <div><span>Điểm chất lượng</span><strong><?= (int) $selectedConversation['quality_score'] ?>/100</strong></div>
+                <div class="quality-meter" aria-hidden="true"><i style="width: <?= max(0, min(100, (int) $selectedConversation['quality_score'])) ?>%"></i></div>
                 <form method="post" action="actions.php?action=update_support_status">
                     <?= csrf_field() ?>
                     <input type="hidden" name="conversation_id" value="<?= $selected ?>">
@@ -62,6 +63,9 @@ $moderationCategoryLabels = [
         <?php endif; ?>
 
         <div class="moderation-messages">
+            <?php if (!$messages): ?>
+                <div class="moderation-empty"><strong><?= $selectedConversation ? 'Chưa có tin nhắn' : 'Chưa có hội thoại được chọn' ?></strong><p><?= $selectedConversation ? 'Tin nhắn sẽ xuất hiện tại đây khi cuộc trò chuyện bắt đầu.' : 'Chọn một cuộc trò chuyện trong danh sách để xem và kiểm duyệt nội dung.' ?></p></div>
+            <?php endif; ?>
             <?php foreach ($messages as $message): ?>
                 <?php
                 $categories = json_decode((string) ($message['moderation_categories'] ?? '[]'), true);
@@ -70,6 +74,7 @@ $moderationCategoryLabels = [
                 ?>
                 <div class="moderation-message <?= $message['sender_role'] === 'ambassador' ? 'ambassador' : '' ?> <?= $message['is_flagged'] ? 'flagged' : '' ?>">
                     <div class="message-meta"><strong><?= e($message['sender_name']) ?></strong><span><?= date('H:i d/m', strtotime($message['created_at'])) ?></span></div>
+                    <?php if ($message['is_flagged']): ?><span class="moderation-flag-label"><i class="bi bi-flag-fill" aria-hidden="true"></i> Đã ẩn · Cần kiểm duyệt</span><?php endif; ?>
                     <p><?= e($message['content']) ?></p>
                     <?php if ($message['is_flagged']): ?>
                         <div class="d-flex flex-wrap gap-1 mb-2">

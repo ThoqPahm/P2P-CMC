@@ -23,6 +23,7 @@ $isLogin = ($page ?? '') === 'login';
     <?php if (($page ?? '') === 'super-admin'): ?><link href="assets/css/super-admin.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (!in_array($page ?? '', ['admin-dashboard','admin-campaigns','admin-moderation','widget','login'],true)): ?><link href="assets/css/ui-refinements.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (in_array($page ?? '', ['campaigns', 'admin-campaigns'], true)): ?><link href="assets/css/campaign-cards.css?v=1" rel="stylesheet"><?php endif; ?>
+    <?php if (($page ?? '') === 'admin-moderation'): ?><link href="assets/css/moderation.css?v=1" rel="stylesheet"><?php endif; ?>
 </head>
 <body class="<?= $isLogin ? 'login-layout' : ($isPublic ? 'public-layout' : 'app-layout') ?>">
 <!--
