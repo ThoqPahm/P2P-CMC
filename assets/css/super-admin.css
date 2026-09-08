@@ -1,8 +1,8 @@
 .super-console { --super-line: #dce7ef; --super-soft: #f3f8fb; display: grid; gap: 20px; padding-bottom: 80px; }
-.super-console-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 24px 26px; color: #fff; background: #002757; border-radius: 16px; box-shadow: 0 18px 44px rgba(0, 39, 87, .18); }
+.super-console-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 24px 26px; color: #fff; background: var(--cmc-blue); border-radius: 16px; box-shadow: 0 18px 44px rgba(0, 39, 87, .18); }
 .super-console-head > div:first-child > span { display: inline-flex; align-items: center; gap: 7px; color: #8feef0; font-size: .74rem; font-weight: 750; }
 .super-console-head h2 { margin: 9px 0 0; font-size: clamp(1.65rem, 3vw, 2.3rem); letter-spacing: -.035em; }
-.super-console-head p { max-width: 680px; margin: 8px 0 0; color: #c7dbe8; line-height: 1.6; }
+.super-console-head p { max-width: 680px; margin: 8px 0 0; color: #fff; line-height: 1.6; }
 .super-console-actions { display: flex; flex: 0 0 auto; gap: 9px; }
 .super-console-nav { position: sticky; top: 78px; z-index: 5; display: flex; gap: 6px; padding: 7px; overflow-x: auto; background: rgba(255, 255, 255, .96); border: 1px solid var(--super-line); border-radius: 12px; box-shadow: 0 8px 26px rgba(0, 39, 87, .08); scrollbar-width: none; }
 .super-console-nav a { display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 0 12px; color: #536d80; border-radius: 8px; font-size: .78rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
