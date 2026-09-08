@@ -14,7 +14,8 @@ $isLogin = ($page ?? '') === 'login';
     <title><?= e($pageTitle === 'eAmbassador' ? 'eAmbassador' : $pageTitle . ' · eAmbassador') ?></title>
     <link rel="icon" href="assets/img/cmc-university.svg" type="image/svg+xml">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/app.css?v=64" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
+    <link href="assets/css/app.css?v=65" rel="stylesheet">
     <?php if (($page ?? '') === 'ambassador-program'): ?><link href="assets/css/program.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'admin-widget'): ?><link href="assets/css/widget-admin.css?v=2" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'super-admin'): ?><link href="assets/css/super-admin.css?v=1" rel="stylesheet"><?php endif; ?>
@@ -23,7 +24,7 @@ $isLogin = ($page ?? '') === 'login';
     <link href="assets/css/icon-system.css?v=1" rel="stylesheet">
     <?php if (in_array($page ?? '', ['campaigns', 'admin-campaigns'], true)): ?><link href="assets/css/campaign-cards.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'admin-moderation'): ?><link href="assets/css/moderation.css?v=1" rel="stylesheet"><?php endif; ?>
-    <link href="assets/css/typography.css?v=1" rel="stylesheet">
+    <link href="assets/css/typography.css?v=2" rel="stylesheet">
 </head>
 <body class="<?= $isLogin ? 'login-layout' : ($isPublic ? 'public-layout' : 'app-layout') ?>">
 <!--
@@ -67,8 +68,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
                 <p class="topbar-context mb-1"><?= $currentUser['role'] === 'admin' ? 'Trung tâm vận hành' : 'Không gian của bạn' ?></p>
                 <h1 class="topbar-title"><?= e($pageTitle) ?></h1>
             </div>
-            <div class="topbar-route d-none d-xl-flex" aria-label="Vị trí hiện tại"><i class="bi bi-signpost-split"></i><span><?= $currentUser['role'] === 'admin' ? 'Quản trị' : 'Sinh viên' ?></span><i class="bi bi-chevron-right"></i><strong><?= e($pageTitle) ?></strong></div>
+            <div class="topbar-route d-none d-xl-flex" aria-label="Vị trí hiện tại"><i class="bi bi-signpost-split"></i><span><?= $currentUser['role'] === 'admin' ? 'Operations' : 'Student' ?></span><i class="bi bi-chevron-right"></i><strong><?= e($pageTitle) ?></strong></div>
             <div class="topbar-actions ms-auto">
+                <button class="btn icon-btn position-relative" aria-label="Thông báo"><i class="bi bi-bell"></i><span class="notification-dot"></span></button>
                 <div class="user-chip d-none d-sm-flex">
                     <span class="avatar avatar-sm"><?= e(initials($currentUser['name'])) ?></span>
                     <span><strong><?= e($currentUser['name']) ?></strong><small><?= e(role_label($currentUser['role'])) ?></small></span>

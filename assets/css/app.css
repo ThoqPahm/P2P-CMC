@@ -81,7 +81,7 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .brand img { display: block; max-width: 100%; }
 .cmc-brand img { width: 168px; }
 .brand-product { padding-left: .75rem; border-left: 1px solid var(--line-strong); color: var(--cmc-navy); font-size: .75rem; }
-.eambassador-wordmark { color: var(--cmc-navy); font-family: Inter, sans-serif; font-weight: 700; letter-spacing: -.04em; text-transform: none; }
+.eambassador-wordmark { color: var(--cmc-navy); font-family: "Syne", "Trebuchet MS", sans-serif; font-weight: 700; letter-spacing: -.04em; text-transform: none; }
 .eambassador-wordmark > span { color: var(--cmc-blue); }
 .sidebar-brand .eambassador-wordmark, .footer-brand .eambassador-wordmark { color: #fff; }
 .sidebar-brand .eambassador-wordmark > span, .footer-brand .eambassador-wordmark > span { color: var(--cmc-cyan); }
@@ -246,11 +246,11 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .login-theme-particles .internal-login-form { position: relative; overflow: hidden; padding: clamp(2.25rem, 5vw, 4.75rem); background: #f8fbfd; }
 .login-theme-particles .login-form-content { position: relative; z-index: 1; width: min(100%, 430px); margin-inline: auto; }
 .login-theme-particles .login-form-head { margin-bottom: 1.6rem; }
-.login-theme-particles .login-product-mark { margin: 0 0 1.8rem; color: var(--cmc-navy); font-family: Inter, sans-serif; font-size: clamp(2.2rem, 3vw, 2.75rem); font-weight: 700; letter-spacing: -.04em; line-height: 1; text-align: center; }
+.login-theme-particles .login-product-mark { margin: 0 0 1.8rem; color: var(--cmc-navy); font-family: "Syne", "Trebuchet MS", sans-serif; font-size: clamp(2.2rem, 3vw, 2.75rem); font-weight: 700; letter-spacing: -.04em; line-height: 1; text-align: center; }
 .login-theme-particles .login-product-mark span { color: var(--cmc-blue); }
 .login-theme-particles .login-form-head h1 { margin-bottom: .55rem; font-size: clamp(1.8rem, 2.4vw, 2.3rem); letter-spacing: -.04em; }
 .login-theme-particles .login-form-head > p:last-child { color: #526a7d; font-size: .88rem; }
-.login-theme-particles .login-welcome-brand { color: var(--cmc-navy); font-family: Inter, sans-serif; font-size: .96em; font-weight: 700; letter-spacing: -.03em; }
+.login-theme-particles .login-welcome-brand { color: var(--cmc-navy); font-family: "Syne", "Trebuchet MS", sans-serif; font-size: .96em; font-weight: 700; letter-spacing: -.03em; }
 .login-theme-particles .login-welcome-brand > span { color: var(--cmc-blue); }
 .login-theme-particles .login-form { gap: 1rem; }
 .login-theme-particles .login-field { gap: .5rem; }

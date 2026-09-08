@@ -2,7 +2,7 @@
 @font-face { font-family: Inter; src: url('../fonts/inter/InterVariable.woff2') format('woff2'); font-style: normal; font-weight: 100 900; font-display: swap; }
 @font-face { font-family: Inter; src: url('../fonts/inter/InterVariable-Italic.woff2') format('woff2'); font-style: italic; font-weight: 100 900; font-display: swap; }
 :root { --bs-font-sans-serif: Inter, sans-serif; --bs-body-font-family: Inter, sans-serif; }
-html, body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, .eambassador-wordmark, .brand, code, pre, kbd, .widget-brand span, .widget-powered > strong, .login-theme-particles .login-product-mark, .login-theme-particles .login-welcome-brand { font-family: Inter, sans-serif; }
+html, body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, .brand, code, pre, kbd { font-family: Inter, sans-serif; }
 body { font-optical-sizing: auto; }
 .avatar img, .profile-avatar img, .ambassador-avatar img, .inbox-avatar img, #chatHeaderAvatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
 .profile-details-copy { display: grid; gap: 18px; }
@@ -11,3 +11,5 @@ body { font-optical-sizing: auto; }
 .profile-record-link { display: inline-block; margin-top: 6px; }
 .profile-monogram { display: block; width: 100%; height: 100%; }
 .profile-monogram img { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; display: block; }
+/* Preserve the original product wordmark, including nested brand spans. */
+.eambassador-wordmark, .eambassador-wordmark *, .widget-brand span, .widget-brand span *, .widget-powered > strong, .widget-powered > strong *, .login-theme-particles .login-product-mark, .login-theme-particles .login-product-mark *, .login-theme-particles .login-welcome-brand, .login-theme-particles .login-welcome-brand * { font-family: Syne, "Trebuchet MS", sans-serif; }

@@ -2,7 +2,7 @@
 
 ## Release scope
 
-Preserve the existing PHP/Bootstrap layout and CMC cover/logo treatment. Inter is explicitly requested by the owner; it is self-hosted with normal/italic variable fonts and Vietnamese characters. Phosphor replaces interface glyphs; CMC brand artwork is unchanged. Taste direction: preserve, variance 3 / motion 3 / density 5. No new page architecture or theme switch.
+Preserve the original PHP/Bootstrap UI at commit 57d6e82, including login markup, labels, controls and layout. Inter is used for body content with self-hosted normal/italic variable fonts and Vietnamese characters. The eAmbassador wordmark retains its original Syne font. Phosphor replaces interface glyphs; CMC brand artwork is unchanged. No layout redesign or theme switch. Detailed profile content is added only within the existing profile surface, with its linked admin editor.
 
 ## Deployment
 

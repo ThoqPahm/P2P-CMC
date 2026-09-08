@@ -391,7 +391,7 @@
         if (!conversation && selectedAmbassador.online) {
             list.innerHTML = '<div class="widget-empty"><i class="bi bi-chat-heart"></i><h2>Bắt đầu trò chuyện</h2><p>Nhập câu hỏi bên dưới và gửi như một cuộc chat bình thường.</p></div>';
         } else if (!conversation) {
-            list.innerHTML = `<div class="offline-chat-note"><i class="bi bi-clock-history"></i><p><strong>${escapeHtml(selectedAmbassador.name)} đang offline</strong><span>Cứ nhắn như bình thường. Bạn có thể quay lại Hộp thư trên trình duyệt này để xem phản hồi.</span></p></div>`;
+            list.innerHTML = `<div class="offline-chat-note"><i class="bi bi-clock-history"></i><p><strong>${escapeHtml(selectedAmbassador.name)} đang offline</strong><span>Cứ nhắn như bình thường. Bạn có thể quay lại Inbox trên trình duyệt này để xem phản hồi.</span></p></div>`;
         }
         showChatAiSuggestions();
         showView('chatView', previous);
@@ -430,11 +430,11 @@
             ...(selectedAmbassador.interests || []).slice(0, 2).map((interest) => `Góc nhìn thực tế về ${interest.toLocaleLowerCase('vi')}`),
         ];
         $('#profileShareList').innerHTML = (selectedAmbassador.topics?.length ? selectedAmbassador.topics : shareTopics).map((topic) => `<li><i class="bi bi-chat-square-heart"></i><span>${escapeHtml(topic)}</span></li>`).join('');
-        $('#profileStatusLabel').textContent = online ? 'Đang hoạt động' : 'Hiện không hoạt động';
+        $('#profileStatusLabel').textContent = online ? 'Đang online và sẵn sàng trò chuyện' : 'Hiện đang offline';
         $('#profileStatusDetail').textContent = online
             ? 'Bạn có thể gửi câu hỏi ngay để nhận chia sẻ trực tiếp.'
-            : 'Bạn vẫn có thể nhắn tin. Quay lại Hộp thư trên trình duyệt này để xem phản hồi.';
-        $('#profileResponseBadge').textContent = online ? 'Bạn có thể gửi tin nhắn' : 'Để lại tin nhắn';
+            : 'Bạn vẫn có thể nhắn tin. Quay lại Inbox trên trình duyệt này để xem phản hồi.';
+        $('#profileResponseBadge').textContent = online ? 'Có thể phản hồi ngay' : 'Sẽ phản hồi sau';
         $('#profilePresenceIcon').className = `bi ${online ? 'bi-chat-heart-fill' : 'bi-envelope-check-fill'}`;
         $('#profileAction').innerHTML = '<button class="primary-action" id="openChatForm" type="button"><i class="bi bi-send-fill"></i> Gửi tin nhắn</button>'
             + (selectedAmbassador.online ? '' : '<button class="secondary-action" id="openScheduleForm" type="button"><i class="bi bi-calendar2-check"></i> Đặt lịch tư vấn</button>');
@@ -611,10 +611,10 @@
     const showEmailPrompt = (message) => {
         pendingOfflineMessage = message;
         $('#offlineEmailStep').classList.remove('is-hidden');
-        $('#offlineMessageTitle').textContent = selectedAmbassador.online ? 'Thông tin của bạn' : 'Để lại thông tin liên hệ';
+        $('#offlineMessageTitle').textContent = selectedAmbassador.online ? 'Xác nhận email để gửi' : 'Để lại thông tin liên hệ';
         $('#offlineEmailDescription').textContent = selectedAmbassador.online
             ? `Nhập email để duy trì cuộc trò chuyện với ${selectedAmbassador.name}.`
-            : `${selectedAmbassador.name} đang offline. Để lại email liên hệ; quay lại Hộp thư để xem phản hồi.`;
+            : `${selectedAmbassador.name} đang offline. Để lại email liên hệ; quay lại Inbox để xem phản hồi.`;
         $('#offlineReplyEmailLabel').textContent = selectedAmbassador.online ? 'Email của bạn' : 'Email liên hệ';
         $('#scheduleBeforeMessage').classList.toggle('is-hidden', selectedAmbassador.online);
         $('#offlineEmailActions').classList.toggle('is-single', selectedAmbassador.online);
