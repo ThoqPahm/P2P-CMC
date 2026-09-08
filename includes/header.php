@@ -26,6 +26,7 @@ $isLogin = ($page ?? '') === 'login';
     <?php if (in_array($page ?? '', ['campaigns', 'admin-campaigns'], true)): ?><link href="assets/css/campaign-cards.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'admin-moderation'): ?><link href="assets/css/moderation.css?v=1" rel="stylesheet"><?php endif; ?>
     <link href="assets/css/typography.css?v=2" rel="stylesheet">
+    <?php if (in_array($page ?? '', ['admin-submissions', 'admin-ambassadors'], true)): ?><link href="assets/css/admin-records.css?v=1" rel="stylesheet"><?php endif; ?>
 </head>
 <body class="<?= $isLogin ? 'login-layout' : ($isPublic ? 'public-layout' : 'app-layout') ?>">
 <!--

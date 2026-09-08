@@ -1,0 +1,53 @@
+/* Loaded only for admin submissions and ambassador records. Keep existing UI. */
+.app-content .page-actions { align-items: center; gap: 16px 24px; margin-bottom: 20px; }
+.app-content .page-actions > .page-intro { display: block; flex: 1 1 300px; margin: 0; line-height: 1.6; }
+.app-content .segmented { flex-shrink: 0; max-width: 100%; }
+.app-content .segmented a { padding: 8px 12px; }
+.app-content .summary-pills { flex-wrap: wrap; gap: 12px 20px; }
+.app-content .summary-pills > span { white-space: nowrap; }
+.app-content .clean-table { min-width: 1040px; }
+.app-content .clean-table th { padding: 14px 16px; line-height: 1.4; }
+.app-content .clean-table td { padding: 18px 16px; line-height: 1.5; }
+.app-content .clean-table th:first-child { min-width: 220px; }
+.app-content .clean-table td:last-child { min-width: 150px; }
+.app-content .person-cell { gap: 12px; white-space: normal; min-width: 190px; }
+.app-content .person-cell > .avatar { flex-shrink: 0; }
+.app-content .person-cell > div { display: grid; gap: 5px; min-width: 0; }
+.app-content .person-cell strong { display: block; line-height: 1.5; }
+.app-content .person-cell strong > .bi { margin-left: 4px; }
+.app-content .person-cell small { display: block; color: var(--muted); line-height: 1.5; }
+.app-content .profile-record-link { margin-top: 2px; width: fit-content; }
+.app-content .content-link { display: inline-flex; align-items: flex-start; gap: 9px; min-width: 150px; max-width: 270px; line-height: 1.6; }
+.app-content .content-link > .bi { flex-shrink: 0; margin-top: 4px; }
+.app-content .content-link > span { overflow-wrap: anywhere; }
+.app-content .clean-table td > small { margin-top: 5px; }
+.app-content .clean-table td:nth-child(4) { min-width: 125px; max-width: 250px; overflow-wrap: anywhere; }
+.app-content .clean-table td > span.me-3 { display: block; margin: 0 0 5px !important; white-space: nowrap; }
+.app-content .clean-table .badge, .app-content .tier-badge { white-space: nowrap; line-height: 1.4; }
+.app-content .clean-table td > form { align-items: center; gap: 8px !important; min-width: 175px; }
+.app-content .clean-table td > form .form-select { min-width: 120px; }
+.app-content .clean-table .btn { flex-shrink: 0; white-space: nowrap; }
+.app-content .panel-head { align-items: center; flex-wrap: wrap; gap: 12px 20px; }
+.app-content .panel-head p { margin: 6px 0 0; line-height: 1.6; }
+.app-content .panel-head > a { display: inline-flex; align-items: center; gap: 8px; }
+#profileEditor { scroll-margin-top: 100px; }
+#profileEditor .panel-head { margin-bottom: 24px; }
+#profileEditor .form-label { display: block; min-height: 24px; margin-bottom: 8px; line-height: 1.5; }
+#profileEditor textarea { line-height: 1.6; }
+.modal[id^="review"] .modal-header, .modal[id^="review"] .modal-body, .modal[id^="review"] .modal-footer { padding: 20px 24px; }
+.modal[id^="review"] .modal-title { line-height: 1.5; padding-right: 12px; }
+.modal[id^="review"] .review-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 20px 0; }
+.modal[id^="review"] .review-metrics > div { min-width: 0; gap: 6px; }
+.modal[id^="review"] .review-metrics .form-label { margin: 0; }
+.modal[id^="review"] .bonus-rule { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; }
+.modal[id^="review"] .bonus-rule > .bi { flex-shrink: 0; margin-top: 4px; }
+.modal[id^="review"] .modal-footer { gap: 10px; }
+.modal[id^="review"] .modal-footer > .btn { margin: 0; }
+@media (max-width: 700px) {
+    .app-content .page-actions { align-items: stretch; }
+    .app-content .page-actions > .page-intro { flex-basis: auto; }
+    .app-content .clean-table th, .app-content .clean-table td { padding: 14px 12px; }
+    #profileEditor .panel-head { align-items: flex-start; }
+    .modal[id^="review"] .modal-header, .modal[id^="review"] .modal-body, .modal[id^="review"] .modal-footer { padding: 16px; }
+    .modal[id^="review"] .modal-footer > .btn { flex: 1 1 100%; }
+}
