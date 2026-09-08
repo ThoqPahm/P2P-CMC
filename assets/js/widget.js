@@ -20,6 +20,7 @@
     let pendingOfflineMessage = '';
     const inboxStorageKey = 'eambassador.widget.conversations.v1';
     const assistantStorageKey = 'eambassador.widget.ai-chat.v3';
+    const assistantDiscoveryKey = 'eambassador.widget.ai-discovered.v1';
     let storedConversations = [];
     let assistantHistory = [];
     let dismissedAssistantRecommendationKey = '';
@@ -27,13 +28,24 @@
     const assistantPanel = $('#widgetAiAssistant');
     const assistantToggle = $('#widgetAiToggle');
 
+    const markAssistantDiscovered = () => {
+        if (!assistantToggle || !assistantToggle.classList.contains('is-discoverable')) return;
+        assistantToggle.classList.remove('is-discoverable');
+        try {
+            window.localStorage.setItem(assistantDiscoveryKey, '1');
+        } catch (_) {
+            // The launcher still collapses for the current page when storage is unavailable.
+        }
+    };
+
     const setAssistantOpen = (open, returnFocus = false) => {
         if (!assistantPanel || !assistantToggle) return;
+        if (open) markAssistantDiscovered();
         assistantPanel.classList.toggle('is-hidden', !open);
         assistantToggle.classList.toggle('is-open', open);
         assistantToggle.setAttribute('aria-expanded', String(open));
         assistantToggle.setAttribute('aria-label', open ? 'Đóng trợ lý AI' : 'Mở trợ lý AI');
-        const icon = $('i', assistantToggle);
+        const icon = $('.widget-ai-toggle-icon > i', assistantToggle);
         icon.className = open ? 'bi bi-x-lg' : 'bi bi-stars';
         if (open) {
             renderAssistantHistory();
@@ -231,6 +243,15 @@
 
     storedConversations = readStoredConversations();
     assistantHistory = readAssistantHistory();
+    if (assistantToggle) {
+        let assistantDiscovered = false;
+        try {
+            assistantDiscovered = window.localStorage.getItem(assistantDiscoveryKey) === '1';
+        } catch (_) {
+            assistantDiscovered = false;
+        }
+        assistantToggle.classList.toggle('is-discoverable', !assistantDiscovered);
+    }
 
     const showView = (id, previous = null) => {
         views.forEach((view) => view.classList.toggle('is-hidden', view.id !== id));
