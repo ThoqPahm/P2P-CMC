@@ -22,6 +22,7 @@
     const assistantStorageKey = 'eambassador.widget.ai-chat.v3';
     let storedConversations = [];
     let assistantHistory = [];
+    let dismissedAssistantRecommendationKey = '';
     const aiSuggestionCache = new Map();
     const assistantPanel = $('#widgetAiAssistant');
     const assistantToggle = $('#widgetAiToggle');
@@ -153,12 +154,23 @@
         }));
     };
 
-    const renderAssistantAmbassadors = (ids = []) => {
+    const renderAssistantAmbassadors = (ids = [], recommendationKey = '') => {
         const container = $('#widgetAiAmbassadors');
         if (!container) return;
         const matches = ids.map((id) => ambassadors.find((item) => item.id === Number(id))).filter(Boolean).slice(0, 3);
-        container.classList.toggle('is-hidden', matches.length === 0);
-        container.innerHTML = matches.length ? `<strong>Đại sứ phù hợp</strong><div>${matches.map((item) => `<button type="button" data-ai-ambassador-id="${item.id}"><span>${escapeHtml(item.initials)}</span><span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.major)} · Năm ${item.study_year}</small></span><i class="bi bi-arrow-right"></i></button>`).join('')}</div>` : '';
+        const isDismissed = matches.length > 0 && recommendationKey !== '' && dismissedAssistantRecommendationKey === recommendationKey;
+        container.classList.toggle('is-hidden', matches.length === 0 || isDismissed);
+        if (!matches.length || isDismissed) {
+            container.innerHTML = '';
+            return;
+        }
+        container.innerHTML = `<div class="widget-ai-ambassadors-head"><strong>Gợi ý đại sứ</strong><button type="button" data-dismiss-ai-ambassadors><i class="bi bi-x-lg" aria-hidden="true"></i><span>Bỏ qua</span></button></div><div class="widget-ai-ambassadors-list">${matches.map((item) => `<button type="button" data-ai-ambassador-id="${item.id}"><span class="widget-ai-ambassador-avatar">${avatarMarkup(item)}</span><span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.major)} · Năm ${item.study_year}</small></span><i class="bi bi-arrow-right" aria-hidden="true"></i></button>`).join('')}</div>`;
+        $('[data-dismiss-ai-ambassadors]', container)?.addEventListener('click', () => {
+            dismissedAssistantRecommendationKey = recommendationKey;
+            container.classList.add('is-hidden');
+            container.innerHTML = '';
+            $('#widgetAiInput')?.focus();
+        });
         $$('[data-ai-ambassador-id]', container).forEach((button) => button.addEventListener('click', () => {
             setAssistantOpen(false);
             openProfile(Number(button.dataset.aiAmbassadorId));
@@ -199,7 +211,10 @@
         container.innerHTML = messages.map((item) => `<div class="widget-ai-message ${item.role === 'user' ? 'is-user' : 'is-assistant'}"><span>${item.role === 'assistant' ? '<i class="bi bi-stars"></i>' : '<i class="bi bi-person" aria-label="Bạn"></i>'}</span><div><p>${escapeHtml(item.content)}</p>${item.availabilityNote ? `<small>${escapeHtml(item.availabilityNote)}</small>` : ''}${item.sourceDetails?.length ? `<div class="widget-source-badge"><i class="bi bi-shield-check"></i> <strong>Nguồn chính thức:</strong> ${item.sourceDetails.map((s) => `${escapeHtml(s.title)} (${escapeHtml(s.reference)} · Xác nhận: ${escapeHtml(s.verified_by)} · ${escapeHtml(s.verified_at)})`).join(' · ')}</div>` : (item.sources?.length ? `<small><i class="bi bi-database-check"></i> Nguồn: ${item.sources.map(escapeHtml).join(' · ')}</small>` : '')}</div></div>`).join('') + (loading ? '<div class="widget-ai-message is-assistant is-loading"><span><i class="bi bi-stars"></i></span><div><i></i><i></i><i></i></div></div>' : '');
         container.scrollTop = container.scrollHeight;
         const latestAssistant = [...assistantHistory].reverse().find((item) => item.role === 'assistant');
-        renderAssistantAmbassadors(latestAssistant?.ambassadorIds || []);
+        const recommendationKey = latestAssistant
+            ? `${latestAssistant.createdAt || latestAssistant.content}|${(latestAssistant.ambassadorIds || []).join(',')}`
+            : '';
+        renderAssistantAmbassadors(latestAssistant?.ambassadorIds || [], recommendationKey);
         if (latestAssistant?.suggestedQuestions?.length) {
             const promptContainer = $('#widgetAiPrompts');
             promptContainer.innerHTML = latestAssistant.suggestedQuestions.map((question) => `<button type="button" data-widget-ai-prompt="${escapeHtml(question)}"><i class="bi bi-arrow-return-right"></i>${escapeHtml(question)}</button>`).join('');

@@ -82,14 +82,21 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .widget-ai-message.is-loading > div i { width: 6px; height: 6px; background: #7f9caf; border-radius: 50%; animation: ai-dot 1s ease-in-out infinite; }
 .widget-ai-message.is-loading > div i:nth-child(2) { animation-delay: .14s; }.widget-ai-message.is-loading > div i:nth-child(3) { animation-delay: .28s; }
 @keyframes ai-dot { 0%, 70%, 100% { transform: translateY(0); opacity: .45; } 35% { transform: translateY(-3px); opacity: 1; } }
-.widget-ai-ambassadors { padding: 0 16px 14px; }
-.widget-ai-ambassadors > strong { display: block; margin-bottom: 7px; color: var(--widget-navy); font-size: .66rem; }
-.widget-ai-ambassadors > div { display: grid; grid-template-columns: 1fr; gap: 7px; }
-.widget-ai-ambassadors button { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-width: 0; padding: 8px; text-align: left; background: #fff; border: 1px solid var(--widget-line); border-radius: 10px; }
-.widget-ai-ambassadors button:hover { border-color: var(--widget-blue); }
-.widget-ai-ambassadors button > span:first-child { display: grid; width: 32px; height: 32px; place-items: center; color: #fff; background: var(--widget-navy); border-radius: 9px; font-size: .62rem; font-weight: 750; }
-.widget-ai-ambassadors b, .widget-ai-ambassadors small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.widget-ai-ambassadors b { color: var(--widget-navy); font-size: .66rem; }.widget-ai-ambassadors small { margin-top: 2px; color: var(--widget-muted); font-size: .56rem; }.widget-ai-ambassadors button > i { color: var(--widget-blue-strong); font-size: .65rem; }
+.widget-ai-ambassadors { min-width: 0; padding: 0 16px 12px; }
+.widget-ai-ambassadors-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 7px; }
+.widget-ai-ambassadors-head > strong { color: var(--widget-navy); font-size: .64rem; }
+.widget-ai-ambassadors-head > button { display: inline-flex; align-items: center; gap: 4px; padding: 3px 5px; color: var(--widget-subtle); background: transparent; border: 0; border-radius: 6px; font-size: .56rem; font-weight: 650; }
+.widget-ai-ambassadors-head > button:hover { color: var(--widget-blue-strong); background: var(--widget-soft); }
+.widget-ai-ambassadors-list { display: flex; gap: 7px; padding-bottom: 2px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; scrollbar-color: #c6dae5 transparent; }
+.widget-ai-ambassadors-list > button { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; flex: 0 0 218px; align-items: center; gap: 8px; min-width: 0; padding: 7px; text-align: left; background: #fff; border: 1px solid var(--widget-line); border-radius: 10px; scroll-snap-align: start; }
+.widget-ai-ambassadors-list > button:hover { border-color: var(--widget-blue); background: #fbfdff; }
+.widget-ai-ambassadors-list > button:active { transform: translateY(1px); }
+.widget-ai-ambassador-avatar { display: grid; width: 34px; height: 34px; overflow: hidden; place-items: center; color: #fff; background: var(--widget-navy); border-radius: 50%; font-size: .58rem; font-weight: 750; }
+.widget-ai-ambassador-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.widget-ai-ambassadors-list b, .widget-ai-ambassadors-list small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.widget-ai-ambassadors-list b { color: var(--widget-navy); font-size: .63rem; }
+.widget-ai-ambassadors-list small { margin-top: 2px; color: var(--widget-muted); font-size: .54rem; }
+.widget-ai-ambassadors-list > button > i { color: var(--widget-blue-strong); font-size: .62rem; }
 .widget-ai-prompts { display: flex; gap: 7px; padding: 0 16px 12px; overflow-x: auto; scrollbar-width: none; }
 .widget-ai-prompts button { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; min-height: 34px; padding: 0 10px; color: var(--widget-blue-strong); background: #fff; border: 1px solid #bdd8e6; border-radius: 9px; font-size: .64rem; font-weight: 700; }
 .widget-ai-prompts button:hover { color: var(--widget-navy); background: var(--widget-soft); }
@@ -375,7 +382,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     .widget-ai-messages { max-height: none; padding: 13px; }
     .widget-ai-message { max-width: 96%; }
     .widget-ai-ambassadors { padding: 0 13px 12px; }
-    .widget-ai-ambassadors > div { grid-template-columns: 1fr; }
+    .widget-ai-ambassadors-list > button { flex-basis: min(218px, 82vw); }
     .widget-ai-prompts { padding: 0 13px 11px; }
     .widget-ai-composer { padding: 11px 13px; }
     .widget-ai-assistant > footer { padding: 0 13px 11px; }
