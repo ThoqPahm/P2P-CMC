@@ -126,3 +126,206 @@
     .student-workspace .copilot-form .row > :not(:first-child) { width: 100%; }
     .student-workspace .program-record > summary { flex-wrap: wrap; }
 }
+
+/* Visual refinement pass: preserve workflows, modernise hierarchy and rhythm. */
+.student-workspace {
+    --student-card-radius: 16px;
+    --student-card-border: #dbe7ee;
+    --student-shadow: 0 8px 28px rgb(0 54 92 / 5%);
+    --student-shadow-hover: 0 14px 34px rgb(0 54 92 / 9%);
+}
+.student-workspace .app-content { padding-top: 28px; }
+.student-workspace :is(.journey-board, .rail-section, .panel-card, .mission-card, .submission-card, .metric-card, .wallet-summary article, .inbox-shell) {
+    border-color: var(--student-card-border);
+    border-radius: var(--student-card-radius);
+    box-shadow: var(--student-shadow);
+}
+.student-workspace :is(.panel-card, .mission-card, .submission-card, .metric-card, .wallet-summary article) {
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.student-workspace :is(.mission-card, .submission-card):hover {
+    border-color: #bdd7e4;
+    box-shadow: var(--student-shadow-hover);
+    transform: translateY(-2px);
+}
+.student-workspace .page-actions { min-height: 52px; margin-bottom: 22px; }
+.student-workspace .page-actions .page-intro { max-width: 68ch; color: #466276; font-size: .925rem; }
+.student-workspace .btn { min-height: 42px; border-radius: 10px; font-weight: 700; }
+.student-workspace :is(.form-control, .form-select) { min-height: 46px; border-radius: 10px; border-color: #c8d8e1; }
+.student-workspace :is(.form-control, .form-select):focus { border-color: var(--cmc-blue); box-shadow: 0 0 0 3px rgb(0 146 211 / 13%); }
+
+/* 1. Overview */
+.student-workspace .route-dashboard { gap: 20px; }
+.student-workspace .route-board-head { min-height: 92px; padding: 20px 24px; }
+.student-workspace .route-board-head h2 { font-size: 1.3rem; letter-spacing: -.02em; }
+.student-workspace .route-board-head p { margin-top: 6px; font-size: .8rem; }
+.student-workspace .route-progress { gap: 16px; padding: 13px 24px; background: #f5fafc; }
+.student-workspace .route-progress > span { height: 5px; }
+.student-workspace .route-track {
+    --route-pad-x: 24px;
+    --route-marker: 34px;
+    padding: 16px var(--route-pad-x) 20px;
+}
+.student-workspace .route-track::before {
+    top: 34px;
+    bottom: 38px;
+    left: calc(var(--route-pad-x) + (var(--route-marker) / 2));
+    width: 2px;
+    background: linear-gradient(180deg, var(--cmc-blue) 0 72%, #d8e6ed 72% 100%);
+    transform: translateX(-50%);
+}
+.student-workspace .route-stop {
+    min-height: 86px;
+    grid-template-columns: var(--route-marker) minmax(0, 1fr) auto;
+    gap: 16px;
+    padding: 14px 12px 14px 0;
+    border: 0;
+    border-radius: 12px;
+}
+.student-workspace .route-stop + .route-stop { border-top: 0; }
+.student-workspace .route-stop:hover { background: #f8fbfd; }
+.student-workspace .route-marker { width: var(--route-marker); height: var(--route-marker); margin-left: 0; box-shadow: 0 0 0 6px #fff; }
+.student-workspace .route-stop-copy small { letter-spacing: .02em; }
+.student-workspace .route-stop-copy h3 { margin: 4px 0 5px; font-size: 1rem; line-height: 1.35; }
+.student-workspace .route-stop-copy p { color: #61798a; }
+.student-workspace .route-stop.is-active { margin: 4px 0; padding: 14px 12px 14px 0; border-color: #9ed7e7; background: #f4fbfd; box-shadow: inset 3px 0 0 var(--cmc-blue); }
+.student-workspace .section-title-row { padding: 18px 24px; }
+.student-workspace .route-table-row { min-height: 68px; padding: 12px 24px; }
+.student-workspace .status-rail { gap: 16px; }
+.student-workspace .rail-heading { min-height: 58px; padding: 14px 16px; }
+.student-workspace .rail-section { overflow: hidden; }
+.student-workspace .leaderboard-panel { padding: 4px 20px 10px; }
+.student-workspace .leaderboard-row { min-height: 62px; padding: 10px 12px; border-radius: 10px; border-bottom: 0; }
+.student-workspace .leaderboard-row + .leaderboard-row { margin-top: 4px; }
+.student-workspace .leaderboard-row.is-me { background: #edf8fc; box-shadow: inset 3px 0 0 var(--cmc-blue); }
+
+/* 2. Campaigns */
+.student-workspace .mission-card { overflow: hidden; background: #fff; }
+.student-workspace .mission-visual {
+    position: relative;
+    min-height: 86px;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, #eff8fc, #f8fbfd);
+}
+.student-workspace .mission-visual::after { content: ""; position: absolute; inset: auto 0 0; height: 3px; background: linear-gradient(90deg, var(--cmc-blue), var(--cmc-cyan)); }
+.student-workspace .mission-visual > span { width: 42px; height: 42px; border: 1px solid #d7e7ef; box-shadow: 0 5px 16px rgb(0 69 112 / 7%); }
+.student-workspace .mission-visual em { max-width: 70%; color: #49687b; font-size: .8rem; }
+.student-workspace .mission-body { display: flex; flex-direction: column; padding: 20px; }
+.student-workspace .mission-body h3 { margin: 14px 0 8px; font-size: 1.08rem; }
+.student-workspace .mission-body > p { margin-bottom: 18px; color: #567184; }
+.student-workspace .mission-body .brief-box { margin-top: auto; border: 1px solid #e2ebf0; background: #f6f9fb; }
+.student-workspace .mission-footer { margin-top: 0; padding-top: 16px; }
+.student-workspace .summary-pills > span { padding: 8px 12px; border: 1px solid #d8e6ed; border-radius: 999px; background: #fff; color: #466276; }
+
+/* 3. Submissions */
+.student-workspace .submission-card { grid-template-columns: 104px minmax(0, 1fr); background: #fff; }
+.student-workspace .submission-thumb { min-height: 250px; color: var(--cmc-blue-dark); background: linear-gradient(155deg, #eaf7fc, #d7edf7); }
+.student-workspace .submission-thumb > i { font-size: 1.5rem; }
+.student-workspace .submission-thumb > span { display: none; }
+.student-workspace .submission-content { display: flex; flex-direction: column; padding: 22px; }
+.student-workspace .submission-content > p { margin-bottom: 14px; color: #526d80; }
+.student-workspace .feedback-box { border: 1px solid #e0eaf0; background: #f6f9fb; }
+.student-workspace .submission-content > .btn { min-height: 44px; }
+
+/* 4. Performance */
+.student-workspace .metric-grid { --bs-gutter-x: 18px; --bs-gutter-y: 18px; }
+.student-workspace .metric-card { min-height: 124px; gap: 14px; padding: 18px; }
+.student-workspace .metric-card .metric-icon { width: 42px; height: 42px; border-radius: 12px; }
+.student-workspace .metric-card p { color: #587184; font-size: .8rem; }
+.student-workspace .metric-card h3 { color: var(--cmc-navy); font-size: 1.7rem; letter-spacing: -.025em; }
+.student-workspace .clean-table thead th { height: 48px; background: #f5f9fb; }
+.student-workspace .clean-table tbody td { height: 62px; border-bottom-color: #e8eff3; }
+
+/* 5. Wallet */
+.student-workspace .wallet-grid { gap: 18px; }
+.student-workspace .wallet-card {
+    min-height: 230px;
+    padding: 24px;
+    border: 1px solid rgb(255 255 255 / 24%);
+    border-radius: var(--student-card-radius);
+    background: linear-gradient(135deg, var(--cmc-blue-dark), var(--cmc-blue));
+    box-shadow: 0 16px 34px rgb(0 73 126 / 16%);
+}
+.student-workspace .wallet-card h2 { margin: 24px 0; font-size: 2.55rem; letter-spacing: -.04em; }
+.student-workspace .wallet-summary { gap: 18px; }
+.student-workspace .wallet-summary article { min-height: 106px; padding: 20px; }
+.student-workspace .transaction-list > div { min-height: 72px; }
+.student-workspace .reward-list > div { min-height: 70px; }
+.student-workspace .reward-list > div > span:first-child { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 10px; background: #f0f6f9; }
+
+/* 6. Copilot */
+.student-workspace .copilot-layout { gap: 18px; grid-template-columns: minmax(0, 1fr) 280px; }
+.student-workspace .copilot-workspace { padding: 18px; }
+.student-workspace .copilot-intro { min-height: 250px; padding: 28px; border: 0; border-radius: 14px; background: linear-gradient(135deg, var(--cmc-blue-dark), var(--cmc-blue)); }
+.student-workspace .copilot-intro h2 { max-width: 25ch; margin: 14px 0 10px; font-size: clamp(1.55rem, 2.5vw, 2rem); letter-spacing: -.035em; }
+.student-workspace .copilot-intro > div > p:last-child { max-width: 64ch; }
+.student-workspace .copilot-principle { align-self: flex-end; padding: 8px 11px; border: 1px solid rgb(255 255 255 / 32%); border-radius: 999px; background: rgb(255 255 255 / 10%); }
+.student-workspace .copilot-form { padding: 26px 20px 20px; }
+.student-workspace .copilot-result { min-height: 210px; margin: 0 20px 20px; border-top: 1px solid #e3ebf0; }
+.student-workspace .copilot-side { gap: 18px; }
+.student-workspace .copilot-side .panel-card { padding: 20px; }
+.student-workspace .copilot-checklist p { margin-bottom: 14px; line-height: 1.55; }
+
+/* 7. Inbox */
+.student-workspace > .app-main .helper-note:first-child { margin-bottom: 16px; padding: 14px 16px; border: 1px solid #e0eaf0; background: #f6f9fb; }
+.student-workspace .inbox-shell { min-height: 650px; border-radius: var(--student-card-radius); }
+.student-workspace .inbox-list-head { min-height: 64px; display: flex; align-items: center; padding: 16px; }
+.student-workspace .inbox-search { margin: 12px; }
+.student-workspace .inbox-search input { height: 44px; border: 1px solid transparent; }
+.student-workspace .inbox-search input:focus { border-color: #a9cddd; outline: 0; background: #fff; }
+.student-workspace .inbox-row { min-height: 72px; }
+.student-workspace .inbox-row.active { background: #eef8fc; box-shadow: inset 3px 0 0 var(--cmc-blue); }
+.student-workspace .inbox-room-head { min-height: 72px; padding: 12px 16px; }
+.student-workspace .inbox-messages { padding: 20px 18px; }
+.student-workspace .inbox-room .message-bubble { max-width: min(78%, 620px); padding: 11px 14px; border-radius: 14px; line-height: 1.55; }
+.student-workspace .chat-composer { gap: 10px; padding: 12px; background: #fff; border-top: 1px solid #dfe8ed; }
+.student-workspace .chat-composer textarea { min-height: 44px; padding: 11px 14px; border: 1px solid #cbdbe4; border-radius: 12px; }
+.student-workspace .chat-composer button { width: 44px; height: 44px; border-radius: 12px; }
+.student-workspace .inbox-profile { padding: 22px 16px; }
+.student-workspace .profile-fact { border: 1px solid #e1eaf0; background: #f7fafb; }
+
+/* 8. Ambassador journey */
+.student-workspace .program-shell { max-width: 100%; }
+.student-workspace .program-hero { margin-bottom: 24px; padding-bottom: 24px; }
+.student-workspace .program-steps { gap: 12px; margin-bottom: 22px; }
+.student-workspace .program-steps span { min-height: 42px; display: flex; align-items: center; padding: 10px 12px; border: 1px solid #d8e6ed; border-radius: 10px; background: #fff; }
+.student-workspace .program-record { overflow: hidden; border-color: var(--student-card-border); border-radius: var(--student-card-radius); box-shadow: var(--student-shadow); }
+.student-workspace .program-record > summary { min-height: 82px; padding: 18px 20px; background: #fff; }
+.student-workspace .program-record[open] > summary { background: #f8fbfd; border-bottom: 1px solid #e4edf2; }
+.student-workspace .program-record-body { padding: 24px; }
+.student-workspace .program-fields { gap: 16px; }
+.student-workspace .program-form { gap: 18px; }
+.student-workspace .program-panel { margin-top: 24px; border-color: var(--student-card-border); border-radius: var(--student-card-radius); box-shadow: var(--student-shadow); }
+
+@media (max-width: 1199px) {
+    .student-workspace .copilot-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 767px) {
+    .student-workspace .app-content { padding: 16px 12px 32px; }
+    .student-workspace .page-actions { gap: 14px; margin-bottom: 18px; }
+    .student-workspace .page-actions > :last-child { align-self: stretch; }
+    .student-workspace .page-actions > :last-child.btn { width: 100%; }
+    .student-workspace .route-board-head { min-height: 84px; padding: 16px; }
+    .student-workspace .route-track { --route-pad-x: 16px; --route-marker: 34px; padding: 14px var(--route-pad-x) 18px; }
+    .student-workspace .route-track::before { top: 31px; bottom: 35px; }
+    .student-workspace .route-stop { min-height: 96px; grid-template-columns: var(--route-marker) minmax(0, 1fr); gap: 12px; padding: 14px 8px 14px 0; }
+    .student-workspace .route-marker { box-shadow: 0 0 0 4px #fff; }
+    .student-workspace .route-stop.is-active { padding: 14px 8px 14px 0; }
+    .student-workspace .submission-card { grid-template-columns: minmax(0, 1fr); }
+    .student-workspace .submission-thumb { min-height: 76px; }
+    .student-workspace .mission-body { padding: 18px; }
+    .student-workspace .metric-card { min-height: 104px; }
+    .student-workspace .wallet-card { min-height: 210px; }
+    .student-workspace .copilot-workspace { padding: 10px; }
+    .student-workspace .copilot-intro { min-height: auto; padding: 22px; }
+    .student-workspace .copilot-principle { align-self: flex-start; }
+    .student-workspace .copilot-form { padding: 22px 12px 16px; }
+    .student-workspace .copilot-result { margin: 0 12px 12px; }
+    .student-workspace .inbox-list-head { min-height: 58px; }
+    .student-workspace .program-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .student-workspace .program-record-body { padding: 18px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .student-workspace :is(.panel-card, .mission-card, .submission-card, .metric-card, .wallet-summary article) { transition: none; }
+    .student-workspace :is(.mission-card, .submission-card):hover { transform: none; }
+}
