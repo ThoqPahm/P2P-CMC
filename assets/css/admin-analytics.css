@@ -1,0 +1,143 @@
+/* Shared layout for reward operations and UGC performance. */
+.app-content .admin-analytics-intro {
+    align-items: center;
+    gap: 16px 24px;
+    margin-bottom: 22px;
+}
+.app-content .admin-analytics-intro .page-intro {
+    max-width: 680px;
+    margin: 0;
+    line-height: 1.6;
+}
+.app-content .admin-analytics-intro .btn { flex: 0 0 auto; white-space: nowrap; }
+
+.app-content .admin-reward-overview {
+    align-items: stretch;
+    gap: 32px;
+    margin-bottom: 22px;
+    padding: 26px 28px;
+    background: var(--cmc-navy);
+}
+.app-content .admin-reward-overview > div:first-child { min-width: 0; flex: 1 1 620px; }
+.app-content .admin-reward-overview h2 { margin: 0 0 8px; font-size: clamp(1.35rem, 2vw, 1.8rem); }
+.app-content .admin-reward-overview > div > p { max-width: 720px; line-height: 1.6; }
+.app-content .reward-rule-list {
+    display: grid;
+    gap: 7px;
+    margin: 14px 0 0;
+    padding: 0;
+    color: #d3e2ec;
+    font-size: .78rem;
+    line-height: 1.55;
+    list-style: none;
+}
+.app-content .reward-rule-list li { position: relative; padding-left: 16px; }
+.app-content .reward-rule-list li::before {
+    position: absolute;
+    top: .68em;
+    left: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--cmc-cyan);
+    content: "";
+}
+.app-content .admin-reward-overview .reward-formula {
+    align-self: center;
+    flex: 0 1 330px;
+    justify-content: center;
+}
+.app-content .admin-reward-overview .reward-formula span,
+.app-content .admin-reward-overview .reward-formula strong { white-space: nowrap; }
+
+.app-content .reward-review-card { padding: 18px 20px; }
+.app-content .reward-review-card > div:first-child { display: flex; align-items: flex-start; gap: 12px; }
+.app-content .reward-review-card h3 { margin: 1px 0 5px; font-size: .95rem; }
+.app-content .reward-review-card p { margin: 0; color: var(--muted); line-height: 1.55; }
+.app-content .reward-review-card details { margin-top: 14px; }
+.app-content .reward-review-card summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--cmc-blue-dark);
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+}
+.app-content .reward-review-card summary::-webkit-details-marker { display: none; }
+.app-content .reward-review-card summary i { font-size: .7rem; transition: transform .2s ease; }
+.app-content .reward-review-card details[open] summary i { transform: rotate(180deg); }
+.app-content .reward-review-card .table-responsive { margin-top: 14px; }
+
+.app-content .admin-data-panel { overflow: hidden; padding: 0; }
+.app-content .admin-data-panel .panel-head { min-height: 78px; margin: 0; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+.app-content .admin-data-panel .panel-head h3 { margin: 0; font-size: 1rem; }
+.app-content .admin-data-panel .panel-head p { margin: 5px 0 0; color: var(--muted); font-size: .75rem; }
+.app-content .admin-data-panel .table-responsive { padding: 0 16px 10px; }
+.app-content .admin-analytics-table { min-width: 1020px; margin: 0; }
+.app-content .admin-analytics-table th { padding: 13px 12px; white-space: nowrap; }
+.app-content .admin-analytics-table td { padding: 14px 12px; line-height: 1.45; }
+.app-content .admin-analytics-table tbody tr:last-child td { border-bottom: 0; }
+.app-content .admin-analytics-table .person-cell { min-width: 210px; gap: 11px; }
+.app-content .admin-analytics-table .person-cell > .avatar { flex: 0 0 auto; }
+.app-content .admin-analytics-table .person-cell > div { display: grid; min-width: 0; gap: 4px; }
+.app-content .admin-analytics-table .person-cell strong,
+.app-content .admin-analytics-table .person-cell small { display: block; }
+.app-content .admin-analytics-table .person-cell strong { line-height: 1.4; }
+.app-content .admin-analytics-table .person-cell small { color: var(--muted); line-height: 1.4; }
+.app-content .admin-analytics-table .content-link {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 190px;
+    max-width: 300px;
+    line-height: 1.5;
+}
+.app-content .admin-analytics-table .content-link i { flex: 0 0 auto; margin-top: 3px; }
+.app-content .admin-analytics-table .content-link span { overflow-wrap: anywhere; }
+.app-content .admin-analytics-table td > small { display: block; margin-top: 4px; white-space: nowrap; }
+.app-content .admin-analytics-table .btn { white-space: nowrap; }
+.app-content .admin-analytics-table :is(.tier-badge, .policy-status, .violation, .badge) { white-space: nowrap; }
+
+.app-content .metric-grid { --bs-gutter-x: 18px; --bs-gutter-y: 18px; }
+.app-content .metric-grid .metric-card { min-height: 116px; gap: 14px; padding: 18px; }
+.app-content .metric-grid .metric-card > div { min-width: 0; }
+.app-content .metric-grid .metric-card h3 { margin: 4px 0; color: var(--cmc-navy); font-size: 1.65rem; }
+.app-content .metric-grid .metric-card small { line-height: 1.4; }
+
+.modal[id^="profile"] .modal-header,
+.modal[id^="profile"] .modal-body,
+.modal[id^="profile"] .modal-footer,
+.modal[id^="metrics"] .modal-header,
+.modal[id^="metrics"] .modal-body,
+.modal[id^="metrics"] .modal-footer { padding: 20px 24px; }
+.modal[id^="profile"] .eligibility-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 18px; }
+.modal[id^="profile"] .eligibility-note i { flex: 0 0 auto; margin-top: 4px; }
+.modal[id^="metrics"] .review-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 0; }
+
+@media (max-width: 991px) {
+    .app-content .admin-reward-overview { flex-direction: column; }
+    .app-content .admin-reward-overview > div:first-child,
+    .app-content .admin-reward-overview .reward-formula { flex-basis: auto; }
+    .app-content .admin-reward-overview .reward-formula { align-self: flex-start; justify-content: flex-start; }
+}
+@media (max-width: 700px) {
+    .app-content .admin-analytics-intro { align-items: stretch; }
+    .app-content .admin-analytics-intro .btn { width: 100%; white-space: normal; }
+    .app-content .admin-reward-overview { gap: 22px; padding: 22px 18px; }
+    .app-content .admin-reward-overview .reward-formula { display: grid; grid-template-columns: 1fr; width: 100%; }
+    .app-content .admin-reward-overview .reward-formula i { transform: rotate(90deg); }
+    .app-content .admin-reward-overview .reward-formula span,
+    .app-content .admin-reward-overview .reward-formula strong { width: 100%; white-space: normal; text-align: center; }
+    .app-content .admin-data-panel .panel-head { align-items: flex-start; padding: 16px; }
+    .app-content .admin-data-panel .table-responsive { padding-inline: 8px; }
+    .modal[id^="profile"] .modal-header,
+    .modal[id^="profile"] .modal-body,
+    .modal[id^="profile"] .modal-footer,
+    .modal[id^="metrics"] .modal-header,
+    .modal[id^="metrics"] .modal-body,
+    .modal[id^="metrics"] .modal-footer { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .app-content .reward-review-card summary i { transition: none; }
+}

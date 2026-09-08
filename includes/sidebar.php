@@ -6,9 +6,9 @@ $navItems = $isAdmin ? [
     ['admin-campaigns', 'bi-megaphone-fill', 'Chiến dịch'],
     ['admin-submissions', 'bi-play-btn-fill', 'Bài nộp UGC'],
     ['admin-ambassadors', 'bi-people-fill', 'Đại sứ'],
-    ['admin-performance', 'bi-bar-chart-line-fill', 'Hiệu quả UGC'],
+    ['admin-performance', 'bi-bar-chart-line-fill', 'Hiệu quả nội dung'],
     ['admin-widget', 'bi-window-sidebar', 'Widget website'],
-    ['admin-rewards', 'bi-award-fill', 'Thưởng & phân hạng'],
+    ['admin-rewards', 'bi-award-fill', 'Điểm thưởng'],
     ['admin-moderation', 'bi-shield-check', 'Kiểm duyệt chat'],
     ['ambassador-program', 'bi-people-fill', 'Vận hành đại sứ'],
 ] : [
