@@ -42,14 +42,14 @@ $activeLoginTheme = active_login_theme();
         </section>
 
         <section class="super-section" id="providers">
-            <div class="super-section-heading"><div><h3>Nhà cung cấp mô hình</h3><p>Gemini, DeepSeek, GLM và Qwen dùng chung giao thức Chat Completions.</p></div><span class="super-secure"><i class="bi bi-lock-fill"></i> Key mã hóa AES-256-GCM</span></div>
+            <div class="super-section-heading"><div><h3>Nhà cung cấp mô hình</h3><p>Gemini, DeepSeek, GLM, Qwen và APINEX dùng cấu hình Chat Completions.</p></div><span class="super-secure"><i class="bi bi-lock-fill"></i> Key mã hóa AES-256-GCM</span></div>
             <div class="provider-stack">
                 <?php foreach ($providers as $key => $provider): ?>
                     <article class="provider-row">
                         <header><div class="provider-mark provider-<?= e($key) ?>"><?= e(mb_strtoupper(mb_substr($key, 0, 1))) ?></div><div><h4><?= e($provider['name']) ?></h4><p><?= e($provider['hint']) ?></p></div><span class="provider-state state-<?= e($provider['last_test_status']) ?>"><i></i><?= $provider['has_key'] ? ($provider['last_test_status'] === 'success' ? 'Kết nối tốt' : 'Đã có key') : 'Chưa có key' ?></span></header>
                         <div class="provider-fields <?= $key === 'gemini' ? 'provider-fields-gemini' : '' ?>">
                             <label class="provider-endpoint"><span>Endpoint</span><input type="url" name="providers[<?= e($key) ?>][endpoint]" value="<?= e($provider['endpoint']) ?>" required></label>
-                            <label><span>Model</span><input name="providers[<?= e($key) ?>][model]" value="<?= e($provider['model']) ?>" required></label>
+                            <label><span>Model</span><input name="providers[<?= e($key) ?>][model]" value="<?= e($provider['model']) ?>" placeholder="Tên model do nhà cung cấp hỗ trợ" <?= $key !== 'apinex' ? 'required' : '' ?>></label>
                             <?php if ($key !== 'gemini'): ?><label><span>API key mới</span><input type="password" name="providers[<?= e($key) ?>][api_key]" value="" autocomplete="new-password" placeholder="<?= $provider['has_key'] ? 'Đã lưu · để trống nếu giữ nguyên' : 'Dán API key tại đây' ?>"></label><?php endif; ?>
                         </div>
                         <footer><label><input type="checkbox" name="providers[<?= e($key) ?>][enabled]" <?= $provider['enabled'] ? 'checked' : '' ?>> Cho phép sử dụng</label><?php if ($key !== 'gemini'): ?><label><input type="checkbox" name="providers[<?= e($key) ?>][clear_key]"> Xóa key đã lưu</label><?php endif; ?><button class="btn btn-sm btn-light border" type="submit" formaction="actions.php?action=test_ai_provider" formnovalidate name="provider" value="<?= e($key) ?>"><i class="bi bi-plug"></i> Test kết nối</button><?php if ($provider['last_tested_at']): ?><small><?= e($provider['last_test_message']) ?> · <?= date('H:i d/m/Y', strtotime((string) $provider['last_tested_at'])) ?></small><?php endif; ?></footer>

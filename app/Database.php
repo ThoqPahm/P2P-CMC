@@ -26,6 +26,30 @@ final class Database
         return self::$connection;
     }
 
+    /** Expand SQLite CHECK constraints without losing encrypted keys or slot state. */
+    public static function migrateApinex(PDO $db): void
+    {
+        foreach (['ai_provider_configs', 'ai_provider_keys'] as $table) {
+            $sql = (string)$db->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'")->fetchColumn();
+            if ($sql === '' || str_contains($sql, "'apinex'")) continue;
+            $db->beginTransaction();
+            try {
+                $indexes = $db->query("SELECT sql FROM sqlite_master WHERE type IN ('index','trigger') AND tbl_name='$table' AND sql IS NOT NULL")->fetchAll(PDO::FETCH_COLUMN);
+                $expanded = str_replace("'qwen'", "'qwen','apinex'", $sql);
+                $expanded = str_replace($table, $table . '_expanded', $expanded);
+                $db->exec($expanded);
+                $db->exec("INSERT INTO {$table}_expanded SELECT * FROM $table");
+                $db->exec("DROP TABLE $table");
+                $db->exec("ALTER TABLE {$table}_expanded RENAME TO $table");
+                foreach ($indexes as $index) $db->exec($index);
+                $db->commit();
+            } catch (Throwable $error) {
+                $db->rollBack();
+                throw $error;
+            }
+        }
+    }
+
     private static function migrate(PDO $db): void
     {
         $db->exec(<<<'SQL'
@@ -293,8 +317,10 @@ final class Database
         $db->exec("UPDATE submissions SET views = 18400, likes = 1290, comments = 86, shares = 94 WHERE content_url = 'https://www.youtube.com/shorts/demo' AND views = 0");
         }
 
+        self::migrateApinex($db);
         $db->exec(<<<'SQL'
             INSERT OR IGNORE INTO ai_provider_configs (provider, endpoint, model) VALUES
+                ('apinex', 'https://api.apinex.bond/v1/chat/completions', ''),
                 ('gemini', 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', 'gemini-2.5-flash'),
                 ('deepseek', 'https://api.deepseek.com/chat/completions', 'deepseek-chat'),
                 ('glm', 'https://open.bigmodel.cn/api/paas/v4/chat/completions', 'glm-5.2'),

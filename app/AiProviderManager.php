@@ -15,6 +15,7 @@ final class AiProviderManager
     public static function registry(): array
     {
         return [
+            'apinex' => ['name' => 'APINEX', 'endpoint' => 'https://api.apinex.bond/v1/chat/completions', 'model' => '', 'host_suffix' => 'api.apinex.bond', 'hint' => 'Nhập API key APINEX và tên model được tài khoản của bạn hỗ trợ. Đây là nhà cung cấp bên thứ ba; không dùng key Gemini hoặc nhà cung cấp khác.'],
             'gemini' => ['name' => 'Google Gemini', 'endpoint' => 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', 'model' => 'gemini-2.5-flash', 'host_suffix' => 'generativelanguage.googleapis.com', 'hint' => 'API key từ Google AI Studio.'],
             'deepseek' => ['name' => 'DeepSeek', 'endpoint' => 'https://api.deepseek.com/chat/completions', 'model' => 'deepseek-chat', 'host_suffix' => 'api.deepseek.com', 'hint' => 'API key từ DeepSeek Platform.'],
             'glm' => ['name' => 'Zhipu GLM', 'endpoint' => 'https://open.bigmodel.cn/api/paas/v4/chat/completions', 'model' => 'glm-5.2', 'host_suffix' => 'open.bigmodel.cn', 'hint' => 'API key từ Zhipu BigModel.'],
@@ -120,10 +121,11 @@ final class AiProviderManager
     public static function save(string $provider, string $endpoint, string $model, string $apiKey, bool $enabled, bool $clearKey, int $userId): void
     {
         self::assertProvider($provider);
-        $endpoint = rtrim(trim($endpoint), '/');
+        $endpoint = self::normalizeEndpoint($provider, $endpoint);
         self::assertEndpoint($provider, $endpoint);
         $model = trim($model);
-        if ($model === '' || mb_strlen($model) > 120) {
+        $existing = rows('SELECT api_key_encrypted FROM ai_provider_configs WHERE provider = ?', [$provider])[0] ?? null;
+        if (($model === '' && !($provider === 'apinex' && trim($apiKey) === '' && empty($existing['api_key_encrypted']))) || mb_strlen($model) > 120) {
             throw new InvalidArgumentException('Tên model không hợp lệ.');
         }
         $existing = rows('SELECT api_key_encrypted FROM ai_provider_configs WHERE provider = ?', [$provider])[0] ?? null;
@@ -349,6 +351,15 @@ final class AiProviderManager
         }
     }
 
+    public static function normalizeEndpoint(string $provider, string $endpoint): string
+    {
+        $endpoint = rtrim(trim($endpoint), '/');
+        if ($provider === 'apinex' && $endpoint === 'https://api.apinex.bond/v1') {
+            return $endpoint . '/chat/completions';
+        }
+        return $endpoint;
+    }
+
     private static function assertEndpoint(string $provider, string $endpoint): void
     {
         $preset = self::registry()[$provider] ?? null;
@@ -356,7 +367,7 @@ final class AiProviderManager
         $host = mb_strtolower((string) ($parts['host'] ?? ''));
         $suffix = (string) ($preset['host_suffix'] ?? '');
         $validHost = $host === $suffix || ($provider === 'qwen' && str_ends_with($host, '.' . $suffix));
-        if (!$preset || ($parts['scheme'] ?? '') !== 'https' || !$validHost || !str_ends_with(rtrim((string) ($parts['path'] ?? ''), '/'), '/chat/completions')) {
+        if (!$preset || ($parts['scheme'] ?? '') !== 'https' || !$validHost || isset($parts['user']) || isset($parts['pass']) || isset($parts['query']) || isset($parts['fragment']) || (isset($parts['port']) && $parts['port'] !== 443) || !str_ends_with(rtrim((string) ($parts['path'] ?? ''), '/'), '/chat/completions')) {
             throw new InvalidArgumentException('Endpoint không thuộc domain chính thức của provider hoặc thiếu /chat/completions.');
         }
     }
