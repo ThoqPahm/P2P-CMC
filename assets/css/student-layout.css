@@ -21,10 +21,15 @@
 /* Campaigns and submissions: consistent gutters without changing card structure. */
 .student-workspace .mission-body h3 { line-height: 1.45; overflow-wrap: anywhere; }
 .student-workspace .mission-footer { gap: 12px; }
+.student-workspace .mission-body > .d-flex { min-height: 30px; }
 .student-workspace .submission-content { min-width: 0; padding: 20px; }
+.student-workspace .submission-content h3 { font-size: 1.125rem; line-height: 1.45; margin: 12px 0 10px; }
+.student-workspace .submission-content > .btn,
+.student-workspace .submission-content > .blog-submission-note { margin-top: 14px; }
 .student-workspace .submission-content :is(h3, p) { overflow-wrap: anywhere; line-height: 1.6; }
 .student-workspace .submission-meta { flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; }
-.student-workspace .feedback-box { gap: 12px; align-items: flex-start; }
+.student-workspace .feedback-box { display: flex; gap: 12px; align-items: flex-start; }
+.student-workspace .feedback-box > .bi { flex-shrink: 0; margin-top: 4px; }
 .student-workspace .feedback-box > div { min-width: 0; }
 .student-workspace .feedback-box p { margin: 6px 0 0; }
 .student-workspace .blog-submission-note { align-items: flex-start; line-height: 1.6; }
@@ -37,7 +42,8 @@
 .student-workspace .clean-table { min-width: 700px; }
 .student-workspace .clean-table :is(th, td) { padding: 14px 16px; vertical-align: middle; }
 .student-workspace .clean-table td:not(:first-child) { white-space: nowrap; }
-.student-workspace .content-link { gap: 10px; }
+.student-workspace .content-link { display: inline-flex; align-items: center; gap: 10px; }
+.student-workspace .content-link > .bi { flex-shrink: 0; }
 .student-workspace .content-link span { white-space: normal; overflow-wrap: anywhere; }
 
 /* Wallet: separate descriptions from points/actions. */
@@ -46,6 +52,9 @@
 .student-workspace :is(.transaction-list, .reward-list) strong { line-height: 1.5; overflow-wrap: anywhere; }
 .student-workspace :is(.transaction-list, .reward-list) :is(b, .btn) { flex-shrink: 0; }
 .student-workspace .wallet-summary article > div { min-width: 0; }
+.student-workspace .wallet-summary article p { margin-bottom: 8px; }
+.student-workspace .wallet-summary article strong { margin-right: 8px; font-size: 1.125rem; }
+.student-workspace .wallet-summary article small { display: inline-block; color: var(--muted); line-height: 1.5; }
 
 /* Copilot: full-width campaign selector, readable secondary fields and history. */
 .student-workspace .copilot-layout > * { min-width: 0; }
@@ -53,6 +62,8 @@
 .student-workspace .copilot-intro > div { min-width: 0; }
 .student-workspace .copilot-intro h2 { line-height: 1.35; }
 .student-workspace .copilot-intro p { line-height: 1.65; }
+.student-workspace .copilot-intro .topbar-context { color: #fff; margin-top: 10px; }
+.student-workspace .copilot-mark { color: #fff; }
 .student-workspace .copilot-form .row > :first-child { width: 100%; }
 .student-workspace .copilot-form .row > :not(:first-child) { width: 50%; }
 .student-workspace .copilot-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
@@ -68,6 +79,9 @@
 .student-workspace .inbox-shell { grid-template-columns: 240px minmax(0, 1fr) 210px; }
 .student-workspace .inbox-row { gap: 10px; padding: 14px 12px; }
 .student-workspace .inbox-row small { margin-top: 4px; }
+.student-workspace .inbox-list h3 { font-size: 1rem; line-height: 1.5; margin: 0; }
+.student-workspace .inbox-profile > h3 { font-size: 1.125rem; margin: 14px 0 8px; line-height: 1.5; }
+.student-workspace .conversation-tips strong { display: block; margin-bottom: 10px; }
 .student-workspace .inbox-room-head { flex-wrap: wrap; gap: 10px 12px; }
 .student-workspace .inbox-room-head > div { flex-basis: 140px; }
 .student-workspace .inbox-room-head :is(strong, small),
@@ -87,6 +101,9 @@
 .student-workspace .program-check input { flex-shrink: 0; margin-top: 5px; }
 .student-workspace .program-review { padding-block: 16px; }
 .student-workspace .program-review small { display: block; margin: 6px 0; }
+@media (min-width: 1100px) {
+    .student-workspace .program-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 
 @media (max-width: 1199px) {
     .student-workspace .inbox-shell { grid-template-columns: 230px minmax(0, 1fr); }
