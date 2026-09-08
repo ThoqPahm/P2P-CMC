@@ -242,6 +242,7 @@ final class AiProviderManager
         if (!function_exists('curl_init')) {
             throw new RuntimeException('PHP cURL extension is not available.');
         }
+        $maxTokens = self::completionTokenBudget($config, $maxTokens);
         $payload = ['model' => $config['model'], 'messages' => $messages, 'temperature' => 0.2, 'max_tokens' => $maxTokens, 'stream' => false];
         if (($config['json_mode'] ?? false) === true) {
             $payload['response_format'] = ['type' => 'json_object'];
@@ -373,6 +374,17 @@ final class AiProviderManager
     private static function testTokenBudget(string $provider): int
     {
         return $provider === 'apinex' ? 512 : 128;
+    }
+
+    private static function completionTokenBudget(array $config, int $requested): int
+    {
+        $provider = (string)($config['provider'] ?? '');
+        $model = mb_strtolower((string)($config['model'] ?? ''));
+        if ($provider === 'apinex' && (str_contains($model, 'deepseek') || str_contains($model, 'qwen'))) {
+            // APINEX reasoning models count hidden reasoning against max_tokens.
+            return max($requested, 2048);
+        }
+        return $requested;
     }
 
     private static function assertProvider(string $provider): void

@@ -30,3 +30,8 @@ echo "PASS APINEX supports content parts and explains reasoning-only responses.\
 $budget=new ReflectionMethod(AiProviderManager::class,'testTokenBudget');
 if ($budget->invoke(null,'apinex')!==512 || $budget->invoke(null,'gemini')!==128) throw new RuntimeException('Test budget missing');
 echo "PASS APINEX test allows enough completion tokens for reasoning models.\n";
+$completionBudget=new ReflectionMethod(AiProviderManager::class,'completionTokenBudget');
+if ($completionBudget->invoke(null,['provider'=>'apinex','model'=>'free/deepseek-v4-pro-0813'],650)!==2048
+    || $completionBudget->invoke(null,['provider'=>'apinex','model'=>'free/qwen-3.8-max'],650)!==2048
+    || $completionBudget->invoke(null,['provider'=>'gemini','model'=>'gemini-2.5-flash'],650)!==650) throw new RuntimeException('Reasoning budget missing');
+echo "PASS APINEX reasoning models receive enough tokens to finish the visible answer.\n";
