@@ -14,7 +14,8 @@ function check(bool $ok,string $label):void{if(!$ok)throw new RuntimeException($
 $samples=AmbassadorProfiles::samples();
 $before=(int)$db->query('SELECT COUNT(*) FROM wallet_transactions')->fetchColumn();
 check(count($samples)===12,'12 distinct profiles');
-check(AmbassadorProfiles::seed($db,$samples)===12,'seed creates profiles');
+check(AmbassadorProfiles::installBundledProfiles($db)===12,'first boot installs bundled profiles');
+check(AmbassadorProfiles::installBundledProfiles($db)===0,'next boot does not duplicate profiles');
 check(AmbassadorProfiles::seed($db,$samples)===0,'repeat seed does not duplicate');
 check(count(AmbassadorProfiles::directory($db))===15,'directory combines existing and new ambassadors');
 check((int)$db->query('SELECT COUNT(*) FROM wallet_transactions')->fetchColumn()===$before,'no invented points');
@@ -31,4 +32,7 @@ check(!(bool)$db->query('PRAGMA foreign_key_check')->fetch(),'foreign keys valid
 foreach($samples as $p){
     check(mb_strlen($p['about'])>100 && count(explode('|',$p['topics']))>=3 && $p['advice']!=='','complete '.$p['name']);
 }
+$db->prepare('DELETE FROM ambassador_profiles WHERE user_id=?')->execute([$id]);
+check(AmbassadorProfiles::installBundledProfiles($db)===0,'completed installation does not restore deleted profile');
+check(AmbassadorProfiles::details($db,$id)===[],'admin deletion preserved');
 echo "$checks checks passed.\n";

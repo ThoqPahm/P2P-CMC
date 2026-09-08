@@ -24,4 +24,6 @@ require_once __DIR__ . '/WorkflowIntegrity.php';
 WorkflowIntegrity::migrate($db);
 require_once __DIR__ . '/AmbassadorProfiles.php';
 AmbassadorProfiles::migrate($db);
+// Public demo fixtures travel with Git; private SQLite data never does.
+if (!defined('AMBASSADOR_FIXTURE_MANUAL_INSTALL')) AmbassadorProfiles::installBundledProfiles($db);
 $db->exec("UPDATE users SET is_online=0 WHERE is_online=1 AND (last_seen_at IS NULL OR last_seen_at<datetime('now','-2 minutes'))");

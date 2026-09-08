@@ -10,10 +10,11 @@ Run from the web root after pulling this release:
 
 ```sh
 git pull origin main
-php tools/seed-ambassadors.php --apply
 ```
 
-The CLI checks portrait files, backs up SQLite under tmp, and inserts 12 profiles once. It does not overwrite existing people, edited biographies, chats, points or ratings. Apache and the local router deny direct HTTP access to data/tmp. Keep the backup private. New fictional accounts use reserved example.invalid email addresses and random passwords; they are not staffed accounts. Do not enable them on a live admissions service without replacing them with authorized ambassadors.
+Open the website after pulling. Bootstrap installs the 12 bundled profiles once per database, recording profiles-v1 in ambassador_fixture_versions. Existing sample keys are skipped; biographies, disabled accounts, chats, points and ratings are not overwritten. After installation, deleting a profile does not cause it to be recreated on page load. JSON fixtures and portraits are tracked in Git; the live SQLite database remains private.
+
+Optional CLI installation: php tools/seed-ambassadors.php --apply backs up SQLite under tmp before installing. Apache and the local router deny direct HTTP access to data/tmp. Keep backups private. New fictional accounts use reserved example.invalid email addresses and random passwords; they are not staffed accounts. Replace them with authorized ambassadors before using this demo for live admissions.
 
 No sample badges are rendered, as requested. Internal sample_key records support idempotent seeding. Details are editable under Admin > Đội ngũ đại sứ > Sửa hồ sơ. The public directory, widget, inbox avatars and AI recommendation context use linked user IDs. Existing accounts without profile details keep their current biography and initials.
 

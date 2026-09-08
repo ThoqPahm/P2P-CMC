@@ -31,6 +31,18 @@ final class AmbassadorProfiles
         $q->execute([$id]); return $q->fetch(PDO::FETCH_ASSOC) ?: [];
     }
 
+    /** Install the versioned public fixture once; never restore later admin deletions. */
+    public static function installBundledProfiles(PDO $db): int
+    {
+        $db->exec('CREATE TABLE IF NOT EXISTS ambassador_fixture_versions (version TEXT PRIMARY KEY, installed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)');
+        if ($db->query("SELECT 1 FROM ambassador_fixture_versions WHERE version='profiles-v1'")->fetchColumn()) return 0;
+        $profiles = self::samples();
+        foreach ($profiles as $profile) {
+            if (!is_file(__DIR__.'/../'.$profile['avatar'])) throw new RuntimeException('Missing bundled portrait: '.$profile['avatar']);
+        }
+        return self::seed($db, $profiles, true);
+    }
+
     public static function directory(PDO $db): array
     {
         return $db->query("SELECT u.id,u.name,u.major,u.hometown,u.interests,u.bio,u.avatar,u.study_year,u.is_online,
@@ -50,7 +62,7 @@ final class AmbassadorProfiles
         return $path ? '<img src="'.e($path).'" alt="" width="96" height="96" loading="lazy">' : e(initials($person['name']));
     }
 
-    public static function seed(PDO $db, array $profiles): int
+    public static function seed(PDO $db, array $profiles, bool $recordInstallation = false): int
     {
         $count=0; $db->beginTransaction();
         try {
@@ -67,6 +79,7 @@ final class AmbassadorProfiles
                 $db->prepare('INSERT INTO ambassador_profiles(user_id,about,topics,activities,projects,languages,advice,sample_key) VALUES(?,?,?,?,?,?,?,?)')->execute([$id,$profile['about'],$profile['topics'],$profile['activities'],$profile['projects'],$profile['languages'],$profile['advice'],$key]);
                 $count++;
             }
+            if ($recordInstallation) $db->exec("INSERT OR IGNORE INTO ambassador_fixture_versions(version) VALUES('profiles-v1')");
             $db->commit();return $count;
         } catch(Throwable $e) {$db->rollBack();throw $e;}
     }
