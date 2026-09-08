@@ -109,7 +109,9 @@ function enforce_widget_ai_rate_limit(): void
 /** @return array<string, mixed> */
 function widget_ambassador(int $ambassadorId): array
 {
-    $ambassador = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM eligible_ambassadors WHERE id = ?", [$ambassadorId])[0] ?? null;
+    $ambassador = rows("SELECT u.id,u.name,u.major,u.hometown,u.interests,u.bio,u.study_year,u.is_online,
+        p.about,p.topics,p.activities,p.projects,p.languages,p.advice
+        FROM eligible_ambassadors u LEFT JOIN ambassador_profiles p ON p.user_id=u.id WHERE u.id=?", [$ambassadorId])[0] ?? null;
     if (!$ambassador) {
         throw new InvalidArgumentException('Không tìm thấy đại sứ phù hợp.');
     }

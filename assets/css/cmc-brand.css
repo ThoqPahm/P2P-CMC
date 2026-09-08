@@ -30,11 +30,11 @@ html { scroll-behavior: smooth; }
 body {
     color: var(--cmc-ink);
     background: var(--cmc-canvas);
-    font-family: Arial, "Segoe UI", Helvetica, sans-serif;
+    font-family: Inter, sans-serif;
     font-size: 14px;
     text-rendering: optimizeLegibility;
 }
-h1, h2, h3, h4, .brand, strong { font-family: Arial, "Segoe UI", Helvetica, sans-serif; }
+h1, h2, h3, h4, .brand, strong { font-family: Inter, sans-serif; }
 h1, h2, h3 { letter-spacing: -.025em; }
 :focus-visible { outline: 3px solid rgba(0, 222, 223, .55); outline-offset: 3px; }
 

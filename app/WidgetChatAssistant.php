@@ -36,7 +36,7 @@ PROMPT;
         }
 
         $knowledge = AmbassadorProgram::knowledge(Database::connection(), true);
-        $ambassadors = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM eligible_ambassadors WHERE 1=1 ORDER BY is_online DESC, name");
+        $ambassadors = AmbassadorProfiles::directory(Database::connection());
         $retrievalMessage = self::contextualQuery($message, $history);
         $matchedKnowledge = self::matchKnowledge($retrievalMessage, $knowledge);
         $clarification = self::clarification($message, $retrievalMessage, $matchedKnowledge, $knowledge, $history);
@@ -83,6 +83,9 @@ PROMPT;
                         'hometown' => $item['hometown'],
                         'interests' => $item['interests'],
                         'bio' => $item['bio'],
+                        'about' => $item['about'] ?? '',
+                        'topics' => $item['topics'] ?? '',
+                        'projects' => $item['projects'] ?? '',
                         'online' => (bool) $item['is_online'],
                     ], $ambassadors),
                     'HISTORY' => $safeHistory,
@@ -165,7 +168,7 @@ PROMPT;
         $wantsRecommendation = preg_match('/\b(đại sứ|tư vấn|phù hợp|nói chuyện|trò chuyện|hỏi ai|chọn ai)\b/ui', $message) === 1;
         $scored = [];
         foreach ($ambassadors as $item) {
-            $profileTokens = self::tokens(implode(' ', [$item['name'], $item['major'], $item['hometown'], $item['interests'], $item['bio']]));
+            $profileTokens = self::tokens(implode(' ', [$item['name'], $item['major'], $item['hometown'], $item['interests'], $item['bio'], $item['topics'] ?? '', $item['about'] ?? '']));
             $majorTokens = self::tokens((string) $item['major']);
             $score = (bool) $item['is_online'] ? 1 : 0;
             $matchScore = 0;

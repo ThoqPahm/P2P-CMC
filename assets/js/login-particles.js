@@ -181,7 +181,7 @@
             ));
             const lightColorStep = Math.min(16, Math.round(lightStrength * 16));
             let baseAlpha;
-            particleContext.font = `${fontWeight} ${fontSize}px "Segoe UI Variable", "Segoe UI", sans-serif`;
+            particleContext.font = `${fontWeight} ${fontSize}px Inter, sans-serif`;
             if (particle.layer === 'feature') {
                 baseAlpha = (.96 + depthRatio * .04) * (.98 + particle.opacity * .02);
             } else if (particle.layer === 'fill') {

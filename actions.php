@@ -22,6 +22,18 @@ verify_csrf();
 
 try {
     switch ($action) {
+        case 'save_ambassador_profile':
+            require_auth(['admin']);
+            $id=(int)($_POST['user_id']??0);
+            if (!(int)scalar("SELECT COUNT(*) FROM users WHERE id=? AND role='ambassador'",[$id])) { throw new InvalidArgumentException('Không tìm thấy đại sứ.'); }
+            $fields=[];
+            foreach(['about','topics','activities','projects','languages','advice'] as $key) {
+                if (isset($_POST[$key]) && !is_string($_POST[$key])) { throw new InvalidArgumentException('Nội dung hồ sơ không hợp lệ.'); }
+                $fields[$key]=mb_substr(trim((string)($_POST[$key]??'')),0,3000);
+            }
+            $db->prepare('INSERT INTO ambassador_profiles(user_id,about,topics,activities,projects,languages,advice) VALUES(?,?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET about=excluded.about,topics=excluded.topics,activities=excluded.activities,projects=excluded.projects,languages=excluded.languages,advice=excluded.advice,updated_at=CURRENT_TIMESTAMP')->execute([$id,...array_values($fields)]);
+            flash('success','Đã cập nhật hồ sơ. Widget và gợi ý AI sẽ dùng thông tin mới.');
+            redirect('index.php?page=admin-ambassadors&profile='.$id);
         case 'login':
             $email = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
             $password = (string) ($_POST['password'] ?? '');

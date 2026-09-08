@@ -131,7 +131,7 @@
             const ambassador = ambassadors.find((item) => item.id === Number(session.ambassadorId)) || {id:Number(session.ambassadorId),name:session.ambassadorName || 'Đại sứ',initials:'ĐS',major:'Hiện không nhận chat mới',study_year:'',online:false};
             const preview = session.lastMessage || 'Cuộc trò chuyện đã bắt đầu';
             return `<button class="inbox-thread" type="button" data-conversation-id="${session.id}">
-                <span class="inbox-avatar">${escapeHtml(ambassador.initials)}</span>
+                <span class="inbox-avatar">${avatarMarkup(ambassador)}</span>
                 <span class="inbox-thread-copy"><span><strong>${escapeHtml(ambassador.name)}</strong><time>${escapeHtml(formatInboxTime(session.updatedAt))}</time></span><small>${escapeHtml(ambassador.major)} · Năm ${ambassador.study_year}</small><p>${session.lastMessageMine ? '<b>Bạn:</b> ' : ''}${escapeHtml(preview)}</p></span>
                 <span class="inbox-thread-meta"><i class="${ambassador.online ? 'is-online' : ''}" aria-label="${ambassador.online ? 'Đang online' : 'Đang offline'}"></i>${session.unread > 0 ? `<b aria-label="${session.unread} tin nhắn chưa đọc">${Math.min(session.unread, 99)}</b>` : '<i class="bi bi-chevron-right" aria-hidden="true"></i>'}</span>
             </button>`;
@@ -297,6 +297,12 @@
     fillSelect('#hometownFilter', unique('hometown'));
     fillSelect('#yearFilter', unique('study_year').sort((a, b) => a - b), (year) => `Năm ${year}`);
 
+    const avatarMarkup = (person) => {
+        const path = String(person.avatar || '');
+        return /^assets\/img\/[a-zA-Z0-9/_-]+\.(png|jpe?g|webp)$/.test(path)
+            ? `<img src="${escapeHtml(path)}" alt="" width="96" height="96" loading="lazy">`
+            : escapeHtml(person.initials || '');
+    };
     const renderAmbassadors = () => {
         const search = $('#widgetSearch').value.trim().toLocaleLowerCase('vi');
         const major = $('#majorFilter').value;
@@ -313,7 +319,7 @@
         $('#resultCount').textContent = `${filtered.length} đại sứ phù hợp`;
         $('#ambassadorList').innerHTML = filtered.map((item) => `
             <button class="widget-ambassador" type="button" data-ambassador-id="${item.id}">
-                <span class="ambassador-card-head"><span class="ambassador-avatar">${escapeHtml(item.initials)}</span><span class="ambassador-copy"><strong>${escapeHtml(item.name)} <i class="bi bi-patch-check-fill"></i></strong><span>${escapeHtml(item.major)} · Năm ${item.study_year}</span></span><span class="availability ${item.online ? 'online' : 'offline'}"><i></i>${item.online ? 'Online' : 'Offline'}</span></span>
+                <span class="ambassador-card-head"><span class="ambassador-avatar">${avatarMarkup(item)}</span><span class="ambassador-copy"><strong>${escapeHtml(item.name)} <i class="bi bi-patch-check-fill"></i></strong><span>${escapeHtml(item.major)} · Năm ${item.study_year}</span></span><span class="availability ${item.online ? 'online' : 'offline'}"><i></i>${item.online ? 'Online' : 'Offline'}</span></span>
                 <span class="ambassador-bio">${escapeHtml(item.bio || 'Sẵn sàng chia sẻ trải nghiệm học tập và đời sống tại CMC.')}</span>
                 <span class="ambassador-facts"><span><small>Quê quán</small><strong>${escapeHtml(item.hometown)}</strong></span><span><small>Có thể chia sẻ</small><strong>${escapeHtml((item.interests || []).slice(0, 2).join(', ') || 'Đời sống CMC')}</strong></span></span>
                 <span class="ambassador-cta">Gửi tin nhắn <i class="bi bi-arrow-right"></i></span>
@@ -336,7 +342,7 @@
     };
 
     const setChatHeader = (online) => {
-        $('#chatHeaderAvatar').textContent = selectedAmbassador.initials;
+        $('#chatHeaderAvatar').innerHTML = avatarMarkup(selectedAmbassador);
         $('#chatHeaderName').textContent = selectedAmbassador.name;
         const status = $('#chatHeaderStatus');
         status.classList.toggle('is-offline', !online);
@@ -385,7 +391,7 @@
         if (!conversation && selectedAmbassador.online) {
             list.innerHTML = '<div class="widget-empty"><i class="bi bi-chat-heart"></i><h2>Bắt đầu trò chuyện</h2><p>Nhập câu hỏi bên dưới và gửi như một cuộc chat bình thường.</p></div>';
         } else if (!conversation) {
-            list.innerHTML = `<div class="offline-chat-note"><i class="bi bi-clock-history"></i><p><strong>${escapeHtml(selectedAmbassador.name)} đang offline</strong><span>Cứ nhắn như bình thường. Bạn có thể quay lại Inbox trên trình duyệt này để xem phản hồi.</span></p></div>`;
+            list.innerHTML = `<div class="offline-chat-note"><i class="bi bi-clock-history"></i><p><strong>${escapeHtml(selectedAmbassador.name)} đang offline</strong><span>Cứ nhắn như bình thường. Bạn có thể quay lại Hộp thư trên trình duyệt này để xem phản hồi.</span></p></div>`;
         }
         showChatAiSuggestions();
         showView('chatView', previous);
@@ -406,26 +412,29 @@
         const online = selectedAmbassador.online;
         $('#profileView').classList.toggle('is-online', online);
         $('#profileView').classList.toggle('is-offline', !online);
-        $('#profileAvatar').textContent = selectedAmbassador.initials;
+        $('#profileAvatar').innerHTML = avatarMarkup(selectedAmbassador);
         $('#profileName').textContent = selectedAmbassador.name;
         $('#profileMajor').textContent = `${selectedAmbassador.major} · Sinh viên năm ${selectedAmbassador.study_year}`;
         $('#profileFieldMajor').textContent = selectedAmbassador.major;
         $('#profileStudyYear').textContent = `Năm ${selectedAmbassador.study_year}`;
         $('#profileLocation').textContent = selectedAmbassador.hometown;
         $('#profileAboutLead').textContent = `Mình là ${selectedAmbassador.name}, hiện là sinh viên năm ${selectedAmbassador.study_year} ngành ${selectedAmbassador.major} tại CMC University và đến từ ${selectedAmbassador.hometown}.`;
-        $('#profileBio').textContent = selectedAmbassador.bio;
+        $('#profileBio').textContent = selectedAmbassador.about || selectedAmbassador.bio;
+        const detailFields = [['Hoạt động cùng bạn bè', 'activities'], ['Dự án mình đã thử', 'projects'], ['Ngôn ngữ trao đổi', 'languages'], ['Gửi bạn đang chọn trường', 'advice']];
+        $('#profileDetails').innerHTML = detailFields.filter(([, key]) => selectedAmbassador[key]).map(([label, key]) => `<div><h3>${label}</h3><p>${escapeHtml(selectedAmbassador[key])}</p></div>`).join('');
+        $('#profileDetails').classList.toggle('is-hidden', !$('#profileDetails').innerHTML);
         $('#profileTags').innerHTML = (selectedAmbassador.interests || []).map((interest) => `<span><i class="bi bi-check2"></i>${escapeHtml(interest)}</span>`).join('');
         const shareTopics = [
             `Trải nghiệm học tập ngành ${selectedAmbassador.major}`,
             `Nhịp sống của sinh viên năm ${selectedAmbassador.study_year}`,
             ...(selectedAmbassador.interests || []).slice(0, 2).map((interest) => `Góc nhìn thực tế về ${interest.toLocaleLowerCase('vi')}`),
         ];
-        $('#profileShareList').innerHTML = shareTopics.map((topic) => `<li><i class="bi bi-chat-square-heart"></i><span>${escapeHtml(topic)}</span></li>`).join('');
-        $('#profileStatusLabel').textContent = online ? 'Đang online và sẵn sàng trò chuyện' : 'Hiện đang offline';
+        $('#profileShareList').innerHTML = (selectedAmbassador.topics?.length ? selectedAmbassador.topics : shareTopics).map((topic) => `<li><i class="bi bi-chat-square-heart"></i><span>${escapeHtml(topic)}</span></li>`).join('');
+        $('#profileStatusLabel').textContent = online ? 'Đang hoạt động' : 'Hiện không hoạt động';
         $('#profileStatusDetail').textContent = online
             ? 'Bạn có thể gửi câu hỏi ngay để nhận chia sẻ trực tiếp.'
-            : 'Bạn vẫn có thể nhắn tin. Quay lại Inbox trên trình duyệt này để xem phản hồi.';
-        $('#profileResponseBadge').textContent = online ? 'Có thể phản hồi ngay' : 'Sẽ phản hồi sau';
+            : 'Bạn vẫn có thể nhắn tin. Quay lại Hộp thư trên trình duyệt này để xem phản hồi.';
+        $('#profileResponseBadge').textContent = online ? 'Bạn có thể gửi tin nhắn' : 'Để lại tin nhắn';
         $('#profilePresenceIcon').className = `bi ${online ? 'bi-chat-heart-fill' : 'bi-envelope-check-fill'}`;
         $('#profileAction').innerHTML = '<button class="primary-action" id="openChatForm" type="button"><i class="bi bi-send-fill"></i> Gửi tin nhắn</button>'
             + (selectedAmbassador.online ? '' : '<button class="secondary-action" id="openScheduleForm" type="button"><i class="bi bi-calendar2-check"></i> Đặt lịch tư vấn</button>');
@@ -602,10 +611,10 @@
     const showEmailPrompt = (message) => {
         pendingOfflineMessage = message;
         $('#offlineEmailStep').classList.remove('is-hidden');
-        $('#offlineMessageTitle').textContent = selectedAmbassador.online ? 'Xác nhận email để gửi' : 'Để lại thông tin liên hệ';
+        $('#offlineMessageTitle').textContent = selectedAmbassador.online ? 'Thông tin của bạn' : 'Để lại thông tin liên hệ';
         $('#offlineEmailDescription').textContent = selectedAmbassador.online
             ? `Nhập email để duy trì cuộc trò chuyện với ${selectedAmbassador.name}.`
-            : `${selectedAmbassador.name} đang offline. Để lại email liên hệ; quay lại Inbox để xem phản hồi.`;
+            : `${selectedAmbassador.name} đang offline. Để lại email liên hệ; quay lại Hộp thư để xem phản hồi.`;
         $('#offlineReplyEmailLabel').textContent = selectedAmbassador.online ? 'Email của bạn' : 'Email liên hệ';
         $('#scheduleBeforeMessage').classList.toggle('is-hidden', selectedAmbassador.online);
         $('#offlineEmailActions').classList.toggle('is-single', selectedAmbassador.online);
@@ -886,8 +895,11 @@
         } catch (_) { list.textContent='Không đọc được lịch đã lưu trên trình duyệt.'; }
     });
     const contentMatch = window.location.hash.match(/^#content-(\d+)$/);
+    const profileMatch = window.location.hash.match(/^#profile-(\d+)$/);
     if (window.location.hash === '#inbox') {
         openInbox();
+    } else if (profileMatch) {
+        openProfile(Number(profileMatch[1]));
     } else if (contentMatch) {
         const contentButton = $('[data-widget-tab="content"]');
         setActiveNavigation(contentButton);

@@ -20,6 +20,10 @@ final class WidgetAiAssistant
             'hometown' => (string) ($ambassador['hometown'] ?? ''),
             'interests' => self::interests($ambassador),
             'bio' => (string) ($ambassador['bio'] ?? ''),
+            'about' => (string) ($ambassador['about'] ?? ''),
+            'topics' => (string) ($ambassador['topics'] ?? ''),
+            'activities' => (string) ($ambassador['activities'] ?? ''),
+            'projects' => (string) ($ambassador['projects'] ?? ''),
         ];
         $prompt = <<<'PROMPT'
 Bạn hỗ trợ học sinh THPT chuẩn bị câu hỏi cho đại sứ sinh viên CMC University.

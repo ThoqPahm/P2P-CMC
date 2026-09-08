@@ -77,4 +77,15 @@ check($status===403,'admin cannot fetch private conversation through messages AP
 check($status===404,'unknown paths cannot be overridden by query page');
 [$status]=request($base.'/admin/diem-thuong?page=login&qa_role=student');
 check($status===403,'clean path retains authorization despite query override');
+[$status,$html]=request($base.'/index.php?page=admin-ambassadors&qa_role=admin&profile='.$payload['ambassador_id']);
+check($status===200 && str_contains($html,'id="profileEditor"'),'admin opens profile editor');
+preg_match('/name="csrf_token" value="([^"]+)"/',$html,$match);
+$profileUpdate=['csrf_token'=>$match[1]??'','user_id'=>$payload['ambassador_id'],'about'=>'Giới thiệu QA đồng bộ','topics'=>'Lập trình|Dự án nhóm','activities'=>'Sinh hoạt nhóm','projects'=>'Website lịch học','languages'=>'Tiếng Việt','advice'=>'Hãy bắt đầu từ bài tập nhỏ.'];
+[$status]=request($base.'/actions.php?action=save_ambassador_profile',$profileUpdate);
+check($status===302,'admin saves detailed profile');
+[$status,$html]=request($base.'/widget');
+check(str_contains($html,'Giới thiệu QA đồng bộ') && str_contains($html,'Website lịch học'),'saved profile reaches widget');
+request($base.'/index.php?page=student-dashboard&qa_role=student');
+[$status]=request($base.'/actions.php?action=save_ambassador_profile',$profileUpdate);
+check($status===403,'student cannot edit another ambassador profile');
 echo "$checks checks passed.\n";

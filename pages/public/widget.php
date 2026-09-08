@@ -3,7 +3,7 @@ $widgetToken = bin2hex(random_bytes(24));
 $statement = $db->prepare("INSERT INTO widget_access_tokens (token, expires_at) VALUES (?, datetime('now', '+12 hours'))");
 $statement->execute([$widgetToken]);
 $db->exec("DELETE FROM widget_access_tokens WHERE expires_at <= datetime('now')");
-$ambassadors = rows("SELECT id, name, major, hometown, interests, bio, study_year, is_online FROM eligible_ambassadors WHERE 1=1 ORDER BY is_online DESC, name");
+$ambassadors = AmbassadorProfiles::directory($db);
 $answeredQuestions = (int) scalar("SELECT COUNT(*) FROM messages m JOIN users u ON u.id = m.sender_id WHERE u.role = 'ambassador'");
 $publishedContent = rows(<<<'SQL'
     SELECT s.id, s.content_type, s.content_url, s.caption, s.platform, s.blog_title, s.blog_excerpt, s.blog_body,
@@ -25,11 +25,18 @@ $widgetData = array_map(static fn(array $item): array => [
     'study_year' => (int) $item['study_year'],
     'online' => (bool) $item['is_online'],
     'initials' => initials($item['name']),
+    'avatar' => AmbassadorProfiles::avatar($item['avatar']),
+    'about' => $item['about'] ?? '',
+    'topics' => array_values(array_filter(explode('|', $item['topics'] ?? ''))),
+    'activities' => $item['activities'] ?? '',
+    'projects' => $item['projects'] ?? '',
+    'languages' => $item['languages'] ?? '',
+    'advice' => $item['advice'] ?? '',
 ], $ambassadors);
 $contentData = array_map(static fn(array $item): array => [
     'id' => (int) $item['id'],
     'type' => $item['content_type'] === 'blog' ? 'blog' : 'social',
-    'format' => $item['content_type'] === 'blog' ? 'Bài viết' : ($item['platform'] ?: 'Nội dung UGC'),
+    'format' => $item['content_type'] === 'blog' ? 'Bài viết' : ($item['platform'] ?: 'Bài đăng sinh viên'),
     'title' => $item['content_type'] === 'blog' ? ($item['blog_title'] ?: $item['campaign_title']) : ($item['caption'] ?: $item['campaign_title']),
     'excerpt' => $item['content_type'] === 'blog' ? ($item['blog_excerpt'] ?: $item['caption']) : $item['campaign_title'],
     'body' => $item['content_type'] === 'blog' ? (string) $item['blog_body'] : '',
@@ -54,11 +61,10 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
     <meta name="color-scheme" content="light">
     <title>Tư vấn cùng đại sứ CMC</title>
     <link rel="icon" href="assets/img/cmc-university.svg" type="image/svg+xml">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="assets/css/widget.css?v=17" rel="stylesheet">
+    <link href="assets/css/widget.css?v=18" rel="stylesheet">
+    <link href="assets/icons/phosphor.css?v=1" rel="stylesheet">
+    <link href="assets/css/icon-system.css?v=1" rel="stylesheet">
+    <link href="assets/css/typography.css?v=1" rel="stylesheet">
 </head>
 <body class="widget-body">
 <main class="widget-shell" id="widgetShell" style="--widget-blue:<?= e($themeColor('widget_theme_primary', '#008fd5')) ?>;--widget-blue-strong:<?= e($themeColor('widget_theme_primary', '#006eaa')) ?>;--widget-navy:<?= e($themeColor('widget_theme_navy', '#002757')) ?>;--widget-soft:<?= e($themeColor('widget_theme_soft', '#f2f8fb')) ?>;--widget-cyan:<?= e($themeColor('widget_theme_accent', '#00dedf')) ?>">
@@ -70,8 +76,8 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
 
     <nav class="widget-navigation" aria-label="Điều hướng widget">
         <button class="is-active" type="button" data-availability="all"><i class="bi bi-people"></i><span>Đại sứ</span></button>
-        <button type="button" data-widget-tab="inbox"><i class="bi bi-inbox"></i><span>Inbox</span></button>
-        <button type="button" data-widget-tab="content"><i class="bi bi-journal-richtext"></i><span>Content</span></button>
+        <button type="button" data-widget-tab="inbox"><i class="bi bi-inbox"></i><span>Hộp thư</span></button>
+        <button type="button" data-widget-tab="content"><i class="bi bi-journal-richtext"></i><span>Chia sẻ</span></button>
         <button type="button" data-availability="offline"><i class="bi bi-calendar2-check"></i><span>Đặt lịch</span></button>
     </nav>
 
@@ -91,7 +97,7 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
 
     <section class="widget-view widget-directory" id="directoryView">
         <div class="widget-intro">
-            <div><h1>Chọn đại sứ để trò chuyện</h1><p><strong><?= count($ambassadors) ?> đại sứ đã xác minh</strong> · <?= number_format($answeredQuestions, 0, ',', '.') ?> câu trả lời đã được ghi nhận.</p></div>
+            <div><h1>Chọn đại sứ để trò chuyện</h1><p><strong><?= count($ambassadors) ?> đại sứ đang tham gia</strong> · <?= number_format($answeredQuestions, 0, ',', '.') ?> câu trả lời đã được ghi nhận.</p></div>
             <span class="widget-powered"><small>Powered by</small><span class="cmc-mini"><img src="assets/img/cmc-university.svg" alt="CMC University"></span><i aria-hidden="true"></i><strong><b>e</b>Ambassador</strong></span>
         </div>
         <div class="widget-filters" aria-label="Lọc đại sứ">
@@ -110,7 +116,7 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
     <section class="widget-view widget-content is-hidden" id="contentView">
         <div class="content-heading"><div><h1>Câu chuyện từ đại sứ CMC</h1><p>Trải nghiệm học tập và đời sống sinh viên được chia sẻ bởi người đang học.</p></div><span><strong><?= count($contentData) ?></strong> nội dung đã duyệt</span></div>
         <label class="widget-search content-search"><i class="bi bi-search"></i><input id="contentSearch" type="search" placeholder="Tìm chủ đề, ngành học hoặc đại sứ..."></label>
-        <div class="content-filter" role="group" aria-label="Loại nội dung"><button class="is-active" type="button" data-content-type="all">Tất cả</button><button type="button" data-content-type="blog">Bài viết</button><button type="button" data-content-type="social">Video &amp; UGC</button></div>
+        <div class="content-filter" role="group" aria-label="Loại nội dung"><button class="is-active" type="button" data-content-type="all">Tất cả</button><button type="button" data-content-type="blog">Bài viết</button><button type="button" data-content-type="social">Video &amp; bài đăng</button></div>
         <div class="content-grid" id="contentGrid"></div>
         <div class="widget-empty is-hidden" id="contentEmpty"><i class="bi bi-journal-text"></i><h2>Chưa có nội dung phù hợp</h2><p>Thử một từ khóa khác hoặc xem toàn bộ nội dung.</p><button type="button" id="clearContentFilters">Xem tất cả</button></div>
     </section>
@@ -121,12 +127,13 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
     </article>
 
     <section class="widget-view widget-profile is-hidden" id="profileView" aria-live="polite">
-        <div class="profile-cover"><div class="profile-hero"><span class="profile-avatar" id="profileAvatar"></span><div><span class="profile-verified"><i class="bi bi-patch-check-fill"></i> Đại sứ sinh viên đã xác minh</span><h1 id="profileName"></h1><p id="profileMajor"></p></div></div></div>
+        <div class="profile-cover"><div class="profile-hero"><span class="profile-avatar" id="profileAvatar"></span><div><span class="profile-verified"><i class="bi bi-patch-check-fill"></i> Đại sứ sinh viên CMC</span><h1 id="profileName"></h1><p id="profileMajor"></p></div></div></div>
         <div class="profile-content">
             <div class="profile-presence" id="profilePresence"><span><i class="bi" id="profilePresenceIcon"></i></span><div><strong id="profileStatusLabel"></strong><p id="profileStatusDetail"></p></div><small id="profileResponseBadge"></small></div>
             <div class="profile-action" id="profileAction"></div>
             <div class="profile-facts" aria-label="Thông tin đại sứ"><div><span><i class="bi bi-mortarboard"></i></span><small>Ngành học</small><strong id="profileFieldMajor"></strong></div><div><span><i class="bi bi-calendar3"></i></span><small>Năm học</small><strong id="profileStudyYear"></strong></div><div><span><i class="bi bi-geo-alt"></i></span><small>Quê quán</small><strong id="profileLocation"></strong></div></div>
             <section class="profile-section profile-about"><h2>Về mình</h2><p class="profile-about-lead" id="profileAboutLead"></p><p class="profile-bio" id="profileBio"></p></section>
+            <section class="profile-section profile-details-copy" id="profileDetails"></section>
             <div class="profile-detail-grid">
                 <section class="profile-section"><h2>Sở thích &amp; mối quan tâm</h2><p class="profile-section-note">Những chủ đề đại sứ yêu thích và thường xuyên tìm hiểu.</p><div class="profile-tags" id="profileTags"></div></section>
                 <section class="profile-section"><h2>Có thể chia sẻ cùng bạn</h2><p class="profile-section-note">Bắt đầu bằng một trong những chủ đề dưới đây.</p><ul class="profile-share-list" id="profileShareList"></ul></section>
@@ -157,7 +164,7 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
         <form class="widget-form" id="scheduleForm"><input type="hidden" name="ambassador_id" id="scheduleAmbassadorId"><label><span>Tên của bạn</span><input name="name" autocomplete="name" required></label><label><span>Email</span><input name="email" type="email" autocomplete="email" required></label><label><span>Số điện thoại <small>(không bắt buộc)</small></span><input name="phone" type="tel" autocomplete="tel"></label><label><span>Thời gian mong muốn</span><input name="preferred_at" id="preferredAt" type="datetime-local" required></label><label><span>Nội dung cần tư vấn</span><textarea name="question" rows="3" placeholder="Bạn đang quan tâm điều gì?"></textarea></label><p class="form-error is-hidden" id="scheduleError"></p><button class="primary-action" type="submit">Gửi yêu cầu đặt lịch <i class="bi bi-calendar2-check"></i></button></form>
     </section>
 
-    <section class="widget-view widget-success is-hidden" id="successView"><span><i class="bi bi-check-lg"></i></span><h1>Đã ghi nhận lịch của bạn</h1><p>Lịch đang chờ xác nhận. Bạn có thể xem trạng thái trong Inbox trên trình duyệt này.</p><button type="button" id="backToDirectory">Tiếp tục khám phá đại sứ</button></section>
+    <section class="widget-view widget-success is-hidden" id="successView"><span><i class="bi bi-check-lg"></i></span><h1>Đã ghi nhận lịch của bạn</h1><p>Lịch đang chờ xác nhận. Bạn có thể xem trạng thái trong Hộp thư trên trình duyệt này.</p><button type="button" id="backToDirectory">Tiếp tục khám phá đại sứ</button></section>
     <dialog class="offline-message-dialog" id="offlineMessageDialog" aria-label="Trạng thái tin nhắn">
         <div class="offline-dialog-card">
             <button class="offline-dialog-close" id="offlineDialogClose" type="button" aria-label="Đóng thông báo"><i class="bi bi-x-lg"></i></button>
@@ -175,10 +182,10 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
             <div class="feedback-content">
                 <span class="feedback-icon"><i class="bi bi-patch-check-fill"></i></span>
                 <h2>Đánh giá buổi tư vấn</h2>
-                <p>Khảo sát chất lượng tư vấn theo chuẩn Bảng 19 & Bảng 26 Khóa luận tốt nghiệp.</p>
+                <p>Cuộc trò chuyện có giúp ích cho bạn không? Đánh giá của bạn giúp chúng mình cải thiện việc tư vấn.</p>
                 <form id="feedbackForm">
                     <div class="feedback-field">
-                        <label class="feedback-label">Mức độ rõ ràng (Clarity):</label>
+                        <label class="feedback-label">Thông tin có dễ hiểu không?</label>
                         <div class="star-rating" id="clarityStars">
                             <button type="button" data-val="1">★</button>
                             <button type="button" data-val="2">★</button>
@@ -188,7 +195,7 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
                         </div>
                     </div>
                     <div class="feedback-field">
-                        <label class="feedback-label">Mức độ hữu ích (Helpfulness):</label>
+                        <label class="feedback-label">Câu trả lời có hữu ích không?</label>
                         <div class="star-rating" id="helpfulnessStars">
                             <button type="button" data-val="1">★</button>
                             <button type="button" data-val="2">★</button>
@@ -207,12 +214,12 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
             </div>
         </div>
     </dialog>
-    <footer class="widget-footer"><span class="widget-trust"><i class="bi bi-shield-check"></i> Kết nối an toàn · Thông tin được bảo vệ</span></footer>
+    <footer class="widget-footer"><span class="widget-trust"><i class="bi bi-shield-check"></i> Không chia sẻ thông tin cá nhân nhạy cảm</span></footer>
     <div class="widget-toast is-hidden" id="widgetToast" role="status"></div>
  </main>
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData, 'ai' => ['enabled' => $widgetAiEnabled, 'name' => $widgetSettings['widget_ai_name'], 'welcome' => $widgetSettings['widget_ai_welcome']]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=19"></script>
+<script src="assets/js/widget.js?v=20"></script>
 </body>
 </html>

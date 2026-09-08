@@ -1,0 +1,13 @@
+/* Inter, self-hosted with the complete Vietnamese glyph set. SIL OFL 1.1. */
+@font-face { font-family: Inter; src: url('../fonts/inter/InterVariable.woff2') format('woff2'); font-style: normal; font-weight: 100 900; font-display: swap; }
+@font-face { font-family: Inter; src: url('../fonts/inter/InterVariable-Italic.woff2') format('woff2'); font-style: italic; font-weight: 100 900; font-display: swap; }
+:root { --bs-font-sans-serif: Inter, sans-serif; --bs-body-font-family: Inter, sans-serif; }
+html, body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, .eambassador-wordmark, .brand, code, pre, kbd, .widget-brand span, .widget-powered > strong, .login-theme-particles .login-product-mark, .login-theme-particles .login-welcome-brand { font-family: Inter, sans-serif; }
+body { font-optical-sizing: auto; }
+.avatar img, .profile-avatar img, .ambassador-avatar img, .inbox-avatar img, #chatHeaderAvatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
+.profile-details-copy { display: grid; gap: 18px; }
+.profile-details-copy h3 { margin: 0 0 6px; font-size: .95rem; }
+.profile-details-copy p { margin: 0; color: var(--widget-muted, #52697c); line-height: 1.65; white-space: pre-line; overflow-wrap: anywhere; }
+.profile-record-link { display: inline-block; margin-top: 6px; }
+.profile-monogram { display: block; width: 100%; height: 100%; }
+.profile-monogram img { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; display: block; }
