@@ -16,7 +16,7 @@ $isLogin = ($page ?? '') === 'login';
     <link rel="preload" href="assets/fonts/inter/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
-    <link href="assets/css/app.css?v=66" rel="stylesheet">
+    <link href="assets/css/app.css?v=67" rel="stylesheet">
     <?php if (($page ?? '') === 'ambassador-program'): ?><link href="assets/css/program.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'admin-widget'): ?><link href="assets/css/widget-admin.css?v=2" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'super-admin'): ?><link href="assets/css/super-admin.css?v=1" rel="stylesheet"><?php endif; ?>

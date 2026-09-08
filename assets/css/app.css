@@ -329,8 +329,10 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .app-layout { min-height: 100dvh; background: var(--canvas); }
 .app-sidebar { position: fixed; z-index: 1040; inset: 0 auto 0 0; width: var(--sidebar); display: flex; flex-direction: column; color: #c7d8e5; background: var(--cmc-navy); border-right: 1px solid rgba(255,255,255,.08); }
 .sidebar-head { min-height: var(--topbar); display: flex; align-items: center; padding: 0 1rem; border-bottom: 1px solid rgba(255,255,255,.1); }
-.sidebar-brand { color: #fff; }
-.sidebar-brand img { width: 34px; height: 34px; filter: brightness(0) invert(1); }
+.sidebar-brand { color: #fff; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: 100%; text-align: center; }
+.sidebar-brand img { width: 140px; max-width: 100%; height: auto; filter: brightness(0) invert(1); }
+.sidebar-head { position: relative; }
+.sidebar-head #sidebarClose { position: absolute; top: 0; right: 0; }
 .sidebar-brand span { font-size: .8rem; }
 .sidebar-context { display: flex; align-items: center; gap: .7rem; margin: 1rem .8rem .8rem; padding: .75rem; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: var(--radius-sm); }
 .context-icon { width: 34px; height: 34px; display: grid; place-items: center; color: var(--cmc-cyan); background: rgba(0,222,223,.1); border-radius: 6px; }
