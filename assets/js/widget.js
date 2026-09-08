@@ -164,7 +164,7 @@
             container.innerHTML = '';
             return;
         }
-        container.innerHTML = `<div class="widget-ai-ambassadors-head"><strong>Gợi ý đại sứ</strong><button type="button" data-dismiss-ai-ambassadors><i class="bi bi-x-lg" aria-hidden="true"></i><span>Bỏ qua</span></button></div><div class="widget-ai-ambassadors-list">${matches.map((item) => `<button type="button" data-ai-ambassador-id="${item.id}"><span class="widget-ai-ambassador-avatar">${avatarMarkup(item)}</span><span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.major)} · Năm ${item.study_year}</small></span><i class="bi bi-arrow-right" aria-hidden="true"></i></button>`).join('')}</div>`;
+        container.innerHTML = `<div class="widget-ai-ambassadors-head"><strong>Gợi ý đại sứ</strong><button type="button" data-dismiss-ai-ambassadors aria-label="Ẩn gợi ý đại sứ" title="Ẩn gợi ý"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div><div class="widget-ai-ambassadors-list">${matches.map((item) => `<button type="button" data-ai-ambassador-id="${item.id}"><span class="widget-ai-ambassador-avatar">${avatarMarkup(item)}</span><span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.major)} · Năm ${item.study_year}</small></span><i class="bi bi-arrow-right" aria-hidden="true"></i></button>`).join('')}</div>`;
         $('[data-dismiss-ai-ambassadors]', container)?.addEventListener('click', () => {
             dismissedAssistantRecommendationKey = recommendationKey;
             container.classList.add('is-hidden');
