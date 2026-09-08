@@ -48,4 +48,7 @@ $check($validate->invoke(null,['answer'=>'Bạn thích làm việc với hình �
 $check($validate->invoke(null,['answer'=>'Mình nghe đây, bạn nói tiếp nhé.','intent'=>'social'],[],[],[])!==null,'social response accepted without keyword rules');
 $check($validate->invoke(null,['answer'=>'Học phí là 100 triệu.','intent'=>'general'],[],[],[])===null,'factual answer without source rejected');
 $check($validate->invoke(null,['answer'=>'Thông tin có nguồn.','intent'=>'general','source_ids'=>[1]],[['id'=>1]],[],[],true,[])['source_ids']===[1],'clarification rules cannot erase model citations');
+$clarification=new ReflectionMethod(WidgetChatAssistant::class,'clarification');
+$unknown=$clarification->invoke(null,'ký túc xá có nuôi mèo được không','ký túc xá có nuôi mèo được không',[],[],[]);
+$check(is_array($unknown)&&!str_contains(mb_strtolower($unknown['answer']),'đoán'),'unknown-topic clarification uses natural language');
 echo "$count checks passed.\n";

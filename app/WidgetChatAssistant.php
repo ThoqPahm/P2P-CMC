@@ -396,7 +396,7 @@ PROMPT;
         if (!$hasKnowledge) {
             $topic = mb_substr(trim($message, " \t\n\r\0\x0B?.!"), 0, 80);
             return self::conversationTurn(
-                'Phần “' . $topic . '” mình chưa có thông tin chính thức để trả lời chắc, nên mình không muốn đoán. Mình tìm một đại sứ có trải nghiệm liên quan cho bạn nhé, hay bạn muốn hỏi sang tuyển sinh?',
+                'Mình chưa có thông tin chính thức về “' . $topic . '” lúc này. Bạn muốn mình tìm một đại sứ có trải nghiệm liên quan, hay chuyển sang thông tin tuyển sinh?',
                 ['Tìm đại sứ để hỏi', 'Xem thông tin tuyển sinh', 'Hỏi chủ đề khác']
             );
         }
