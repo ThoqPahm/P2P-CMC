@@ -62,7 +62,7 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
     <title>Tư vấn cùng đại sứ CMC</title>
     <link rel="icon" href="assets/img/cmc-university.svg" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
-    <link href="assets/css/widget.css?v=25" rel="stylesheet">
+    <link href="assets/css/widget.css?v=26" rel="stylesheet">
     <link href="assets/icons/animateicons.css?v=2" rel="stylesheet">
     <link href="assets/css/icon-system.css?v=3" rel="stylesheet">
     <link href="assets/css/typography.css?v=2" rel="stylesheet">
