@@ -69,7 +69,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .widget-ai-header-actions { display: flex; align-items: center; gap: 9px; }
 .widget-ai-header-actions button { display: grid; width: 30px; height: 30px; place-items: center; padding: 0; color: #d8e8f0; background: rgba(255, 255, 255, .1); border: 0; border-radius: 9px; }
 .widget-ai-header-actions button:hover { color: #fff; background: rgba(255, 255, 255, .18); }
-.widget-ai-messages { display: grid; gap: 12px; max-height: 290px; padding: 16px; overflow-y: auto; scrollbar-color: #aac6d6 transparent; scrollbar-width: thin; }
+.widget-ai-messages { display: grid; gap: 12px; max-height: 290px; padding: 16px; overflow-y: auto; scrollbar-color: #aac6d6 transparent; scrollbar-gutter: stable; scrollbar-width: thin; }
 .widget-ai-message { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: start; gap: 8px; max-width: 88%; }
 .widget-ai-message > span { display: grid; width: 30px; height: 30px; place-items: center; color: var(--widget-blue-strong); background: var(--widget-soft); border-radius: 9px; font-size: .63rem; font-weight: 750; }
 .widget-ai-message > div { justify-self: start; padding: 9px 11px; color: #36566d; background: var(--widget-soft); border-radius: 4px 12px 12px 12px; }
@@ -88,7 +88,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .widget-ai-ambassadors-head > button { display: grid; width: 26px; height: 26px; flex: 0 0 26px; place-items: center; padding: 0; color: #698296; background: var(--widget-soft); border: 1px solid transparent; border-radius: 50%; font-size: .58rem; }
 .widget-ai-ambassadors-head > button:hover { color: var(--widget-blue-strong); background: #e8f4fa; border-color: #c8e0ec; }
 .widget-ai-ambassadors-head > button:active { transform: scale(.94); }
-.widget-ai-ambassadors-list { display: flex; gap: 7px; padding-bottom: 2px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; scrollbar-color: #c6dae5 transparent; }
+.widget-ai-ambassadors-list { display: flex; gap: 7px; padding-bottom: 6px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; scrollbar-color: #aac6d6 transparent; }
 .widget-ai-ambassadors-list > button { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; flex: 0 0 218px; align-items: center; gap: 8px; min-width: 0; padding: 7px; text-align: left; background: #fff; border: 1px solid var(--widget-line); border-radius: 10px; scroll-snap-align: start; }
 .widget-ai-ambassadors-list > button:hover { border-color: var(--widget-blue); background: #fbfdff; }
 .widget-ai-ambassadors-list > button:active { transform: translateY(1px); }
@@ -98,7 +98,20 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .widget-ai-ambassadors-list b { color: var(--widget-navy); font-size: .63rem; }
 .widget-ai-ambassadors-list small { margin-top: 2px; color: var(--widget-muted); font-size: .54rem; }
 .widget-ai-ambassadors-list > button > i { color: var(--widget-blue-strong); font-size: .62rem; }
-.widget-ai-prompts { display: flex; gap: 7px; padding: 0 16px 12px; overflow-x: auto; scrollbar-width: none; }
+.widget-ai-prompts { display: flex; gap: 7px; padding: 0 16px 12px; overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; }
+.widget-ai-prompts::-webkit-scrollbar { display: none; }
+.widget-ai-messages::-webkit-scrollbar,
+.widget-ai-ambassadors-list::-webkit-scrollbar,
+.widget-ai-composer textarea::-webkit-scrollbar { width: 4px; height: 4px; }
+.widget-ai-messages::-webkit-scrollbar-track,
+.widget-ai-ambassadors-list::-webkit-scrollbar-track,
+.widget-ai-composer textarea::-webkit-scrollbar-track { background: transparent; }
+.widget-ai-messages::-webkit-scrollbar-thumb,
+.widget-ai-ambassadors-list::-webkit-scrollbar-thumb,
+.widget-ai-composer textarea::-webkit-scrollbar-thumb { background: #aac6d6; border-radius: 999px; }
+.widget-ai-messages::-webkit-scrollbar-thumb:hover,
+.widget-ai-ambassadors-list::-webkit-scrollbar-thumb:hover,
+.widget-ai-composer textarea::-webkit-scrollbar-thumb:hover { background: #789fb6; }
 .widget-ai-prompts button { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; min-height: 34px; padding: 0 10px; color: var(--widget-blue-strong); background: #fff; border: 1px solid #bdd8e6; border-radius: 9px; font-size: .64rem; font-weight: 700; }
 .widget-ai-prompts button:hover { color: var(--widget-navy); background: var(--widget-soft); }
 .widget-ai-composer { display: grid; grid-template-columns: minmax(0, 1fr) 42px; gap: 8px; padding: 12px 16px; background: var(--widget-soft); border-top: 1px solid var(--widget-line); }
