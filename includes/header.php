@@ -13,15 +13,16 @@ $isLogin = ($page ?? '') === 'login';
     <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
     <title><?= e($pageTitle === 'eAmbassador' ? 'eAmbassador' : $pageTitle . ' · eAmbassador') ?></title>
     <link rel="icon" href="assets/img/cmc-university.svg" type="image/svg+xml">
+    <link rel="preload" href="assets/fonts/inter/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
-    <link href="assets/css/app.css?v=65" rel="stylesheet">
+    <link href="assets/css/app.css?v=66" rel="stylesheet">
     <?php if (($page ?? '') === 'ambassador-program'): ?><link href="assets/css/program.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'admin-widget'): ?><link href="assets/css/widget-admin.css?v=2" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'super-admin'): ?><link href="assets/css/super-admin.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (!in_array($page ?? '', ['admin-dashboard','admin-campaigns','admin-moderation','widget','login'],true)): ?><link href="assets/css/ui-refinements.css?v=1" rel="stylesheet"><?php endif; ?>
     <link href="assets/icons/phosphor.css?v=1" rel="stylesheet">
-    <link href="assets/css/icon-system.css?v=1" rel="stylesheet">
+    <link href="assets/css/icon-system.css?v=2" rel="stylesheet">
     <?php if (in_array($page ?? '', ['campaigns', 'admin-campaigns'], true)): ?><link href="assets/css/campaign-cards.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'admin-moderation'): ?><link href="assets/css/moderation.css?v=1" rel="stylesheet"><?php endif; ?>
     <link href="assets/css/typography.css?v=2" rel="stylesheet">

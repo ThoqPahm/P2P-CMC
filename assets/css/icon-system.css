@@ -63,6 +63,11 @@
     .widget-ai-toggle > .bi { transition: none; }
 }
 /* CurrentColor masks retain contrast even in OS high-contrast mode. */
+/* Navigation stays stationary when hover/focus is restored after a page load. */
+.sidebar-link .bi::before,
+.sidebar-link:hover .bi::before,
+.sidebar-link:focus-visible .bi::before,
+.sidebar-link:active .bi::before { transform: none; animation: none; transition: none; }
 @media (forced-colors: active) {
     .bi::before,.navbar-toggler-icon::before,.btn-close::before { forced-color-adjust: none; background-color: CanvasText; }
     :is(button,a) .bi::before { background-color: LinkText; }
