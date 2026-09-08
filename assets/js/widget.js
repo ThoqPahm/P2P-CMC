@@ -160,11 +160,38 @@
         }));
     };
 
+    let assistantRevealVersion = 0;
+    const revealAssistantReply = async () => {
+        const version = ++assistantRevealVersion;
+        const container = $('#widgetAiMessages');
+        const paragraph = container?.querySelector('.widget-ai-message:last-child p');
+        if (!paragraph || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const content = paragraph.textContent;
+        const characters = Array.from(content);
+        const accessible = document.createElement('span');
+        accessible.className = 'visually-hidden';
+        accessible.textContent = content;
+        const visual = document.createElement('span');
+        visual.setAttribute('aria-hidden', 'true');
+        visual.className = 'ai-revealing';
+        paragraph.replaceChildren(accessible, visual);
+        const step = Math.max(1, Math.ceil(characters.length / 100));
+        for (let end = step; end < characters.length; end += step) {
+            if (version !== assistantRevealVersion || !paragraph.isConnected) return;
+            const follow = container.scrollHeight - container.scrollTop - container.clientHeight < 65;
+            visual.textContent = characters.slice(0, end).join('');
+            if (follow) container.scrollTop = container.scrollHeight;
+            await new Promise(resolve => setTimeout(resolve, 18));
+        }
+        if (version === assistantRevealVersion && paragraph.isConnected) paragraph.textContent = content;
+    };
+
     const renderAssistantHistory = (loading = false) => {
+        ++assistantRevealVersion;
         const container = $('#widgetAiMessages');
         if (!container) return;
         const messages = assistantHistory.length ? assistantHistory : [{ role: 'assistant', content: assistantConfig.welcome || 'Mình có thể giúp bạn tìm thông tin hoặc chọn đại sứ phù hợp.' }];
-        container.innerHTML = messages.map((item) => `<div class="widget-ai-message ${item.role === 'user' ? 'is-user' : 'is-assistant'}"><span>${item.role === 'assistant' ? '<i class="bi bi-stars"></i>' : 'Bạn'}</span><div><p>${escapeHtml(item.content)}</p>${item.availabilityNote ? `<small>${escapeHtml(item.availabilityNote)}</small>` : ''}${item.sourceDetails?.length ? `<div class="widget-source-badge"><i class="bi bi-shield-check"></i> <strong>Nguồn chính thức:</strong> ${item.sourceDetails.map((s) => `${escapeHtml(s.title)} (${escapeHtml(s.reference)} · Xác nhận: ${escapeHtml(s.verified_by)} · ${escapeHtml(s.verified_at)})`).join(' · ')}</div>` : (item.sources?.length ? `<small><i class="bi bi-database-check"></i> Nguồn: ${item.sources.map(escapeHtml).join(' · ')}</small>` : '')}</div></div>`).join('') + (loading ? '<div class="widget-ai-message is-assistant is-loading"><span><i class="bi bi-stars"></i></span><div><i></i><i></i><i></i></div></div>' : '');
+        container.innerHTML = messages.map((item) => `<div class="widget-ai-message ${item.role === 'user' ? 'is-user' : 'is-assistant'}"><span>${item.role === 'assistant' ? '<i class="bi bi-stars"></i>' : '<i class="bi bi-person" aria-label="Bạn"></i>'}</span><div><p>${escapeHtml(item.content)}</p>${item.availabilityNote ? `<small>${escapeHtml(item.availabilityNote)}</small>` : ''}${item.sourceDetails?.length ? `<div class="widget-source-badge"><i class="bi bi-shield-check"></i> <strong>Nguồn chính thức:</strong> ${item.sourceDetails.map((s) => `${escapeHtml(s.title)} (${escapeHtml(s.reference)} · Xác nhận: ${escapeHtml(s.verified_by)} · ${escapeHtml(s.verified_at)})`).join(' · ')}</div>` : (item.sources?.length ? `<small><i class="bi bi-database-check"></i> Nguồn: ${item.sources.map(escapeHtml).join(' · ')}</small>` : '')}</div></div>`).join('') + (loading ? '<div class="widget-ai-message is-assistant is-loading"><span><i class="bi bi-stars"></i></span><div><i></i><i></i><i></i></div></div>' : '');
         container.scrollTop = container.scrollHeight;
         const latestAssistant = [...assistantHistory].reverse().find((item) => item.role === 'assistant');
         renderAssistantAmbassadors(latestAssistant?.ambassadorIds || []);
@@ -751,6 +778,7 @@
                 assistantHistory = assistantHistory.slice(-20);
                 persistAssistantHistory();
                 renderAssistantHistory();
+                await revealAssistantReply();
             } catch (error) {
                 assistantHistory.push({ role: 'assistant', content: error.message, createdAt: new Date().toISOString() });
                 persistAssistantHistory();
