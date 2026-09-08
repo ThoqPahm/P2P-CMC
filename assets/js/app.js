@@ -180,13 +180,14 @@
             result.innerHTML = `
                 <div class="copilot-result-head">
                     <div><p class="topbar-context">3 hướng gợi ý</p><h2>${escapeHtml(output.campaign)}</h2></div>
-                    <div class="brand-score"><span>Brand score</span><strong>${Number(output.brand_score)}/100</strong></div>
+                    <div class="brand-score"><span>AI hỗ trợ</span><strong>Bản nháp</strong></div>
                 </div>
+                ${output.clarification ? `<p class="helper-note">${escapeHtml(output.clarification)}</p>` : ''}
                 <div class="direction-list">${directions}</div>
                 <div class="copilot-delivery">
                     <div><span><i class="bi bi-hash"></i> Hashtag</span><p>${output.hashtags.map(escapeHtml).join(' ')}</p></div>
                     <div><span><i class="bi bi-clock"></i> Thời điểm thử nghiệm</span><p>${escapeHtml(output.schedule)}</p></div>
-                    <div><span><i class="bi bi-shield-check"></i> Kiểm tra an toàn</span><ul>${output.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join('')}</ul></div>
+                    <div><span><i class="bi bi-shield-check"></i> Kiểm tra an toàn</span><ul>${output.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join('')}</ul>${(output.sources || []).map(s => `<p>Nguồn: ${escapeHtml(s.title)} · ${escapeHtml(s.source_reference || '')}</p>`).join('')}</div>
                 </div>`;
             result.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
         } catch (error) {

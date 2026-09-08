@@ -4,6 +4,16 @@ if (!isset($reports,$form,$admin)) { http_response_code(404); exit; }
 $categories=['information'=>'Thông tin cần sửa','communication'=>'Chất lượng giao tiếp','privacy'=>'Quyền riêng tư'];
 ?>
 <div class="program-list">
+<?php if ($admin): ?>
+<details class="program-record" data-ai-assist="program_ai_insights">
+    <summary>AI gợi ý cải thiện hoạt động</summary>
+    <div class="program-record-body">
+        <p>Chỉ phân tích số liệu tổng hợp về phản ánh, chuyển tuyến và độ phủ nguồn tin. Không gửi nội dung chat riêng hoặc nguyên văn phản ánh cho AI.</p>
+        <button class="btn btn-outline-brand" type="button" data-ai-run>Phân tích số liệu hiện tại</button>
+        <div class="mt-3" data-ai-output aria-live="polite"></div>
+    </div>
+</details>
+<?php endif; ?>
 <?php if (!$reports): ?><div class="program-empty">Chưa có phản ánh được ghi nhận.</div><?php endif; ?>
 <?php foreach ($reports as $report): ?>
 <details class="program-record"><summary><span><strong><?= e($categories[$report['category']]??'Phản ánh') ?></strong><small><?= e($report['name']) ?> · <?= e($report['created_at']) ?> UTC</small></span><span class="program-status <?= $report['status']==='resolved'?'is-complete':'' ?>"><?= $report['status']==='resolved'?'Đã xử lý':'Đang chờ' ?></span></summary><div class="program-record-body"><p class="program-prose"><?= nl2br(e($report['detail'])) ?></p><?php if ($report['response']): ?><div class="program-note">Phản hồi: <?= e($report['response']) ?></div><?php endif; ?>

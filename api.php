@@ -338,6 +338,22 @@ try {
             reject_flagged_message($moderation);
             json_response(['ok' => true, 'quality_score' => $qualityScore]);
 
+        case 'conversation_ai_assist':
+            $current = user();
+            if (!$current || $current['role'] !== 'ambassador' || $current['status'] !== 'active') {
+                json_response(['ok'=>false, 'message'=>'Chỉ đại sứ phụ trách được dùng hỗ trợ này.'], 403);
+            }
+            enforce_widget_ai_rate_limit();
+            json_response(['ok'=>true, 'result'=>ProgramAiAssistant::conversation($db, (int)$current['id'], (int)($_POST['conversation_id'] ?? 0))]);
+
+        case 'program_ai_insights':
+            $current = user();
+            if (!$current || $current['role'] !== 'admin' || $current['status'] !== 'active') {
+                json_response(['ok'=>false, 'message'=>'Bạn không có quyền xem phân tích này.'], 403);
+            }
+            enforce_widget_ai_rate_limit();
+            json_response(['ok'=>true, 'result'=>ProgramAiAssistant::insights($db)]);
+
         case 'copilot_generate':
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 json_response(['ok' => false, 'message' => 'Method not allowed'], 405);
@@ -364,70 +380,11 @@ try {
                 throw new InvalidArgumentException('Brief này không còn hoạt động.');
             }
 
+            enforce_widget_ai_rate_limit();
             $cleanObjective = mb_substr($objective, 0, 600);
-            $lowerText = mb_strtolower($cleanObjective . ' ' . $campaign['brief']);
-            $riskPatterns = ['cam kết đậu', 'đảm bảo việc làm', '100%', 'tốt nhất việt nam', 'học phí rẻ nhất'];
-            $warnings = [];
-            foreach ($riskPatterns as $phrase) {
-                if (str_contains($lowerText, $phrase)) {
-                    $warnings[] = 'Tránh tuyên bố tuyệt đối: “' . $phrase . '”. Hãy chuyển thành trải nghiệm có dẫn chứng.';
-                }
-            }
-            $brandScore = max(55, 96 - (count($warnings) * 14));
-            if (!$warnings) {
-                $warnings[] = 'Không phát hiện cam kết tuyệt đối. Vẫn cần kiểm tra lại số liệu học phí và tuyển sinh trước khi đăng.';
-            }
-
-            $directions = [
-                [
-                    'title' => 'Khoảnh khắc phá vỡ định kiến',
-                    'format' => 'Story-led | 35 đến 45 giây',
-                    'hook' => '“Mình từng nghĩ ' . mb_strtolower($campaign['title']) . ' sẽ rất khác, cho đến khoảnh khắc này.”',
-                    'beats' => [
-                        '0 đến 4s: Mở bằng một cảnh thật tạo tương phản với điều người xem thường nghĩ.',
-                        '5 đến 22s: Kể trải nghiệm cụ thể: ' . $cleanObjective,
-                        '23 đến 35s: Cho thấy một chi tiết trong brief bằng hình ảnh, không chỉ lời kể.',
-                    ],
-                    'cta' => 'Bạn đang tò mò điều gì nhất về trải nghiệm này? Để lại câu hỏi, mình sẽ trả lời bằng trải nghiệm thật.',
-                ],
-                [
-                    'title' => 'Ba lát cắt trong một ngày',
-                    'format' => 'Listicle có câu chuyện | 30 đến 40 giây',
-                    'hook' => '“Ba khoảnh khắc nhỏ khiến mình hiểu rõ hơn về cuộc sống ở CMC.”',
-                    'beats' => [
-                        '0 đến 3s: Montage nhanh ba cảnh, mỗi cảnh gắn một từ khóa.',
-                        '4 đến 25s: Mỗi cảnh giải thích một ý, ưu tiên người thật và không gian thật.',
-                        '26 đến 34s: Chốt điều bạn đã học được từ trải nghiệm: ' . $cleanObjective,
-                    ],
-                    'cta' => 'Lưu video nếu bạn đang tìm hiểu CMC và gửi câu hỏi cho đội ngũ đại sứ sinh viên.',
-                ],
-                [
-                    'title' => 'Một câu hỏi, một câu trả lời thật',
-                    'format' => 'Q&A trực diện | 25 đến 35 giây',
-                    'hook' => '“Nếu chỉ có 30 giây để trả lời câu hỏi này, đây là điều mình sẽ nói.”',
-                    'beats' => [
-                        '0 đến 5s: Hiển thị câu hỏi của học sinh lớp 12 trên màn hình.',
-                        '6 đến 24s: Trả lời bằng ví dụ cá nhân, kèm một cảnh minh họa tại trường.',
-                        '25 đến 32s: Nêu rõ đây là góc nhìn cá nhân và gợi ý nơi xem thông tin chính thức.',
-                    ],
-                    'cta' => 'Bạn muốn đại sứ ngành nào trả lời tiếp? Bình luận tên ngành bên dưới.',
-                ],
-            ];
-            $schedule = match ($platform) {
-                'YouTube Shorts' => 'Thử đăng 19:30 đến 21:00, ưu tiên tiêu đề có câu hỏi rõ ràng.',
-                'Reels' => 'Thử đăng 11:30 đến 13:00 hoặc 20:00, dùng ảnh bìa có 3 đến 5 từ.',
-                default => 'Thử đăng 19:00 đến 21:30, giữ nhịp cắt gọn trong 3 giây đầu.',
-            };
-            $result = [
-                'campaign' => $campaign['title'],
-                'brief' => $campaign['brief'],
-                'tone' => $tone,
-                'directions' => $directions,
-                'hashtags' => ['#CMCUniversity', '#CMCAmbassador', '#CMCLife', '#HocThatChiaSeThat'],
-                'schedule' => $schedule,
-                'brand_score' => $brandScore,
-                'warnings' => $warnings,
-            ];
+            $result = ProgramAiAssistant::copilot($db, $campaign, $cleanObjective, $platform, $tone);
+            // Legacy NOT NULL column; new results explicitly carry no computed brand score.
+            $brandScore = 0;
             $statement = $db->prepare('INSERT INTO ai_requests (user_id, campaign_id, objective, platform, tone, response_json, brand_score) VALUES (?, ?, ?, ?, ?, ?, ?)');
             $statement->execute([$current['id'], $campaignId, $cleanObjective, $platform, $tone, json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), $brandScore]);
             json_response(['ok' => true, 'result' => $result]);
