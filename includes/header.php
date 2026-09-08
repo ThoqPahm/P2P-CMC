@@ -68,7 +68,6 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
                 <p class="topbar-context mb-1"><?= $currentUser['role'] === 'admin' ? 'Trung tâm vận hành' : 'Không gian của bạn' ?></p>
                 <h1 class="topbar-title"><?= e($pageTitle) ?></h1>
             </div>
-            <div class="topbar-route d-none d-xl-flex" aria-label="Vị trí hiện tại"><i class="bi bi-signpost-split"></i><span><?= $currentUser['role'] === 'admin' ? 'Operations' : 'Student' ?></span><i class="bi bi-chevron-right"></i><strong><?= e($pageTitle) ?></strong></div>
             <div class="topbar-actions ms-auto">
                 <button class="btn icon-btn position-relative" aria-label="Thông báo"><i class="bi bi-bell"></i><span class="notification-dot"></span></button>
                 <div class="user-chip d-none d-sm-flex">
