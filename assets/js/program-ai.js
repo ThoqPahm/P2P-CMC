@@ -33,10 +33,15 @@
             button.disabled = true;
             output.textContent = 'Đang đọc ngữ cảnh và chuẩn bị gợi ý…';
             try {
-                const response = await fetch(`api.php?action=${encodeURIComponent(panel.dataset.aiAssist)}`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''},
-                    body: JSON.stringify({conversation_id: Number(panel.dataset.conversationId || 0)})
-                });
+                let response;
+                try {
+                    response = await fetch(`api.php?action=${encodeURIComponent(panel.dataset.aiAssist)}`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''},
+                        body: JSON.stringify({conversation_id: Number(panel.dataset.conversationId || 0)})
+                    });
+                } catch (error) {
+                    throw new Error('Không kết nối được với máy chủ. Nếu AI đang xử lý lâu, hãy chờ một chút rồi thử lại.');
+                }
                 const data = await response.json();
                 if (!response.ok || !data.ok) throw new Error(data.message || 'Chưa tạo được gợi ý.');
                 const result = data.result;

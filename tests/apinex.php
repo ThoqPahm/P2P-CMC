@@ -22,3 +22,11 @@ echo "PASS APINEX registration, idempotent migration, key preservation, URL norm
 $source=file_get_contents(__DIR__.'/../app/AiProviderManager.php');
 if (!str_contains($source, "=== 'apinex' ? 60000 : 15000") || !str_contains($source, "'stream' => false")) throw new RuntimeException('APINEX timeout or non-streaming request missing');
 echo "PASS APINEX uses a 60-second timeout and explicit non-streaming responses.\n";
+$extract=new ReflectionMethod(AiProviderManager::class,'assistantContent');
+if ($extract->invoke(null,['choices'=>[['message'=>['content'=>[['type'=>'text','text'=>'OK']]]]]])!=='OK') throw new RuntimeException('Content parts unsupported');
+try { $extract->invoke(null,['choices'=>[['message'=>['content'=>'','reasoning_content'=>'thinking']]]]); throw new RuntimeException('Reasoning-only response accepted'); }
+catch (RuntimeException $error) { if (!str_contains($error->getMessage(),'chưa tạo phần trả lời')) throw $error; }
+echo "PASS APINEX supports content parts and explains reasoning-only responses.\n";
+$budget=new ReflectionMethod(AiProviderManager::class,'testTokenBudget');
+if ($budget->invoke(null,'apinex')!==512 || $budget->invoke(null,'gemini')!==128) throw new RuntimeException('Test budget missing');
+echo "PASS APINEX test allows enough completion tokens for reasoning models.\n";

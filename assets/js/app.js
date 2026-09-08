@@ -133,15 +133,18 @@
     }
 
     async function api(action, options = {}) {
-        const response = await fetch(`api.php?action=${encodeURIComponent(action)}`, {
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': csrf,
-                ...(options.headers || {})
-            }
-        });
-        const data = await response.json();
+        let response;
+        try {
+            response = await fetch(`api.php?action=${encodeURIComponent(action)}`, {
+                ...options,
+                headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrf, ...(options.headers || {})}
+            });
+        } catch (error) {
+            throw new Error('Không kết nối được với máy chủ. Nếu AI đang xử lý lâu, hãy chờ một chút rồi thử lại.');
+        }
+        let data;
+        try { data = await response.json(); }
+        catch (error) { throw new Error('Máy chủ trả về phản hồi chưa hoàn chỉnh. Hãy thử lại.'); }
         if (!response.ok || !data.ok) throw new Error(data.message || 'Không thể thực hiện yêu cầu.');
         return data;
     }

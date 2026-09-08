@@ -144,7 +144,7 @@ final class AiProviderManager
             return ['ok' => false, 'message' => 'Chưa có API key khả dụng hoặc provider đang tắt.'];
         }
         try {
-            $content = self::request(self::testMessages(), $config, 20);
+            $content = self::request(self::testMessages(), $config, self::testTokenBudget($provider));
             $message = 'Kết nối thành công · ' . mb_substr(trim($content), 0, 60);
             self::storeTestResult($provider, true, $message);
             return ['ok' => true, 'message' => $message];
@@ -166,7 +166,7 @@ final class AiProviderManager
         try {
             $config = ['provider' => $provider, 'endpoint' => (string) ($base['endpoint'] ?? self::registry()[$provider]['endpoint']), 'model' => (string) ($base['model'] ?? self::registry()[$provider]['model']), 'api_key' => SecretVault::decrypt((string) $key['api_key_encrypted']), 'key_id' => $keyId];
             self::markKeyAttempt($keyId);
-            $content = self::requestOnce(self::testMessages(), $config, 20);
+            $content = self::requestOnce(self::testMessages(), $config, self::testTokenBudget($provider));
             $message = 'Slot “' . $key['label'] . '” hoạt động · ' . mb_substr(trim($content), 0, 40);
             self::markKeySuccess($keyId, $message, true);
             return ['ok' => true, 'message' => $message];
@@ -265,11 +265,32 @@ final class AiProviderManager
             throw new AiProviderRequestException($message, $status);
         }
         $response = json_decode($responseBody, true, 512, JSON_THROW_ON_ERROR);
-        $content = $response['choices'][0]['message']['content'] ?? null;
-        if (!is_string($content) || trim($content) === '') {
-            throw new RuntimeException('AI API trả về dữ liệu không đúng định dạng.');
+        return self::assistantContent($response);
+    }
+
+    private static function assistantContent(array $response): string
+    {
+        $message = $response['choices'][0]['message'] ?? null;
+        if (!is_array($message)) {
+            throw new RuntimeException('Nhà cung cấp AI trả về JSON nhưng thiếu câu trả lời theo chuẩn Chat Completions.');
         }
-        return trim($content);
+        $content = $message['content'] ?? null;
+        if (is_string($content) && trim($content) !== '') return trim($content);
+        if (is_array($content)) {
+            $parts = [];
+            foreach ($content as $part) {
+                if (is_string($part) && trim($part) !== '') $parts[] = trim($part);
+                elseif (is_array($part)) {
+                    $text = $part['text'] ?? $part['content'] ?? null;
+                    if (is_string($text) && trim($text) !== '') $parts[] = trim($text);
+                }
+            }
+            if ($parts) return implode("\n", $parts);
+        }
+        if (is_string($message['reasoning_content'] ?? null) && trim($message['reasoning_content']) !== '') {
+            throw new RuntimeException('Model đã suy luận nhưng chưa tạo phần trả lời cuối cùng. Hãy thử lại; hệ thống đã tăng ngân sách cho lượt kiểm tra tiếp theo.');
+        }
+        throw new RuntimeException('Nhà cung cấp AI trả về câu trả lời rỗng. Hãy thử lại hoặc kiểm tra model đang chọn.');
     }
 
     private static function availableKeyRows(string $provider, int $preferredId = 0): array
@@ -347,6 +368,11 @@ final class AiProviderManager
     private static function testMessages(): array
     {
         return [['role' => 'system', 'content' => 'Trả lời đúng một từ: OK'], ['role' => 'user', 'content' => 'Kiểm tra kết nối.']];
+    }
+
+    private static function testTokenBudget(string $provider): int
+    {
+        return $provider === 'apinex' ? 512 : 128;
     }
 
     private static function assertProvider(string $provider): void
