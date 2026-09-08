@@ -64,7 +64,12 @@
     const readAssistantHistory = () => {
         try {
             const value = JSON.parse(window.localStorage.getItem(assistantStorageKey) || '[]');
-            return Array.isArray(value) ? value.filter((item) => ['user', 'assistant'].includes(item?.role) && typeof item?.content === 'string').slice(-20) : [];
+            return Array.isArray(value) ? value
+                .filter((item) => ['user', 'assistant'].includes(item?.role) && typeof item?.content === 'string')
+                .map((item) => item.availabilityNote === 'AI đang tạm gián đoạn; đây là gợi ý dự phòng từ thông tin có sẵn.'
+                    ? {...item, availabilityNote: ''}
+                    : item)
+                .slice(-20) : [];
         } catch (error) {
             return [];
         }

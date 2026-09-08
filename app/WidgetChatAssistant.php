@@ -136,7 +136,8 @@ PROMPT;
         return [
             'answer' => $result['answer'],
             'provider' => $provider,
-            'availability_note' => $provider === 'local' ? 'AI đang tạm gián đoạn; đây là gợi ý dự phòng từ thông tin có sẵn.' : '',
+            // A local grounded answer is a valid response mode, not proof that the provider is down.
+            'availability_note' => '',
             'model' => $model,
             'source_titles' => $sourceTitles,
             'sources' => $sources,
