@@ -242,7 +242,7 @@ final class AiProviderManager
         if (!function_exists('curl_init')) {
             throw new RuntimeException('PHP cURL extension is not available.');
         }
-        $payload = ['model' => $config['model'], 'messages' => $messages, 'temperature' => 0.2, 'max_tokens' => $maxTokens];
+        $payload = ['model' => $config['model'], 'messages' => $messages, 'temperature' => 0.2, 'max_tokens' => $maxTokens, 'stream' => false];
         if (($config['json_mode'] ?? false) === true) {
             $payload['response_format'] = ['type' => 'json_object'];
         }
@@ -251,13 +251,18 @@ final class AiProviderManager
         if ($handle === false) {
             throw new RuntimeException('Không thể khởi tạo kết nối AI.');
         }
-        curl_setopt_array($handle, [CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $config['api_key'], 'Content-Type: application/json'], CURLOPT_POSTFIELDS => $body, CURLOPT_CONNECTTIMEOUT_MS => 3000, CURLOPT_TIMEOUT_MS => 15000]);
+        $timeoutMs = ($config['provider'] ?? '') === 'apinex' ? 60000 : 15000;
+        curl_setopt_array($handle, [CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $config['api_key'], 'Content-Type: application/json'], CURLOPT_POSTFIELDS => $body, CURLOPT_CONNECTTIMEOUT_MS => 5000, CURLOPT_TIMEOUT_MS => $timeoutMs]);
         $responseBody = curl_exec($handle);
         $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
+        $curlCode = curl_errno($handle);
         $curlError = curl_error($handle);
         if (!is_string($responseBody) || $responseBody === '' || $status < 200 || $status >= 300) {
             $apiMessage = self::responseErrorMessage(is_string($responseBody) ? $responseBody : '');
-            throw new AiProviderRequestException($curlError !== '' ? $curlError : ($apiMessage !== '' ? $apiMessage : 'AI API trả về HTTP ' . $status . '.'), $status);
+            $message = $curlCode === CURLE_OPERATION_TIMEDOUT
+                ? 'Nhà cung cấp AI chưa trả lời trong ' . (int)($timeoutMs / 1000) . ' giây. Request có thể đã được họ tiếp nhận và vẫn bị tính vào hạn mức.'
+                : ($curlError !== '' ? $curlError : ($apiMessage !== '' ? $apiMessage : 'AI API trả về HTTP ' . $status . '.'));
+            throw new AiProviderRequestException($message, $status);
         }
         $response = json_decode($responseBody, true, 512, JSON_THROW_ON_ERROR);
         $content = $response['choices'][0]['message']['content'] ?? null;

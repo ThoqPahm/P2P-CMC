@@ -19,3 +19,6 @@ foreach(['https://evil.example/v1/chat/completions','https://api.apinex.bond.evi
     throw new RuntimeException('Unsafe endpoint accepted');
 }
 echo "PASS APINEX registration, idempotent migration, key preservation, URL normalization and host restrictions.\n";
+$source=file_get_contents(__DIR__.'/../app/AiProviderManager.php');
+if (!str_contains($source, "=== 'apinex' ? 60000 : 15000") || !str_contains($source, "'stream' => false")) throw new RuntimeException('APINEX timeout or non-streaming request missing');
+echo "PASS APINEX uses a 60-second timeout and explicit non-streaming responses.\n";
