@@ -10,16 +10,18 @@ $navItems = $isAdmin ? [
     ['admin-widget', 'bi-window-sidebar', 'Widget website'],
     ['admin-rewards', 'bi-award-fill', 'Thưởng & phân hạng'],
     ['admin-moderation', 'bi-shield-check', 'Kiểm duyệt chat'],
+    ['ambassador-program', 'bi-people-fill', 'Vận hành đại sứ'],
 ] : [
     ['student-dashboard', 'bi-grid-1x2-fill', 'Tổng quan'],
-    ['campaigns', 'bi-compass-fill', 'Khám phá nhiệm vụ'],
-    ['copilot', 'bi-stars', 'AI Copilot'],
+    ['ambassador-program', 'bi-people-fill', 'Chương trình đại sứ'],
+    ['campaigns', 'bi-megaphone-fill', 'Chiến dịch nội dung'],
+    ['copilot', 'bi-stars', 'Trợ lý nội dung AI'],
     ['my-submissions', 'bi-camera-reels-fill', 'Bài nộp của tôi'],
     ['my-performance', 'bi-bar-chart-line-fill', 'Hiệu quả nội dung'],
-    ['wallet', 'bi-wallet2', 'Ví điểm thưởng'],
+    ['wallet', 'bi-wallet2', 'Điểm thưởng'],
 ];
 if ($currentUser['role'] === 'ambassador') {
-    $navItems[] = ['inbox', 'bi-chat-dots-fill', 'Hộp thư'];
+    array_splice($navItems, 1, 0, [['inbox', 'bi-chat-dots-fill', 'Hộp thư tư vấn']]);
 }
 ?>
 <aside class="app-sidebar" id="appSidebar">
@@ -39,7 +41,6 @@ if ($currentUser['role'] === 'ambassador') {
         <?php endforeach; ?>
     </nav>
     <div class="sidebar-footer">
-        <a class="sidebar-link" href="index.php?page=dashboard"><i class="bi bi-house-door"></i><span>Về tổng quan</span></a>
         <a class="sidebar-link" href="actions.php?action=logout"><i class="bi bi-box-arrow-left"></i><span>Đăng xuất</span></a>
     </div>
 </aside>

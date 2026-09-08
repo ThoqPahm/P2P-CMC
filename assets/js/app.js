@@ -162,9 +162,9 @@
         const button = $('button[type="submit"]', form);
         const original = button.innerHTML;
         button.disabled = true;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xây hướng kể...';
+        button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang tạo đề xuất...';
         result.classList.remove('empty');
-        result.innerHTML = '<div class="copilot-loading"><span></span><span></span><span></span><p>Đang đọc brief và kiểm tra brand voice...</p></div>';
+        result.innerHTML = '<div class="copilot-loading"><span></span><span></span><span></span><p>Đang phân tích yêu cầu và tạo đề xuất...</p></div>';
         try {
             const payload = Object.fromEntries(new FormData(form).entries());
             const data = await api('copilot_generate', { method: 'POST', body: JSON.stringify(payload) });
@@ -177,7 +177,7 @@
                         <h3>${escapeHtml(direction.title)}</h3>
                         <blockquote>${escapeHtml(direction.hook)}</blockquote>
                         <ol>${direction.beats.map((beat) => `<li>${escapeHtml(beat)}</li>`).join('')}</ol>
-                        <p class="direction-cta"><strong>CTA</strong> ${escapeHtml(direction.cta)}</p>
+                        <p class="direction-cta"><strong>Lời kêu gọi hành động</strong> ${escapeHtml(direction.cta)}</p>
                     </div>
                 </article>`).join('');
             result.innerHTML = `

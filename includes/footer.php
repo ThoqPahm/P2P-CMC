@@ -1,7 +1,4 @@
 <?php if (!$isPublic): ?>
-        <?php if (!in_array($page ?? '', ['admin-dashboard','admin-campaigns','admin-moderation','ambassador-program'],true) && in_array($currentUser['role'],['admin','student','ambassador'],true)): ?>
-        <div class="mt-4 pt-3 border-top"><a class="btn btn-outline-brand" href="index.php?page=ambassador-program"><i class="bi bi-signpost-split"></i> <?= $currentUser['role']==='admin'?'Vận hành đại sứ · Hồ sơ, nguồn tin & chất lượng':'Hành trình đại sứ · Định hướng & công việc' ?></a></div>
-        <?php endif; ?>
         </div>
     </main>
 <?php elseif (!$isLogin): ?>

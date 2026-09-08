@@ -1,8 +1,7 @@
 <?php
 require_auth(['student', 'ambassador']);
 $current = user();
-$nameParts = explode(' ', $current['name']);
-$pageTitle = 'Chào ' . end($nameParts) . '!';
+$pageTitle = 'Tổng quan';
 $balance = (int) scalar("SELECT COALESCE(SUM(CASE WHEN type='credit' THEN points ELSE -points END),0) FROM wallet_transactions WHERE user_id = ?", [$current['id']]);
 $submissionCount = (int) scalar('SELECT COUNT(*) FROM submissions WHERE user_id = ?', [$current['id']]);
 $campaigns = rows("SELECT * FROM campaigns WHERE status = 'active' AND deadline >= date('now', '+7 hours') ORDER BY deadline ASC LIMIT 3");
@@ -59,8 +58,8 @@ SQL);
 <div class="route-dashboard route-dashboard-student">
     <section class="journey-board" aria-labelledby="journeyTitle">
         <header class="route-board-head">
-            <div><h2 id="journeyTitle">Lộ trình hôm nay</h2><p><?= date('d/m/Y') ?> · Ưu tiên một nhiệm vụ quan trọng</p></div>
-            <a class="btn btn-brand" href="index.php?page=campaigns">Tìm nhiệm vụ <i class="bi bi-arrow-right"></i></a>
+            <div><h2 id="journeyTitle">Tiến độ nhiệm vụ hiện tại</h2><p>Cập nhật ngày <?= date('d/m/Y') ?></p></div>
+            <a class="btn btn-brand" href="index.php?page=campaigns">Xem chiến dịch <i class="bi bi-arrow-right"></i></a>
         </header>
 
         <div class="route-progress" aria-label="Tiến độ hành trình <?= $journeyProgress ?> phần trăm">
@@ -73,11 +72,11 @@ SQL);
                 <span class="route-marker"><i class="bi <?= $routeStatus === 'not_started' ? 'bi-compass' : 'bi-check-lg' ?>"></i></span>
                 <div class="route-stop-copy">
                     <small><?= $routeStatus === 'not_started' ? 'Bước hiện tại' : 'Đã hoàn thành' ?></small>
-                    <h3><?= $routeStatus === 'not_started' ? 'Chọn nhiệm vụ phù hợp' : 'Nhiệm vụ đã được chọn' ?></h3>
-                    <p><?= $routeStatus === 'not_started' ? e($activeCampaign['title'] ?? 'Khám phá brief đang mở') : 'Brief và yêu cầu đã được kiểm tra.' ?></p>
+                    <h3><?= $routeStatus === 'not_started' ? 'Chọn chiến dịch phù hợp' : 'Đã chọn chiến dịch' ?></h3>
+                    <p><?= $routeStatus === 'not_started' ? e($activeCampaign['title'] ?? 'Xem các chiến dịch đang mở') : 'Bạn đã xem và chọn chiến dịch để thực hiện.' ?></p>
                 </div>
                 <?php if ($routeStatus === 'not_started'): ?>
-                    <a class="btn btn-brand" href="index.php?page=campaigns<?= $activeCampaign ? '&campaign=' . (int) $activeCampaign['id'] : '' ?>">Xem brief <i class="bi bi-arrow-up-right"></i></a>
+                    <a class="btn btn-brand" href="index.php?page=campaigns<?= $activeCampaign ? '&campaign=' . (int) $activeCampaign['id'] : '' ?>">Xem yêu cầu <i class="bi bi-arrow-up-right"></i></a>
                 <?php else: ?>
                     <span class="status-label status-success">Đã xác minh</span>
                 <?php endif; ?>
@@ -87,7 +86,7 @@ SQL);
                 <div class="route-stop-copy">
                     <small><?= $routeStatus === 'rejected' ? 'Cần chỉnh sửa' : (in_array($routeStatus, ['pending', 'approved'], true) ? 'Đã hoàn thành' : 'Bước tiếp theo') ?></small>
                     <h3><?= e($activeCampaign['title'] ?? 'Khám phá nhiệm vụ mới') ?></h3>
-                    <p><?= $routeStatus === 'rejected' ? 'Nội dung cần được cập nhật theo phản hồi trước khi gửi lại.' : e($activeCampaign['description'] ?? 'Chọn một brief để bắt đầu hành trình nội dung của bạn.') ?></p>
+                    <p><?= $routeStatus === 'rejected' ? 'Nội dung cần được cập nhật theo phản hồi trước khi gửi lại.' : e($activeCampaign['description'] ?? 'Chọn một chiến dịch và xem yêu cầu nội dung để bắt đầu.') ?></p>
                     <?php if ($activeCampaign): ?><span class="route-meta"><i class="bi bi-clock"></i> Còn <?= max(0, (int) ((strtotime($activeCampaign['deadline']) - time()) / 86400)) ?> ngày · +<?= (int) $activeCampaign['reward_points'] ?> điểm</span><?php endif; ?>
                 </div>
                 <?php if ($routeStatus === 'rejected'): ?>
@@ -107,13 +106,13 @@ SQL);
             </article>
             <article class="route-stop <?= $routeStatus === 'approved' ? 'is-complete' : 'is-locked' ?>">
                 <span class="route-marker"><i class="bi <?= $routeStatus === 'approved' ? 'bi-check-lg' : 'bi-gift' ?>"></i></span>
-                <div class="route-stop-copy"><small><?= $routeStatus === 'approved' ? 'Đã hoàn tất' : 'Kết quả' ?></small><h3>Nhận điểm và theo dõi hiệu quả</h3><p><?= $routeStatus === 'approved' ? 'Nội dung đã được xác minh; bạn có thể theo dõi chỉ số UGC theo nền tảng.' : 'Mở khóa sau khi nội dung của nhiệm vụ hiện tại được duyệt.' ?></p></div>
+                <div class="route-stop-copy"><small><?= $routeStatus === 'approved' ? 'Đã hoàn tất' : 'Kết quả' ?></small><h3>Nhận điểm và xem hiệu quả nội dung</h3><p><?= $routeStatus === 'approved' ? 'Điểm thưởng và số liệu tương tác đã được cập nhật.' : 'Điểm thưởng và số liệu sẽ được cập nhật sau khi nội dung được duyệt.' ?></p></div>
                 <?php if ($routeStatus === 'approved'): ?><span class="status-label status-success">Đã ghi nhận</span><?php endif; ?>
             </article>
         </div>
 
         <section class="route-table-block" aria-labelledby="missionsTitle">
-            <div class="section-title-row"><div><h3 id="missionsTitle">Nhiệm vụ đang chạy</h3><p>Brief phù hợp với vai trò và tiến độ của bạn.</p></div><a href="index.php?page=campaigns">Xem tất cả</a></div>
+            <div class="section-title-row"><div><h3 id="missionsTitle">Chiến dịch đang mở</h3><p>Chọn chiến dịch để xem yêu cầu và thời hạn nộp.</p></div><a href="index.php?page=campaigns">Xem tất cả</a></div>
             <div class="route-table" role="table" aria-label="Nhiệm vụ đang chạy">
                 <?php foreach ($campaigns as $campaign): ?>
                     <a class="route-table-row" role="row" href="index.php?page=campaigns&campaign=<?= (int) $campaign['id'] ?>">
@@ -125,7 +124,7 @@ SQL);
                         <i class="bi bi-chevron-right"></i>
                     </a>
                 <?php endforeach; ?>
-                <?php if (!$campaigns): ?><div class="empty-state compact"><h3>Chưa có nhiệm vụ mới</h3><p>Quay lại sau để xem brief tiếp theo.</p></div><?php endif; ?>
+                <?php if (!$campaigns): ?><div class="empty-state compact"><h3>Chưa có chiến dịch đang mở</h3><p>Danh sách sẽ được cập nhật khi có chiến dịch mới.</p></div><?php endif; ?>
             </div>
         </section>
     </section>
@@ -135,7 +134,7 @@ SQL);
             <div class="rail-heading"><h2>Tiến độ của bạn</h2><span><?= $journeyProgress ?>%</span></div>
             <div class="rail-progress"><span style="--progress: <?= $journeyProgress ?>%"></span></div>
             <dl class="rail-stats">
-                <div><dt>Ví điểm</dt><dd><?= number_format($balance) ?></dd></div>
+                <div><dt>Điểm hiện có</dt><dd><?= number_format($balance) ?></dd></div>
                 <div><dt>Bài đã nộp</dt><dd><?= $submissionCount ?></dd></div>
                 <div><dt>Lượt xem</dt><dd><?= number_format($views) ?></dd></div>
                 <div><dt>Lượt thích</dt><dd><?= number_format($likes) ?></dd></div>
@@ -145,7 +144,7 @@ SQL);
         <section class="rail-section">
             <div class="rail-heading"><h2>Hiệu quả nội dung</h2><span class="status-label status-info">Đã tổng hợp</span></div>
             <div class="rail-key-number"><strong><?= number_format($engagementRate, 1) ?>%</strong><span>Tỷ lệ tương tác</span></div>
-            <div class="rail-list"><p><span>Tổng lượt xem</span><strong><?= number_format($views) ?> views</strong></p><p><span>Tương tác</span><strong><?= number_format($engagements) ?></strong></p></div>
+            <div class="rail-list"><p><span>Tổng lượt xem</span><strong><?= number_format($views) ?></strong></p><p><span>Tương tác</span><strong><?= number_format($engagements) ?></strong></p></div>
             <a class="rail-link" href="index.php?page=my-performance">Xem chỉ số <i class="bi bi-arrow-right"></i></a>
         </section>
 
@@ -162,8 +161,8 @@ SQL);
 </div>
 
 <section class="panel-card leaderboard-panel section-block">
-    <div class="section-title-row"><div><h2>Bảng xếp hạng tích lũy</h2><p>Xếp theo tổng điểm đã được hệ thống xác minh.</p></div><span class="status-label status-neutral"><i class="bi bi-shield-check"></i> Dữ liệu đã kiểm tra</span></div>
+    <div class="section-title-row"><div><h2>Bảng xếp hạng điểm thưởng</h2><p>Xếp hạng theo tổng điểm đã được ghi nhận.</p></div><span class="status-label status-neutral"><i class="bi bi-shield-check"></i> Đã cập nhật</span></div>
     <div class="leaderboard-list">
-        <?php foreach ($leaderboard as $rank => $member): ?><div class="leaderboard-row <?= (int) $member['id'] === (int) $current['id'] ? 'is-me' : '' ?>"><span class="rank-number"><?= $rank + 1 ?></span><span class="avatar avatar-sm"><?= e(initials($member['name'])) ?></span><p><strong><?= e($member['name']) ?><?= (int) $member['id'] === (int) $current['id'] ? ' (Bạn)' : '' ?></strong><small><?= e(ucfirst($member['ambassador_tier'])) ?> · <?= number_format((int) $member['views']) ?> views</small></p><b><?= number_format((int) $member['points']) ?> điểm</b></div><?php endforeach; ?>
+        <?php foreach ($leaderboard as $rank => $member): ?><div class="leaderboard-row <?= (int) $member['id'] === (int) $current['id'] ? 'is-me' : '' ?>"><span class="rank-number"><?= $rank + 1 ?></span><span class="avatar avatar-sm"><?= e(initials($member['name'])) ?></span><p><strong><?= e($member['name']) ?><?= (int) $member['id'] === (int) $current['id'] ? ' (Bạn)' : '' ?></strong><small><?= e(ucfirst($member['ambassador_tier'])) ?> · <?= number_format((int) $member['views']) ?> lượt xem</small></p><b><?= number_format((int) $member['points']) ?> điểm</b></div><?php endforeach; ?>
     </div>
 </section>

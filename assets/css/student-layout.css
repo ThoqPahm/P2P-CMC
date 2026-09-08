@@ -252,6 +252,7 @@
 .student-workspace .transaction-list > div { min-height: 72px; }
 .student-workspace .reward-list > div { min-height: 70px; }
 .student-workspace .reward-list > div > span:first-child { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 10px; background: #f0f6f9; }
+.student-workspace .reward-threshold { max-width: 110px; color: #587184; font-size: .72rem; font-weight: 700; line-height: 1.35; text-align: right; }
 
 /* 6. Copilot */
 .student-workspace .copilot-layout { gap: 18px; grid-template-columns: minmax(0, 1fr) 280px; }
@@ -267,7 +268,13 @@
 .student-workspace .copilot-checklist p { margin-bottom: 14px; line-height: 1.55; }
 
 /* 7. Inbox */
-.student-workspace > .app-main .helper-note:first-child { margin-bottom: 16px; padding: 14px 16px; border: 1px solid #e0eaf0; background: #f6f9fb; }
+.student-workspace .inbox-policy { overflow: hidden; padding: 0; }
+.student-workspace .inbox-policy summary { min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; color: var(--cmc-navy); font-weight: 700; cursor: pointer; list-style: none; }
+.student-workspace .inbox-policy summary::-webkit-details-marker { display: none; }
+.student-workspace .inbox-policy summary span { display: inline-flex; align-items: center; gap: 9px; }
+.student-workspace .inbox-policy summary > i { color: #6d8797; font-size: .8rem; transition: transform .2s ease; }
+.student-workspace .inbox-policy[open] summary > i { transform: rotate(180deg); }
+.student-workspace .inbox-policy p { margin: 0; padding: 0 16px 16px; color: #587184; line-height: 1.55; }
 .student-workspace .inbox-shell { min-height: 650px; border-radius: var(--student-card-radius); }
 .student-workspace .inbox-list-head { min-height: 64px; display: flex; align-items: center; padding: 16px; }
 .student-workspace .inbox-search { margin: 12px; }
