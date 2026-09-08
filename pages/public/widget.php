@@ -85,14 +85,14 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
     <?php if ($widgetAiEnabled): ?>
         <div class="widget-ai-dock" id="widgetAiDock">
             <section class="widget-ai-assistant is-hidden" id="widgetAiAssistant" aria-label="Trợ lý AI hỗ trợ học sinh">
-                <header><span class="widget-ai-avatar"><i class="bi bi-stars"></i></span><div><h2><?= e($widgetSettings['widget_ai_name']) ?></h2><p>Cùng bạn tìm hiểu CMC</p></div><span class="widget-ai-header-actions"><small><i></i> Trợ lý AI</small><button id="widgetAiClose" type="button" aria-label="Thu gọn trợ lý AI"><i class="bi bi-dash-lg"></i></button></span></header>
+                <header><span class="widget-ai-avatar"><i class="bi bi-stars"></i></span><div><h2><?= e($widgetSettings['widget_ai_name']) ?></h2><p>Cùng bạn tìm hiểu CMCU</p></div><span class="widget-ai-header-actions"><small><i></i> Trợ lý AI</small><button id="widgetAiClose" type="button" aria-label="Thu gọn trợ lý AI"><i class="bi bi-dash-lg"></i></button></span></header>
                 <div class="widget-ai-messages" id="widgetAiMessages" aria-live="polite"></div>
                 <div class="widget-ai-ambassadors is-hidden" id="widgetAiAmbassadors"></div>
                 <div class="widget-ai-prompts" id="widgetAiPrompts"><button type="button" data-widget-ai-prompt="Gợi ý đại sứ phù hợp với ngành mình quan tâm"><i class="bi bi-person-check"></i> Tìm đại sứ phù hợp</button><button type="button" data-widget-ai-prompt="Mình có thể hỏi đại sứ những gì?"><i class="bi bi-chat-square-text"></i> Có thể hỏi gì?</button><button type="button" data-widget-ai-prompt="Nếu đại sứ đang offline thì mình phải làm sao?"><i class="bi bi-clock-history"></i> Khi đại sứ offline</button></div>
                 <form class="widget-ai-composer" id="widgetAiForm"><label class="visually-hidden" for="widgetAiInput">Câu hỏi cho trợ lý AI</label><textarea id="widgetAiInput" rows="1" maxlength="600" placeholder="Bạn muốn tìm hiểu điều gì?"></textarea><button type="submit" aria-label="Gửi câu hỏi cho AI"><i class="bi bi-arrow-up"></i></button></form>
                 <footer><i class="bi bi-shield-check"></i> Thông tin tuyển sinh có thể thay đổi. Bạn nhớ xác nhận thêm với trường nhé.</footer>
             </section>
-            <button class="widget-ai-toggle" id="widgetAiToggle" type="button" aria-label="Mở trợ lý AI" aria-controls="widgetAiAssistant" aria-expanded="false"><span class="widget-ai-toggle-icon"><i class="bi bi-stars"></i><span class="widget-ai-toggle-dot" aria-hidden="true"></span></span><span class="widget-ai-toggle-copy" aria-hidden="true"><strong>Hỏi CMC AI</strong><small>Trợ lý tuyển sinh</small></span></button>
+            <button class="widget-ai-toggle" id="widgetAiToggle" type="button" aria-label="Mở trợ lý AI" aria-controls="widgetAiAssistant" aria-expanded="false"><span class="widget-ai-toggle-icon"><i class="bi bi-stars"></i><span class="widget-ai-toggle-dot" aria-hidden="true"></span></span><span class="widget-ai-toggle-copy" aria-hidden="true"><strong>Hỏi CMCU AI</strong><small>Trợ lý tuyển sinh</small></span></button>
         </div>
     <?php endif; ?>
 

@@ -110,7 +110,7 @@ try {
             $settingsToSave = [
                 'widget_ai_enabled' => isset($_POST['widget_ai_enabled']) ? '1' : '0',
                 'widget_ai_provider' => $activeProvider,
-                'widget_ai_name' => mb_substr(trim((string) ($_POST['widget_ai_name'] ?? 'CMC AI')), 0, 60),
+                'widget_ai_name' => mb_substr(trim((string) ($_POST['widget_ai_name'] ?? 'CMCU AI')), 0, 60),
                 'widget_ai_welcome' => mb_substr(trim((string) ($_POST['widget_ai_welcome'] ?? '')), 0, 500),
                 'widget_ai_rules' => mb_substr(trim((string) ($_POST['widget_ai_rules'] ?? '')), 0, 3000),
                 'widget_theme_primary' => $colors['primary'],

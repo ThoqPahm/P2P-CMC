@@ -337,8 +337,13 @@ final class Database
         SQL);
         $db->exec("UPDATE ai_provider_configs SET api_key_encrypted = '' WHERE provider = 'gemini' AND EXISTS (SELECT 1 FROM ai_provider_keys WHERE provider = 'gemini')");
         $db->prepare("UPDATE ui_settings SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE key = 'widget_ai_welcome' AND value = ?")->execute([
-            'Chào bạn, mình là CMC AI. Bạn đang quan tâm điều gì ở CMC? Cứ nói tự nhiên nhé, chưa biết bắt đầu từ đâu cũng không sao.',
+            'Chào bạn, mình là CMCU AI. Bạn đang quan tâm điều gì ở CMCU? Cứ nói tự nhiên nhé, chưa biết bắt đầu từ đâu cũng không sao.',
             'Chào bạn! Mình có thể giải đáp thông tin chung từ dữ liệu của trường hoặc giúp bạn tìm đại sứ phù hợp.',
+        ]);
+        $db->exec("UPDATE ui_settings SET value = 'CMCU AI', updated_at = CURRENT_TIMESTAMP WHERE key = 'widget_ai_name' AND value = 'CMC AI'");
+        $db->prepare("UPDATE ui_settings SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE key = 'widget_ai_welcome' AND value = ?")->execute([
+            'Chào bạn, mình là CMCU AI. Bạn đang quan tâm điều gì ở CMCU? Cứ nói tự nhiên nhé, chưa biết bắt đầu từ đâu cũng không sao.',
+            'Chào bạn, mình là CMC AI. Bạn đang quan tâm điều gì ở CMC? Cứ nói tự nhiên nhé, chưa biết bắt đầu từ đâu cũng không sao.',
         ]);
 
         $knowledgeCount = (int) $db->query('SELECT COUNT(*) FROM ai_knowledge_entries')->fetchColumn();

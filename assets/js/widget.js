@@ -4,7 +4,7 @@
     const config = window.eAmbassadorWidget || { token: '', ambassadors: [], content: [] };
     const ambassadors = Array.isArray(config.ambassadors) ? config.ambassadors : [];
     const publishedContent = Array.isArray(config.content) ? config.content : [];
-    const assistantConfig = config.ai && typeof config.ai === 'object' ? config.ai : { enabled: false, name: 'CMC AI', welcome: '' };
+    const assistantConfig = config.ai && typeof config.ai === 'object' ? config.ai : { enabled: false, name: 'CMCU AI', welcome: '' };
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
     const views = $$('.widget-view');
