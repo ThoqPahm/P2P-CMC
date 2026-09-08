@@ -22,6 +22,7 @@ NGUYÊN TẮC BẮT BUỘC:
 {"answer":"...","intent":"general|social|clarify|recommend|handoff","source_ids":[1],"ambassador_ids":[2],"suggested_questions":["..."]}
 social/clarify/handoff có thể không có source_ids khi KHÔNG đưa dữ kiện nhà trường. general cần source_ids; recommend cần ambassador_ids. Không được gắn intent hội thoại để đưa dữ kiện không nguồn.
 source_ids và ambassador_ids chỉ được lấy từ JSON đầu vào. suggested_questions tối đa 3 câu.
+12. Mỗi suggested_questions là câu HỌC SINH có thể bấm để gửi cho AI, viết từ vai học sinh bằng “mình” hoặc dạng yêu cầu trực tiếp. Không viết câu AI hỏi học sinh như “Bạn đang quan tâm khía cạnh nào?”, “Bạn muốn tìm hiểu gì?” hoặc “Bạn cần hỗ trợ phần nào?”. Ví dụ đúng: “IoT có những hướng nào để mình tìm hiểu?”, “Giúp mình so sánh hai ngành”, “Mình muốn xem học phí ngành này”.
 PROMPT;
 
     /** @return array{answer: string, provider: string, model: string, source_titles: array<int, string>, ambassador_ids: array<int, int>, suggested_questions: array<int, string>} */
@@ -497,10 +498,10 @@ PROMPT;
         if (!$sourceIds && !$ambassadorIds && !$conversationalIntent) {
             return null;
         }
-        $questions = array_values(array_filter(array_map(
-            static fn(mixed $item): string => is_string($item) ? mb_substr(trim($item), 0, 120) : '',
+        $questions = array_values(array_unique(array_filter(array_map(
+            static fn(mixed $item): string => is_string($item) ? self::normalizeSuggestedQuestion($item) : '',
             is_array($ai['suggested_questions'] ?? null) ? $ai['suggested_questions'] : []
-        )));
+        ))));
         return [
             'answer' => $answer,
             'source_ids' => $sourceIds,
@@ -512,6 +513,40 @@ PROMPT;
     private static function containsInternalLeak(string $answer): bool
     {
         return preg_match('/(?:source_ids|ambassador_ids|suggested_questions|ADMIN_RULES|CONVERSATION_GUIDANCE|KNOWLEDGE\s*(?:id|\[|:)|HISTORY\s*[:\[]|QUESTION\s*[:\[]|```|JSON\s*object)/ui', $answer) === 1;
+    }
+
+    private static function normalizeSuggestedQuestion(string $question): string
+    {
+        $question = mb_substr(trim(preg_replace('/\s+/u', ' ', $question) ?? $question), 0, 120);
+        if ($question === '') return '';
+
+        if (preg_match('/^Bạn (?:đang )?quan tâm khía cạnh nào của (.+?)[?？]?$/ui', $question, $match) === 1) {
+            return mb_substr(rtrim(trim($match[1]), '.?! ') . ' có những khía cạnh nào để mình tìm hiểu?', 0, 120);
+        }
+        if (preg_match('/^Bạn (?:có )?muốn mình (.+?)(?: không)?[?？]?$/ui', $question, $match) === 1) {
+            return mb_substr('Giúp mình ' . rtrim(trim($match[1]), '.?! '), 0, 120);
+        }
+        if (preg_match('/^Bạn có muốn (.+?)(?: không)?[?？]?$/ui', $question, $match) === 1) {
+            return mb_substr('Mình muốn ' . rtrim(trim($match[1]), '.?! '), 0, 120);
+        }
+
+        $studentVoicePrefixes = [
+            '/^Bạn (?:đang )?muốn\s+/ui' => 'Mình muốn ',
+            '/^Bạn (?:đang )?cần\s+/ui' => 'Mình cần ',
+            '/^Bạn đang phân vân\s+/ui' => 'Mình đang phân vân ',
+            '/^Bạn (?:đang )?quan tâm\s+/ui' => 'Mình muốn tìm hiểu ',
+        ];
+        foreach ($studentVoicePrefixes as $pattern => $replacement) {
+            if (preg_match($pattern, $question) === 1) {
+                return mb_substr((string) preg_replace($pattern, $replacement, $question, 1), 0, 120);
+            }
+        }
+
+        // Suggestions must be messages from the student to the assistant, not prompts aimed back at the student.
+        if (preg_match('/^Bạn (?:thích|nghiêng về|ưu tiên|chọn|thấy|định|mong|lo|có|đã|sẽ)\b/ui', $question) === 1) {
+            return '';
+        }
+        return $question;
     }
 
     /** @return array<int, string> */
