@@ -3,6 +3,34 @@ declare(strict_types=1);
 
 final class AmbassadorProfiles
 {
+    private const ENTRY_YEAR_BY_STUDY_YEAR = [1 => '25', 2 => '24', 3 => '23', 4 => '22'];
+
+    public static function studentCodePrefix(string $major): string
+    {
+        $major = mb_strtolower(trim($major), 'UTF-8');
+        if (str_contains($major, 'ngôn ngữ hàn')) return 'BKL';
+        if (str_contains($major, 'ngôn ngữ nhật')) return 'BJL';
+        if (str_contains($major, 'thiết kế đồ họa') || str_contains($major, 'thiết kế đồ hoạ')) return 'BGD';
+        if (str_contains($major, 'khoa học máy tính')) return 'BCS';
+        if (str_contains($major, 'công nghệ thông tin') || str_contains($major, 'cntt')) return 'BIT';
+        foreach (['kinh tế', 'kinh doanh', 'quản trị', 'marketing', 'kế toán', 'tài chính'] as $businessMajor) {
+            if (str_contains($major, $businessMajor)) return 'BBA';
+        }
+        throw new InvalidArgumentException('Chưa có nhóm mã sinh viên cho ngành: '.$major);
+    }
+
+    public static function entryYearForStudyYear(int $studyYear): string
+    {
+        return self::ENTRY_YEAR_BY_STUDY_YEAR[$studyYear]
+            ?? throw new InvalidArgumentException('Năm học phải nằm trong khoảng 1-4.');
+    }
+
+    public static function isValidStudentCode(string $code, string $major, int $studyYear): bool
+    {
+        $stem = self::studentCodePrefix($major).self::entryYearForStudyYear($studyYear);
+        return preg_match('/^'.preg_quote($stem, '/').'1\d{3}$/D', $code) === 1;
+    }
+
     public static function samples(): array
     {
         $profiles=json_decode(file_get_contents(__DIR__.'/../data/ambassador-samples.json'),true,512,JSON_THROW_ON_ERROR);
@@ -11,6 +39,9 @@ final class AmbassadorProfiles
             $p['number']=$i+1; $p['key']='campus-profile-'.$suffix;
             $p['avatar']='assets/img/ambassadors/portrait-'.$suffix.'.png';
             $p['bio']=explode('. ', $p['about'])[0].'.';
+            if (!self::isValidStudentCode((string)($p['student_code'] ?? ''), (string)$p['major'], (int)$p['year'])) {
+                throw new RuntimeException('Mã sinh viên không khớp ngành hoặc năm học: '.$p['name']);
+            }
         }
         unset($p); return $profiles;
     }
@@ -23,6 +54,7 @@ final class AmbassadorProfiles
             languages TEXT NOT NULL DEFAULT '', advice TEXT NOT NULL DEFAULT '',
             sample_key TEXT UNIQUE, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )");
+        self::syncBundledStudentCodes($db);
     }
 
     public static function details(PDO $db, int $id): array
@@ -74,7 +106,7 @@ final class AmbassadorProfiles
                 $q=$db->prepare('SELECT 1 FROM users WHERE email=?');$q->execute([$email]);
                 if($q->fetchColumn()) throw new RuntimeException('Sample email collision: '.$key);
                 $db->prepare("INSERT INTO users(role,name,email,password,student_code,major,hometown,interests,bio,avatar,study_year,status,is_online,policy_status) VALUES('ambassador',?,?,?,?,?,?,?,?,?,?,'active',0,'approved')")
-                    ->execute([$profile['name'],$email,password_hash(bin2hex(random_bytes(32)),PASSWORD_DEFAULT),'DS'.str_pad((string)$profile['number'],4,'0',STR_PAD_LEFT),$profile['major'],$profile['hometown'],$profile['interests'],$profile['bio'],$profile['avatar'],$profile['year']]);
+                    ->execute([$profile['name'],$email,password_hash(bin2hex(random_bytes(32)),PASSWORD_DEFAULT),$profile['student_code'],$profile['major'],$profile['hometown'],$profile['interests'],$profile['bio'],$profile['avatar'],$profile['year']]);
                 $id=(int)$db->lastInsertId();
                 $db->prepare('INSERT INTO ambassador_profiles(user_id,about,topics,activities,projects,languages,advice,sample_key) VALUES(?,?,?,?,?,?,?,?)')->execute([$id,$profile['about'],$profile['topics'],$profile['activities'],$profile['projects'],$profile['languages'],$profile['advice'],$key]);
                 $count++;
@@ -82,5 +114,12 @@ final class AmbassadorProfiles
             if ($recordInstallation) $db->exec("INSERT OR IGNORE INTO ambassador_fixture_versions(version) VALUES('profiles-v1')");
             $db->commit();return $count;
         } catch(Throwable $e) {$db->rollBack();throw $e;}
+    }
+
+    /** Upgrade only bundled legacy DS codes; preserve codes edited by an administrator. */
+    private static function syncBundledStudentCodes(PDO $db): void
+    {
+        $update=$db->prepare("UPDATE users SET student_code=? WHERE id=(SELECT user_id FROM ambassador_profiles WHERE sample_key=?) AND student_code LIKE 'DS%'");
+        foreach (self::samples() as $profile) $update->execute([$profile['student_code'],$profile['key']]);
     }
 }

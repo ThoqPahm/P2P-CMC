@@ -286,6 +286,16 @@ final class Database
             self::seed($db);
         }
 
+        // Replace only known legacy demo codes so administrator-edited records remain untouched.
+        $studentCodes = [
+            ['BIT241104', 'student@cmc.edu.vn', 'CMC220104'],
+            ['BBA231218', 'ambassador@cmc.edu.vn', 'CMC210218'],
+            ['BIT221087', 'nam@cmc.edu.vn', 'CMC200087'],
+            ['BGD241331', 'linh@cmc.edu.vn', 'CMC220331'],
+        ];
+        $updateStudentCode = $db->prepare('UPDATE users SET student_code=? WHERE email=? AND student_code=?');
+        foreach ($studentCodes as $studentCode) $updateStudentCode->execute($studentCode);
+
         // Demo initialization runs only for a new database, not on every request.
         if ($count === 0) {
         $db->exec(<<<'SQL'
@@ -402,10 +412,10 @@ final class Database
 
             $users = [
                 ['admin', 'Phòng Tuyển sinh CMC', 'admin@cmc.edu.vn', $password, null, null, null, null, null, null, null, 1],
-                ['student', 'Nguyễn Hà An', 'student@cmc.edu.vn', $password, 'CMC220104', 'Công nghệ thông tin', 'Hà Nội', 'Công nghệ, nhiếp ảnh', 'Mình thích kể chuyện về cuộc sống sinh viên qua những video ngắn.', null, 2, 1],
-                ['ambassador', 'Trần Minh Anh', 'ambassador@cmc.edu.vn', $password, 'CMC210218', 'Marketing', 'Hải Phòng', 'Truyền thông, câu lạc bộ, du lịch', 'Đại sứ năm 3, sẵn sàng chia sẻ thật về học tập và hoạt động tại CMC.', null, 3, 1],
-                ['ambassador', 'Lê Đức Nam', 'nam@cmc.edu.vn', $password, 'CMC200087', 'Công nghệ thông tin', 'Nam Định', 'AI, lập trình, bóng đá', 'Mình có thể giúp bạn hiểu rõ lộ trình học, đồ án và cơ hội thực tập ngành CNTT.', null, 4, 0],
-                ['ambassador', 'Phạm Khánh Linh', 'linh@cmc.edu.vn', $password, 'CMC220331', 'Thiết kế đồ họa', 'Đà Nẵng', 'Minh họa, phim ảnh, âm nhạc', 'Yêu thiết kế và luôn sẵn lòng chia sẻ hành trình từ tân sinh viên đến portfolio đầu tiên.', null, 2, 1],
+                ['student', 'Nguyễn Hà An', 'student@cmc.edu.vn', $password, 'BIT241104', 'Công nghệ thông tin', 'Hà Nội', 'Công nghệ, nhiếp ảnh', 'Mình thích kể chuyện về cuộc sống sinh viên qua những video ngắn.', null, 2, 1],
+                ['ambassador', 'Trần Minh Anh', 'ambassador@cmc.edu.vn', $password, 'BBA231218', 'Marketing', 'Hải Phòng', 'Truyền thông, câu lạc bộ, du lịch', 'Đại sứ năm 3, sẵn sàng chia sẻ thật về học tập và hoạt động tại CMC.', null, 3, 1],
+                ['ambassador', 'Lê Đức Nam', 'nam@cmc.edu.vn', $password, 'BIT221087', 'Công nghệ thông tin', 'Nam Định', 'AI, lập trình, bóng đá', 'Mình có thể giúp bạn hiểu rõ lộ trình học, đồ án và cơ hội thực tập ngành CNTT.', null, 4, 0],
+                ['ambassador', 'Phạm Khánh Linh', 'linh@cmc.edu.vn', $password, 'BGD241331', 'Thiết kế đồ họa', 'Đà Nẵng', 'Minh họa, phim ảnh, âm nhạc', 'Yêu thiết kế và luôn sẵn lòng chia sẻ hành trình từ tân sinh viên đến portfolio đầu tiên.', null, 2, 1],
                 ['prospect', 'Mai Thu', 'maithu@example.com', $password, null, 'Marketing', 'Hà Nội', null, null, null, null, 1],
             ];
             foreach ($users as $row) {
