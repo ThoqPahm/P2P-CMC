@@ -145,11 +145,18 @@
         $$('.inbox-thread', list).forEach((button) => button.addEventListener('click', () => openStoredConversation(Number(button.dataset.conversationId))));
     };
 
+    const resizeAssistantInput = (input = $('#widgetAiInput')) => {
+        if (!input) return;
+        input.style.height = 'auto';
+        input.style.height = `${Math.min(Math.max(input.scrollHeight, 44), 100)}px`;
+    };
+
     const bindAssistantPrompts = (root = document) => {
         $$('[data-widget-ai-prompt]', root).forEach((button) => button.addEventListener('click', () => {
             const input = $('#widgetAiInput');
             if (!input) return;
             input.value = button.dataset.widgetAiPrompt || '';
+            resizeAssistantInput(input);
             $('#widgetAiForm').requestSubmit();
         }));
     };
@@ -764,6 +771,9 @@
 
     ['#widgetSearch', '#majorFilter', '#hometownFilter', '#yearFilter'].forEach((selector) => $(selector).addEventListener('input', renderAmbassadors));
     if ($('#widgetAiForm')) {
+        const assistantInput = $('#widgetAiInput');
+        assistantInput.addEventListener('input', () => resizeAssistantInput(assistantInput));
+        resizeAssistantInput(assistantInput);
         assistantToggle.addEventListener('click', () => setAssistantOpen(assistantPanel.classList.contains('is-hidden'), true));
         $('#widgetAiClose').addEventListener('click', () => setAssistantOpen(false, true));
         bindAssistantPrompts($('#widgetAiPrompts'));
@@ -779,6 +789,7 @@
             assistantHistory = assistantHistory.slice(-20);
             persistAssistantHistory();
             input.value = '';
+            resizeAssistantInput(input);
             input.disabled = true;
             submitButton.disabled = true;
             renderAssistantHistory(true);
