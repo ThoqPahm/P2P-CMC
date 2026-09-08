@@ -14,6 +14,6 @@ $typography = file_get_contents("$root/assets/css/typography.css");
 if (!str_contains($typography, 'font-family: Inter;') || !str_contains($typography, 'font-family: Syne, "Trebuchet MS", sans-serif;')) throw new RuntimeException('Body/wordmark fonts must remain distinct');
 foreach (['includes/header.php', 'pages/public/widget.php'] as $entry) {
     $html = file_get_contents("$root/$entry");
-    if (!str_contains($html, 'family=Syne') || !str_contains($html, 'typography.css') || !str_contains($html, 'phosphor.css')) throw new RuntimeException("Missing requested font/icon assets: $entry");
+    if (!str_contains($html, 'family=Syne') || !str_contains($html, 'typography.css') || !str_contains($html, 'animateicons.css')) throw new RuntimeException("Missing requested font/icon assets: $entry");
 }
-echo "PASS original login markup, Inter body, Syne wordmark and Phosphor entry points.\n";
+echo "PASS original login markup, Inter body, Syne wordmark and AnimateIcons entry points.\n";

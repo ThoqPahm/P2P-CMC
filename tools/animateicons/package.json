@@ -1,0 +1,8 @@
+{
+  "name": "cmc-animateicons-build",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node build.mjs" },
+  "dependencies": { "@animateicons/react": "0.5.0", "react": "19.2.4", "react-dom": "19.2.4" },
+  "devDependencies": { "esbuild": "0.25.12" }
+}

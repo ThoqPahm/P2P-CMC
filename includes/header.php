@@ -21,8 +21,8 @@ $isLogin = ($page ?? '') === 'login';
     <?php if (($page ?? '') === 'admin-widget'): ?><link href="assets/css/widget-admin.css?v=2" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'super-admin'): ?><link href="assets/css/super-admin.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (!in_array($page ?? '', ['admin-dashboard','admin-campaigns','admin-moderation','widget','login'],true)): ?><link href="assets/css/ui-refinements.css?v=1" rel="stylesheet"><?php endif; ?>
-    <link href="assets/icons/phosphor.css?v=1" rel="stylesheet">
-    <link href="assets/css/icon-system.css?v=2" rel="stylesheet">
+    <link href="assets/icons/animateicons.css?v=1" rel="stylesheet">
+    <link href="assets/css/icon-system.css?v=3" rel="stylesheet">
     <?php if (in_array($page ?? '', ['campaigns', 'admin-campaigns'], true)): ?><link href="assets/css/campaign-cards.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'admin-moderation'): ?><link href="assets/css/moderation.css?v=1" rel="stylesheet"><?php endif; ?>
     <link href="assets/css/typography.css?v=2" rel="stylesheet">

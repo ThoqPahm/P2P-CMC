@@ -1,73 +1,22 @@
-/* Taste: preserve CMC layout (variance 3, density 5); restrained feedback (motion 3).
-   Phosphor SVGs keep their authored shapes/weights. Icons inherit light/dark surface ink. */
-.bi {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-style: normal;
-    line-height: 1;
-    vertical-align: -.125em;
-}
-.bi::before {
-    content: "";
-    display: block;
-    width: 1em;
-    height: 1em;
-    flex: 0 0 1em;
-    background-color: currentColor;
-    -webkit-mask: var(--icon-regular) center / contain no-repeat;
-    mask: var(--icon-regular) center / contain no-repeat;
-    mask-mode: alpha;
-}
+/* AnimateIcons SVG adapter. Icon geometry only; existing UI layout is unchanged. */
+.bi { position: relative; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-style: normal; line-height: 1; vertical-align: -.125em; }
+.bi::before { content: ""; display: block; width: 1em; height: 1em; flex: 0 0 1em; background-color: currentColor; -webkit-mask: var(--icon-regular) center / contain no-repeat; mask: var(--icon-regular) center / contain no-repeat; mask-mode: alpha; }
 .sidebar-link > .bi { font-size: 19px; }
 :is(.route-item-icon,.context-icon) > .bi { font-size: 18px; }
 .widget-navigation button > .bi { font-size: 18px; }
-:is(.sidebar-link,.metric-icon,.route-item-icon,.context-icon,.widget-ai-avatar,.widget-ai-toggle,.offline-dialog-icon,.feedback-icon,.widget-empty,.empty-state) .bi::before {
-    -webkit-mask-image: var(--icon-duotone);
-    mask-image: var(--icon-duotone);
-}
-/* Keep small state symbols sharp; these carry meaning rather than decoration. */
-:is(.status-label,.presence,.verified-badge) .bi::before {
-    -webkit-mask-image: var(--icon-regular);
-    mask-image: var(--icon-regular);
-}
-/* Bootstrap's built-in hamburger and close button use the same SVG family. */
-.navbar-toggler-icon,.btn-close {
-    background-image: none;
-}
-.navbar-toggler-icon::before,.btn-close::before {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 100%;
-    background: currentColor;
-    -webkit-mask: var(--icon-regular) center / contain no-repeat;
-    mask: var(--icon-regular) center / contain no-repeat;
-}
-@media (prefers-reduced-motion: no-preference) {
-    :is(a,button,summary) .bi::before { transition: transform 180ms cubic-bezier(.2,.8,.2,1), opacity 180ms ease; }
-    :is(a,button,summary):focus-visible .bi::before { transform: translateY(-1px); }
-    :is(a,button,summary):active .bi::before { transform: scale(.91); }
-    @media (hover: hover) and (pointer: fine) {
-        :is(.sidebar-link,.btn,.primary-action,.secondary-action,.widget-navigation button):hover .bi::before { transform: translateY(-1px) scale(1.08); }
-        :is(a,button):hover :is(.bi-arrow-right,.bi-arrow-up-right,.bi-box-arrow-up-right)::before { transform: translate(2px,-1px); }
-        :is(a,button):hover :is(.bi-send,.bi-send-fill,.bi-send-check)::before { transform: translate(2px,-2px) rotate(-7deg); }
-        :is(a,button):hover .bi-bell::before { animation: icon-bell-feedback 420ms ease-out 1; transform-origin: 50% 15%; }
-        :is(a,button):hover .bi-stars::before { transform: rotate(-12deg) scale(1.12); }
-    }
-    @keyframes icon-bell-feedback { 0%,100% { transform: rotate(0); } 25% { transform: rotate(12deg); } 60% { transform: rotate(-9deg); } 80% { transform: rotate(4deg); } }
-}
-@media (prefers-reduced-motion: reduce) {
-    .bi::before { animation: none !important; transition: none !important; transform: none !important; }
-    .widget-ai-toggle > .bi { transition: none; }
-}
-/* CurrentColor masks retain contrast even in OS high-contrast mode. */
-/* Navigation stays stationary when hover/focus is restored after a page load. */
-.sidebar-link .bi::before,
-.sidebar-link:hover .bi::before,
-.sidebar-link:focus-visible .bi::before,
+.navbar-toggler-icon,.btn-close { background-image: none; }
+.navbar-toggler-icon::before,.btn-close::before { content: ""; display: block; width: 100%; height: 100%; background: currentColor; -webkit-mask: var(--icon-regular) center / contain no-repeat; mask: var(--icon-regular) center / contain no-repeat; }
+/* Keep the placeholder in flow while the animated SVG overlays it. */
+.bi.animateicons-playing::before { visibility: hidden; }
+.animateicons-mount { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.animateicons-mount > div { display: inline-flex; line-height: 0; }
+.animateicons-mount svg { display: block; overflow: visible; }
+/* Never translate the navigation label or its fixed icon placeholder. */
 .sidebar-link:active .bi::before { transform: none; animation: none; transition: none; }
+@media (prefers-reduced-motion: reduce) {
+    .animateicons-mount { display: none; }
+    .bi.animateicons-playing::before { visibility: visible; }
+}
 @media (forced-colors: active) {
     .bi::before,.navbar-toggler-icon::before,.btn-close::before { forced-color-adjust: none; background-color: CanvasText; }
     :is(button,a) .bi::before { background-color: LinkText; }

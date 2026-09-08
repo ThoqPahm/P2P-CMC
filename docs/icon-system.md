@@ -1,20 +1,36 @@
-# Phosphor icon system
+# Icon system: AnimateIcons
 
-Replaces Bootstrap Icons throughout admin, student, login and embedded widget surfaces. The icon-only scope supersedes the previous screenshot icon freeze; page layouts, CMC branding, Microsoft branding and the thesis PDF remain unchanged.
+Source: https://github.com/Avijit07x/animateicons. Pinned npm package @animateicons/react 0.5.0 (MIT).
 
-Source: https://github.com/phosphor-icons/core, version 2.1.1, MIT license in `assets/icons/LICENSE`.
+The owner's requested migration replaces the previous Phosphor runtime. Existing bi-* classes remain semantic adapters so templates, labels, layout, CMC artwork, Inter and the Syne eAmbassador wordmark do not change. 120 aliases map to 88 official components in tools/animateicons/mapping.json. Where there is no exact glyph, a related symbol from the same catalog is used (for example Tags for hash and BookOpenCheck for education).
 
-The existing `bi-*` class names remain semantic adapters so PHP and dynamically rendered JavaScript use the same family without changing event handlers. `tools/icon-map.json` maps 120 existing names to 93 Phosphor shapes. Regular weight is used for controls; duotone for navigation and larger feature icons. Authored SVG geometry is unchanged. SVG alpha masks inherit the current text color on both light and dark surfaces.
+## Runtime and hosting
 
-Assets are vendored in `assets/icons/phosphor.css`. Production needs no npm build, icon font, CDN or client-side SVG replacement. The shadow-DOM embed launcher contains the same officially sourced chat icon inline. Brand logos are deliberately not substituted with generic icons.
+- assets/icons/animateicons.css contains static SVG masks rendered from the official React components at build time. Icons remain visible if JS fails or is disabled.
+- assets/js/animateicons.js is a prebuilt local production bundle (React, ReactDOM, AnimateIcons with bundled Motion). No CDN modules or npm are required on hosting.
+- Only an interacted-with icon mounts a React component. Animated SVGs overlay the same fixed placeholder; links, buttons and labels are not React-controlled or translated.
+- Hover and keyboard focus trigger animation; reduced-motion preference keeps the static icon. Removed widget nodes and changed icon classes are cleaned up.
+- The shadow-DOM embed launcher uses the same official MessageCircleMore SVG, with its lightweight existing CSS hover effect. It does not load a second React bundle into the host site.
+- The old Phosphor assets/build tool remain for historical reproducibility but no page loads them.
 
-Rebuild from the official `@phosphor-icons/core@2.1.1` npm archive, extracted to a temporary directory:
+On cPanel, run only git pull origin main. No database or server configuration change is needed for this release.
+
+## Rebuilding locally
+
+Run from tools/animateicons:
 
 ```sh
-php tools/build-icons.php /path/to/extracted/package
-php tests/icons.php
+npm ci --ignore-scripts
+npm run build
 ```
 
-Motion is interaction-only: send arrows nudge toward their destination, navigation icons lift slightly, the bell makes one brief movement on hover. Keyboard focus has equivalent feedback. `prefers-reduced-motion` disables these effects. No permanent icon animation, new JavaScript runtime or changes to application state.
+Commit the generated CSS, JS, manifest and licenses together. Do not upload node_modules. The package lock pins dependencies. The build uses only exports present in the official package and fails on missing symbols.
 
-Taste design read: targeted visual refinement for students and university staff; clean, rounded iconography within the existing Bootstrap/CMC visual system. Variance 3, motion 3, density 5. Landing-page-specific rules do not apply to this icon-only product UI change.
+## Verification
+
+- php tests/icons.php: 120 aliases covered and 88 valid SVGs, no unsafe SVG elements.
+- php tests/original-ui.php: original login markup, Inter body, Syne wordmark and new icon entry points.
+- php tests/navigation-stability.php: no menu label translation and stable scrollbar gutter.
+- Browser: bell hover mounts the actual component; button coordinates and 40x40 dimensions are identical before/after interaction. Pointer leave restores the static mask. No JS errors observed in this flow.
+
+Licenses are distributed next to the icon assets; the bundle's legal-notice file must be retained. The JS bundle is about 400 KiB before HTTP compression; this is an explicit cost of using the official React/Motion components instead of only static masks.

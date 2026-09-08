@@ -2,9 +2,9 @@
 declare(strict_types=1);
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 $root=dirname(__DIR__);
-$mapping=json_decode(file_get_contents($root.'/tools/icon-map.json'),true,512,JSON_THROW_ON_ERROR);
-$aliases=array_merge(...array_values($mapping));
-$css=file_get_contents($root.'/assets/icons/phosphor.css');
+$mapping=json_decode(file_get_contents($root.'/tools/animateicons/mapping.json'),true,512,JSON_THROW_ON_ERROR);
+$aliases=array_keys($mapping);
+$css=file_get_contents($root.'/assets/icons/animateicons.css');
 $missing=[];
 foreach(['app','pages','includes','assets/js','assets/css'] as $dir) {
     foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root.'/'.$dir,FilesystemIterator::SKIP_DOTS)) as $file) {
@@ -28,6 +28,6 @@ foreach($assets[1] as $asset) {
 }
 foreach(['includes/header.php','pages/public/widget.php'] as $entry) {
     $html=file_get_contents($root.'/'.$entry);
-    if(str_contains($html,'bootstrap-icons')||!str_contains($html,'assets/css/icon-system.css'))throw new RuntimeException('Incorrect asset loading: '.$entry);
+    if(str_contains($html,'bootstrap-icons')||str_contains($html,'phosphor.css')||!str_contains($html,'assets/icons/animateicons.css'))throw new RuntimeException('Incorrect asset loading: '.$entry);
 }
-echo 'PASS: '.count($aliases).' aliases covered; '.count($assets[1])." valid local SVGs; both entry points use Phosphor.\n";
+echo 'PASS: '.count($aliases).' aliases covered; '.count($assets[1])." valid local SVGs; both entry points use AnimateIcons.\n";
