@@ -7,6 +7,7 @@ $ambassadors = AmbassadorProfiles::directory($db);
 $answeredQuestions = (int) scalar("SELECT COUNT(*) FROM messages m JOIN users u ON u.id = m.sender_id WHERE u.role = 'ambassador'");
 $publishedContent = rows(<<<'SQL'
     SELECT s.id, s.content_type, s.content_url, s.caption, s.platform, s.blog_title, s.blog_excerpt, s.blog_body,
+           s.cover_image, s.source_label,
            s.views, s.likes, s.submitted_at, u.name AS author_name, u.major AS author_major, c.title AS campaign_title
     FROM submissions s
     JOIN users u ON u.id = s.user_id
@@ -41,6 +42,8 @@ $contentData = array_map(static fn(array $item): array => [
     'excerpt' => $item['content_type'] === 'blog' ? ($item['blog_excerpt'] ?: $item['caption']) : $item['campaign_title'],
     'body' => $item['content_type'] === 'blog' ? (string) $item['blog_body'] : '',
     'url' => $item['content_url'],
+    'coverImage' => (string) ($item['cover_image'] ?? ''),
+    'sourceLabel' => (string) ($item['source_label'] ?? ''),
     'author' => $item['author_name'],
     'authorMajor' => $item['author_major'],
     'authorInitials' => initials($item['author_name']),
@@ -59,10 +62,10 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
-    <title>Tư vấn cùng đại sứ CMC</title>
+    <title>Tư vấn cùng đại sứ CMCU</title>
     <link rel="icon" href="assets/img/cmc-university.svg" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
-    <link href="assets/css/widget.css?v=27" rel="stylesheet">
+    <link href="assets/css/widget.css?v=28" rel="stylesheet">
     <link href="assets/icons/animateicons.css?v=2" rel="stylesheet">
     <link href="assets/css/icon-system.css?v=3" rel="stylesheet">
     <link href="assets/css/typography.css?v=2" rel="stylesheet">
@@ -115,7 +118,7 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
     </section>
 
     <section class="widget-view widget-content is-hidden" id="contentView">
-        <div class="content-heading"><div><h1>Câu chuyện từ đại sứ CMC</h1><p>Trải nghiệm học tập và đời sống sinh viên được chia sẻ bởi người đang học.</p></div><span><strong><?= count($contentData) ?></strong> nội dung đã duyệt</span></div>
+        <div class="content-heading"><div><h1>Câu chuyện từ đại sứ CMCU</h1><p>Trải nghiệm học tập và đời sống sinh viên được chia sẻ bởi người đang học.</p></div><span><strong><?= count($contentData) ?></strong> nội dung đã duyệt</span></div>
         <label class="widget-search content-search"><i class="bi bi-search"></i><input id="contentSearch" type="search" placeholder="Tìm chủ đề, ngành học hoặc đại sứ..."></label>
         <div class="content-filter" role="group" aria-label="Loại nội dung"><button class="is-active" type="button" data-content-type="all">Tất cả</button><button type="button" data-content-type="blog">Bài viết</button><button type="button" data-content-type="social">Video &amp; UGC</button></div>
         <div class="content-grid" id="contentGrid"></div>
@@ -123,8 +126,8 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
     </section>
 
     <article class="widget-view content-detail is-hidden" id="contentDetailView">
-        <div class="content-detail-cover"><span id="detailFormat"></span><i class="bi bi-journal-richtext" id="detailIcon"></i></div>
-        <div class="content-detail-copy"><h1 id="detailTitle"></h1><p class="content-detail-lead" id="detailExcerpt"></p><div class="content-author"><span id="detailAuthorAvatar"></span><div><strong id="detailAuthor"></strong><small id="detailAuthorMeta"></small></div></div><div class="content-article-body" id="detailBody"></div><a class="content-source is-hidden" id="detailSource" href="#" target="_blank" rel="noopener">Xem nội dung gốc <i class="bi bi-box-arrow-up-right"></i></a></div>
+        <div class="content-detail-cover" id="detailCover"><img class="is-hidden" id="detailCoverImage" alt=""><span id="detailFormat"></span><i class="bi bi-journal-richtext" id="detailIcon"></i></div>
+        <div class="content-detail-copy"><h1 id="detailTitle"></h1><p class="content-detail-lead" id="detailExcerpt"></p><div class="content-detail-media is-hidden" id="detailMedia"></div><div class="content-author"><span id="detailAuthorAvatar"></span><div><strong id="detailAuthor"></strong><small id="detailAuthorMeta"></small></div></div><div class="content-article-body" id="detailBody"></div><a class="content-source is-hidden" id="detailSource" href="#" target="_blank" rel="noopener">Xem nội dung gốc <i class="bi bi-box-arrow-up-right"></i></a></div>
     </article>
 
     <section class="widget-view widget-profile is-hidden" id="profileView" aria-live="polite">
@@ -229,7 +232,7 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData, 'ai' => ['enabled' => $widgetAiEnabled, 'name' => $widgetSettings['widget_ai_name'], 'welcome' => $widgetSettings['widget_ai_welcome']]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=29"></script>
+<script src="assets/js/widget.js?v=30"></script>
 <script src="assets/js/animateicons.js?v=2" defer></script>
 </body>
 </html>

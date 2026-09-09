@@ -414,6 +414,16 @@
             ? `<img src="${escapeHtml(path)}" alt="" width="96" height="96" loading="lazy">`
             : escapeHtml(person.initials || '');
     };
+    const safeContentImage = (value) => {
+        const path = String(value || '');
+        return /^assets\/img\/content\/[a-zA-Z0-9/_-]+\.(png|jpe?g|webp)$/.test(path) ? path : '';
+    };
+    const contentCoverMarkup = (item) => {
+        const image = safeContentImage(item.coverImage);
+        const icon = item.type === 'blog' ? 'bi-journal-richtext' : 'bi-play-circle';
+        return `${image ? `<img src="${escapeHtml(image)}" alt="" loading="lazy">` : ''}<span>${escapeHtml(item.format)}</span><i class="bi ${icon}"></i>`;
+    };
+    const tiktokVideoId = (url) => String(url || '').match(/^https?:\/\/(?:www\.)?tiktok\.com\/@[^/]+\/video\/(\d+)/i)?.[1] || '';
     const renderAmbassadors = () => {
         const search = $('#widgetSearch').value.trim().toLocaleLowerCase('vi');
         const major = $('#majorFilter').value;
@@ -563,7 +573,7 @@
         });
         $('#contentGrid').innerHTML = filtered.map((item) => `
             <button class="content-card" type="button" data-content-id="${item.id}">
-                <span class="content-card-cover type-${item.type}"><span>${escapeHtml(item.format)}</span><i class="bi ${item.type === 'blog' ? 'bi-journal-richtext' : 'bi-play-circle'}"></i></span>
+                <span class="content-card-cover type-${item.type}${safeContentImage(item.coverImage) ? ' has-image' : ''}">${contentCoverMarkup(item)}</span>
                 <span class="content-card-body"><span class="content-card-title">${escapeHtml(item.title)}</span><span class="content-card-excerpt">${escapeHtml(item.excerpt)}</span><span class="content-card-author"><span>${escapeHtml(item.authorInitials)}</span><span><strong>${escapeHtml(item.author)}</strong><small>${escapeHtml(item.authorMajor)} · ${escapeHtml(item.publishedAt)}</small></span></span><span class="content-card-meta"><span><i class="bi bi-eye"></i> ${Number(item.views).toLocaleString('vi-VN')}</span><span><i class="bi bi-heart"></i> ${Number(item.likes).toLocaleString('vi-VN')}</span><i class="bi bi-arrow-right"></i></span></span>
             </button>`).join('');
         $('#contentEmpty').classList.toggle('is-hidden', filtered.length > 0);
@@ -575,19 +585,33 @@
         if (!item) return;
         $('#detailFormat').textContent = item.format;
         $('#detailIcon').className = `bi ${item.type === 'blog' ? 'bi-journal-richtext' : 'bi-play-circle'}`;
+        const detailCover = $('#detailCover');
+        const detailCoverImage = $('#detailCoverImage');
+        const coverImage = safeContentImage(item.coverImage);
+        detailCover.classList.toggle('has-image', Boolean(coverImage));
+        detailCoverImage.classList.toggle('is-hidden', !coverImage);
+        detailCoverImage.src = coverImage;
+        detailCoverImage.alt = coverImage ? `Ảnh minh họa cho ${item.title}` : '';
         $('#detailTitle').textContent = item.title;
         $('#detailExcerpt').textContent = item.excerpt;
         $('#detailAuthorAvatar').textContent = item.authorInitials;
         $('#detailAuthor').textContent = item.author;
         $('#detailAuthorMeta').textContent = `${item.authorMajor} · ${item.publishedAt}`;
+        const media = $('#detailMedia');
+        const tiktokId = tiktokVideoId(item.url);
+        media.classList.toggle('is-hidden', !tiktokId);
+        media.innerHTML = tiktokId
+            ? `<div class="content-video-frame"><iframe src="https://www.tiktok.com/player/v1/${encodeURIComponent(tiktokId)}?autoplay=0&loop=0" title="${escapeHtml(item.title)}" loading="lazy" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><p><i class="bi bi-play-circle"></i> Video từ kênh Ủa CMC trên TikTok</p>`
+            : '';
         const body = String(item.body || '').trim();
         $('#detailBody').innerHTML = body
             ? body.split(/\n{2,}/).map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, '<br>')}</p>`).join('')
-            : `<p>Nội dung này được đại sứ chia sẻ trên ${escapeHtml(item.format)}. Bạn có thể mở bài đăng gốc để xem đầy đủ.</p>`;
+            : `<p>${escapeHtml(item.excerpt || `Nội dung này được đại sứ chia sẻ trên ${item.format}.`)}</p>`;
         const source = $('#detailSource');
         const hasExternalSource = /^https?:\/\//i.test(item.url || '');
         source.classList.toggle('is-hidden', !hasExternalSource);
         if (hasExternalSource) source.href = item.url;
+        source.childNodes[0].textContent = `${item.sourceLabel || (item.type === 'social' ? 'Xem video gốc' : 'Xem nguồn tham khảo')} `;
         showView('contentDetailView', 'contentView');
     };
 

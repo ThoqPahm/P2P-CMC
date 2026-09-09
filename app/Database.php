@@ -282,6 +282,8 @@ SQL);
         self::addColumn($db, 'submissions', 'blog_title', 'TEXT');
         self::addColumn($db, 'submissions', 'blog_excerpt', 'TEXT');
         self::addColumn($db, 'submissions', 'blog_body', 'TEXT');
+        self::addColumn($db, 'submissions', 'cover_image', 'TEXT');
+        self::addColumn($db, 'submissions', 'source_label', 'TEXT');
         self::addColumn($db, 'conversations', 'quality_score', 'INTEGER NOT NULL DEFAULT 0');
         self::addColumn($db, 'conversations', 'crm_status', "TEXT NOT NULL DEFAULT 'new'");
         self::addColumn($db, 'conversations', 'public_token', 'TEXT');
@@ -357,6 +359,88 @@ SQL);
         $db->exec("UPDATE conversations SET crm_status = 'active' WHERE crm_status NOT IN ('new', 'active', 'resolved')");
         $db->exec("UPDATE submissions SET platform = COALESCE((SELECT platform FROM campaigns WHERE campaigns.id = submissions.campaign_id), 'TikTok / Reels') WHERE platform = ''");
         $db->exec("UPDATE submissions SET views = 18400, likes = 1290, comments = 86, shares = 94 WHERE content_url = 'https://www.youtube.com/shorts/demo' AND views = 0");
+        }
+
+        // Keep the public demo's editorial feed useful on fresh installs and existing demo databases.
+        // These records are matched by their canonical title/URL so administrator-created content is untouched.
+        $db->prepare(<<<'SQL'
+            UPDATE submissions
+            SET content_url = ?, caption = ?, platform = 'TikTok', cover_image = ?, source_label = 'Xem trên TikTok',
+                views = 28600, likes = 2140, comments = 73, shares = 118
+            WHERE content_url = 'https://www.youtube.com/shorts/demo'
+        SQL)->execute([
+            'https://www.tiktok.com/@ua.cmc/video/7675607526141873429',
+            'Một khoảnh khắc rất CMCU: hội bạn thân, đồng phục xanh và năng lượng sinh viên sau giờ học.',
+            'assets/img/content/tiktok-cmcu-7675607526141873429.jpg',
+        ]);
+
+        $db->prepare(<<<'SQL'
+            UPDATE submissions
+            SET blog_excerpt = ?, blog_body = ?, content_url = ?, cover_image = ?, source_label = 'Thông tin tham khảo từ CMCU',
+                views = CASE WHEN views = 0 THEN 3840 ELSE views END,
+                likes = CASE WHEN likes = 0 THEN 268 ELSE likes END
+            WHERE content_type = 'blog' AND blog_title = 'Một ngày học Công nghệ thông tin tại CMC diễn ra như thế nào?'
+        SQL)->execute([
+            'Theo chân một sinh viên CNTT từ tiết học buổi sáng, giờ làm đồ án nhóm đến khoảng thời gian tự học và chuẩn bị cho định hướng nghề nghiệp.',
+            "Một ngày học của mình thường bắt đầu trước giờ vào lớp khoảng 20 phút. Mình mở lại mục tiêu của buổi học, xem phần nào còn chưa chắc và ghi ra vài câu hỏi ngắn. Cách này giúp mình không bị cuốn vào việc chép mọi thứ, mà tập trung quan sát cách giảng viên phân tích bài toán và đi từ yêu cầu đến giải pháp.\n\nTrong giờ thực hành, điều mình thấy khác nhất so với thời phổ thông là không phải lúc nào cũng có một đáp án mẫu duy nhất. Có bài cả nhóm phải thử vài hướng, đọc tài liệu, kiểm tra lỗi rồi quay lại sửa cách làm ban đầu. Khi bí, mình thường mô tả rõ đã thử gì, kết quả ra sao và đang mắc ở bước nào; câu hỏi càng cụ thể thì giảng viên và bạn bè càng dễ hỗ trợ.\n\nBuổi chiều thường dành cho bài tập hoặc đồ án nhóm. Nhóm mình chia đầu việc theo thế mạnh, nhưng vẫn dành một khoảng để cùng review code và giải thích phần mình làm. Nhờ vậy, mỗi người không chỉ hoàn thành nhiệm vụ riêng mà còn hiểu sản phẩm hoạt động như một hệ thống. Những buổi tranh luận về cách đặt tên, luồng dữ liệu hay trải nghiệm người dùng đôi khi kéo dài, nhưng đó lại là lúc mình học được nhiều nhất.\n\nNgoài giờ học, mình cố gắng duy trì một dự án cá nhân nhỏ thay vì chạy theo quá nhiều công nghệ cùng lúc. Có tuần mình chỉ sửa một tính năng hoặc viết lại phần tài liệu, nhưng việc nhìn thấy sản phẩm tốt lên từng chút giúp mình hiểu rõ hơn mình hợp với phát triển phần mềm, dữ liệu hay AI. Các câu chuyện nghề nghiệp từ sinh viên và cựu sinh viên CMCU cũng giúp mình hình dung cụ thể hơn con đường từ giảng đường đến môi trường doanh nghiệp.\n\nNếu bạn đang cân nhắc ngành CNTT, bạn không cần phải biết lập trình thật giỏi trước khi nhập học. Sự tò mò, thói quen tự học và khả năng phối hợp với người khác quan trọng hơn rất nhiều. Hãy bắt đầu bằng một bài toán bạn thấy thú vị, làm đến nơi đến chốn và đừng ngại hỏi khi chưa hiểu.",
+            'https://cmcu.edu.vn/nganh-cong-nghe-thong-tin/',
+            'assets/img/content/cmc-ai-automation-alumni-2026.jpg',
+        ]);
+
+        $editorialItems = [
+            [
+                'social', 'https://www.tiktok.com/@ua.cmc/video/7674889049940823316',
+                'Một màn “bay” đúng chất Gen Z tại CMCU — vui một chút giữa lịch học và deadline.',
+                'TikTok',
+                'Đời sống sinh viên CMCU: vui hết mình sau giờ học',
+                'Không chỉ có giờ học và đồ án, những khoảnh khắc ngẫu hứng cùng bạn bè cũng làm nên ký ức đại học.',
+                '', 'assets/img/content/tiktok-cmcu-7674889049940823316.jpg', 'Xem trên TikTok',
+                'linh@cmc.edu.vn', 19700, 1560, 51, 84,
+            ],
+            [
+                'blog', 'https://cmcu.edu.vn/an-tuong-voi-ngay-hoi-thuc-tap-va-viec-lam-cmc-career-fair-2026-truong-dai-hoc-cmc-ket-noi-he-sinh-thai-doanh-nghiep-dong-hanh-kien-tao-nguon-nhan-luc-chat-luong-cao-cho-ky-nguyen-ai/',
+                'Một ngày mình bước ra khỏi lớp học để trò chuyện trực tiếp với doanh nghiệp và nhìn rõ hơn các kỹ năng cần chuẩn bị.',
+                'Bài viết',
+                'Đi Career Fair khi còn là sinh viên: mình đã chuẩn bị gì?',
+                'Một góc nhìn thực tế về cách chuẩn bị CV, mở đầu cuộc trò chuyện và biến một ngày hội việc làm thành cơ hội học hỏi.',
+                "Trước CMC Career Fair 2026, mình từng nghĩ ngày hội việc làm chủ yếu dành cho sinh viên sắp tốt nghiệp. Nhưng khi xem danh sách doanh nghiệp và các vị trí đang tìm kiếm, mình nhận ra đây còn là dịp rất tốt để sinh viên năm hai, năm ba kiểm tra xem những gì mình đang học có gần với nhu cầu thực tế hay chưa.\n\nMình chuẩn bị một bản CV một trang, không cố liệt kê mọi hoạt động mà chọn ba trải nghiệm có thể kể thành câu chuyện: một dự án nhóm, một chiến dịch nội dung và một lần phải xử lý tiến độ gấp. Mình cũng viết sẵn ba câu hỏi muốn hỏi nhà tuyển dụng, ví dụ sinh viên mới thường thiếu kỹ năng nào và một portfolio tốt nên cho thấy điều gì.\n\nKhi đến sự kiện, phần khó nhất không phải là đưa CV mà là bắt đầu cuộc trò chuyện. Câu mở đầu hiệu quả nhất với mình rất đơn giản: giới thiệu ngành học, năm học và điều đang muốn tìm hiểu. Sau đó mình lắng nghe, ghi chú lại từ khóa thay vì cố gây ấn tượng bằng những điều chưa thật sự hiểu.\n\nĐiều mình mang về không chỉ là thông tin thực tập. Mình thấy rõ hơn rằng kiến thức chuyên môn cần đi cùng khả năng trình bày vấn đề, làm việc nhóm và chủ động xin phản hồi. Có doanh nghiệp quan tâm tới sản phẩm mình đã làm hơn điểm số; có nơi lại hỏi rất kỹ về cách mình đo lường kết quả của một chiến dịch.\n\nNếu bạn chưa đến năm cuối, vẫn nên thử tham gia một ngày hội nghề nghiệp. Hãy coi đó là buổi quan sát có mục tiêu: chọn vài gian hàng phù hợp, chuẩn bị câu hỏi thật và dành thời gian tổng kết sau sự kiện. Bạn sẽ biết mình nên học thêm gì trong học kỳ tiếp theo, thay vì chờ đến lúc cần thực tập mới bắt đầu.",
+                'assets/img/content/cmc-career-fair-2026.jpg', 'Đọc tin chính thức từ CMCU',
+                'ambassador@cmc.edu.vn', 6210, 487, 28, 61,
+            ],
+            [
+                'blog', 'https://cmcu.edu.vn/tu-giang-duong-cmcu-den-moi-truong-quoc-te-sinh-vien-truong-dai-hoc-cmc-san-sang-cho-hanh-trinh-trao-doi-hoc-tap-tai-trung-quoc/',
+                'Từ việc chuẩn bị ngoại ngữ, hồ sơ đến tâm lý sống xa nhà: những điều mình ghi lại từ hành trình trao đổi học tập của sinh viên CMCU.',
+                'Bài viết',
+                'Trước một kỳ trao đổi quốc tế, sinh viên nên chuẩn bị từ đâu?',
+                'Một checklist gần gũi về ngoại ngữ, hồ sơ, tài chính và cách tận dụng trải nghiệm học tập ở môi trường mới.',
+                "Khi nghe về chương trình trao đổi học tập, nhiều bạn nghĩ trước tiên đến điểm đến và những bức ảnh đẹp. Nhưng qua những buổi chia sẻ với các bạn chuẩn bị sang Trung Quốc, mình thấy phần quan trọng nhất lại bắt đầu từ rất sớm: hiểu mục tiêu của bản thân và chuẩn bị từng việc nhỏ một cách có kế hoạch.\n\nNgoại ngữ là nền tảng, nhưng không chỉ để vượt qua yêu cầu hồ sơ. Bạn cần đủ tự tin để hỏi đường, trao đổi trong lớp, làm việc nhóm và xử lý những tình huống hàng ngày. Thay vì đợi đến gần ngày đi mới học cấp tốc, hãy tạo thói quen nghe và nói đều đặn, đồng thời ghi lại các cụm từ liên quan đến ngành học của mình.\n\nVới hồ sơ, mình khuyên nên làm một bảng theo dõi gồm giấy tờ cần có, người phụ trách, thời hạn và trạng thái hiện tại. Những việc như hộ chiếu, bảng điểm, xác nhận sinh viên hay bảo hiểm đều có thể mất nhiều thời gian hơn dự kiến. Lưu một bản số hóa có tên file rõ ràng cũng giúp bạn đỡ lúng túng khi cần bổ sung.\n\nTài chính và sinh hoạt nên được tính thực tế. Ngoài khoản cố định, hãy dự trù chi phí đi lại, sim, đồ dùng ban đầu và một quỹ nhỏ cho tình huống phát sinh. Trước khi đi, bạn cũng nên tìm hiểu văn hóa lớp học, phương tiện công cộng và cách liên hệ hỗ trợ khi cần.\n\nCuối cùng, đừng đặt áp lực rằng kỳ trao đổi phải hoàn hảo. Mục tiêu của trải nghiệm là bước ra khỏi vùng quen thuộc, học cách thích nghi và hiểu thêm về chính mình. Nếu còn băn khoăn, bạn có thể hỏi một đại sứ đã tham gia hoạt động quốc tế về lịch chuẩn bị, những điều bất ngờ và cách cân bằng việc học với khám phá.",
+                'assets/img/content/cmc-student-exchange-2026.jpg', 'Đọc tin chính thức từ CMCU',
+                'linh@cmc.edu.vn', 4780, 356, 19, 43,
+            ],
+        ];
+        $insertEditorial = $db->prepare(<<<'SQL'
+            INSERT INTO submissions (
+                campaign_id, user_id, content_url, caption, status, feedback, platform,
+                views, likes, comments, shares, content_type, blog_title, blog_excerpt, blog_body,
+                cover_image, source_label
+            )
+            SELECT c.id, u.id, ?, ?, 'approved', 'Nội dung đã được duyệt để hiển thị trong widget.', ?,
+                   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            FROM campaigns c, users u
+            WHERE c.id = (SELECT MIN(id) FROM campaigns WHERE status = 'active')
+              AND u.email = ? AND u.role = 'ambassador'
+              AND NOT EXISTS (
+                  SELECT 1 FROM submissions s
+                  WHERE (? <> '' AND s.content_url = ?) OR (? <> '' AND s.blog_title = ?)
+              )
+        SQL);
+        foreach ($editorialItems as $item) {
+            [$type, $url, $caption, $platform, $title, $excerpt, $body, $cover, $sourceLabel, $email, $views, $likes, $comments, $shares] = $item;
+            $insertEditorial->execute([
+                $url, $caption, $platform, $views, $likes, $comments, $shares, $type,
+                $type === 'blog' ? $title : null, $excerpt, $body, $cover, $sourceLabel, $email,
+                $url, $url, $type === 'blog' ? $title : '', $type === 'blog' ? $title : '',
+            ]);
         }
 
         self::migrateApinex($db);

@@ -481,6 +481,102 @@
                 "violation_level": "none",
                 "last_seen_at": null,
                 "contact_email": null
+            },
+            {
+                "id": 23,
+                "role": "prospect",
+                "name": "Guest QA",
+                "email": "guest-f8832d8c897cc19af95c19dceaefcdc0@widget.invalid",
+                "password": null,
+                "student_code": null,
+                "major": "",
+                "hometown": null,
+                "interests": null,
+                "bio": null,
+                "avatar": null,
+                "study_year": null,
+                "is_online": 0,
+                "status": "active",
+                "created_at": "2026-09-08 18:20:36",
+                "ambassador_tier": "junior",
+                "gpa": 0,
+                "followers": 0,
+                "policy_status": "pending",
+                "violation_level": "none",
+                "last_seen_at": null,
+                "contact_email": "isolation-qa@example.test"
+            },
+            {
+                "id": 24,
+                "role": "prospect",
+                "name": "Guest QA",
+                "email": "guest-8c4a6025661d87c4be9a39934d5e9894@widget.invalid",
+                "password": null,
+                "student_code": null,
+                "major": "",
+                "hometown": null,
+                "interests": null,
+                "bio": null,
+                "avatar": null,
+                "study_year": null,
+                "is_online": 0,
+                "status": "active",
+                "created_at": "2026-09-08 18:20:36",
+                "ambassador_tier": "junior",
+                "gpa": 0,
+                "followers": 0,
+                "policy_status": "pending",
+                "violation_level": "none",
+                "last_seen_at": null,
+                "contact_email": "isolation-qa@example.test"
+            },
+            {
+                "id": 25,
+                "role": "prospect",
+                "name": "Guest QA",
+                "email": "guest-82c76af234eb0b9ee28f51cb30e7ee06@widget.invalid",
+                "password": null,
+                "student_code": null,
+                "major": "",
+                "hometown": null,
+                "interests": null,
+                "bio": null,
+                "avatar": null,
+                "study_year": null,
+                "is_online": 0,
+                "status": "active",
+                "created_at": "2026-09-09 09:26:53",
+                "ambassador_tier": "junior",
+                "gpa": 0,
+                "followers": 0,
+                "policy_status": "pending",
+                "violation_level": "none",
+                "last_seen_at": null,
+                "contact_email": "isolation-qa@example.test"
+            },
+            {
+                "id": 26,
+                "role": "prospect",
+                "name": "Guest QA",
+                "email": "guest-c2f9397ab2feb5446bda57389c460bf0@widget.invalid",
+                "password": null,
+                "student_code": null,
+                "major": "",
+                "hometown": null,
+                "interests": null,
+                "bio": null,
+                "avatar": null,
+                "study_year": null,
+                "is_online": 0,
+                "status": "active",
+                "created_at": "2026-09-09 09:26:54",
+                "ambassador_tier": "junior",
+                "gpa": 0,
+                "followers": 0,
+                "policy_status": "pending",
+                "violation_level": "none",
+                "last_seen_at": null,
+                "contact_email": "isolation-qa@example.test"
             }
         ],
         "campaigns": [
@@ -541,49 +637,124 @@
                 "content_type": "social",
                 "blog_title": null,
                 "blog_excerpt": null,
-                "blog_body": null
+                "blog_body": null,
+                "cover_image": null,
+                "source_label": null
             },
             {
                 "id": 2,
                 "campaign_id": 2,
                 "user_id": 3,
-                "content_url": "https://www.youtube.com/shorts/demo",
-                "caption": "Một ngày chạy deadline cùng sinh viên Marketing",
+                "content_url": "https://www.tiktok.com/@ua.cmc/video/7675607526141873429",
+                "caption": "Một khoảnh khắc rất CMCU: hội bạn thân, đồng phục xanh và năng lượng sinh viên sau giờ học.",
                 "status": "approved",
                 "feedback": "Nội dung tự nhiên, đúng brief.",
                 "submitted_at": "2026-08-22 19:13:19",
                 "ai_score": 0,
-                "views": 18400,
-                "comments": 86,
+                "views": 28600,
+                "comments": 73,
                 "bonus_points": 0,
-                "likes": 1290,
-                "shares": 94,
-                "platform": "TikTok / YouTube Shorts",
+                "likes": 2140,
+                "shares": 118,
+                "platform": "TikTok",
                 "content_type": "social",
                 "blog_title": null,
                 "blog_excerpt": null,
-                "blog_body": null
+                "blog_body": null,
+                "cover_image": "assets/img/content/tiktok-cmcu-7675607526141873429.jpg",
+                "source_label": "Xem trên TikTok"
             },
             {
                 "id": 3,
                 "campaign_id": 2,
                 "user_id": 4,
-                "content_url": "",
+                "content_url": "https://cmcu.edu.vn/nganh-cong-nghe-thong-tin/",
                 "caption": "Một góc nhìn thật về nhịp học, đồ án và cách chủ động hỏi khi chưa hiểu bài.",
                 "status": "approved",
                 "feedback": "Bài viết rõ ràng, gần gũi và phù hợp để chia sẻ trong widget.",
                 "submitted_at": "2026-08-28 20:39:29",
                 "ai_score": 0,
-                "views": 0,
+                "views": 3840,
                 "comments": 0,
                 "bonus_points": 0,
-                "likes": 0,
+                "likes": 268,
                 "shares": 0,
                 "platform": "Blog",
                 "content_type": "blog",
                 "blog_title": "Một ngày học Công nghệ thông tin tại CMC diễn ra như thế nào?",
-                "blog_excerpt": "Từ giờ học, thời gian làm bài đến cách trao đổi với bạn bè, đây là nhịp học thường ngày dưới góc nhìn của một sinh viên CNTT.",
-                "blog_body": "Một ngày học của mình thường bắt đầu bằng việc xem lại mục tiêu của buổi học và ghi nhanh những phần còn chưa chắc. Thay vì cố ghi chép mọi thứ, mình tập trung vào ví dụ và cách giảng viên giải quyết từng bài toán.\\n\\nSau giờ học, mình thường dành một khoảng thời gian để thử lại phần code hoặc hoàn thiện đầu việc của nhóm. Có những hôm tiến độ rất nhanh, cũng có hôm cả nhóm phải dừng lại để tìm nguyên nhân của một lỗi nhỏ. Điều hữu ích nhất là hỏi sớm và mô tả rõ mình đã thử những gì.\\n\\nNếu bạn đang cân nhắc ngành CNTT, lời khuyên của mình là đừng quá lo vì chưa biết nhiều từ đầu. Sự tò mò, thói quen tự học và khả năng phối hợp với người khác sẽ giúp bạn tiến bộ từng ngày."
+                "blog_excerpt": "Theo chân một sinh viên CNTT từ tiết học buổi sáng, giờ làm đồ án nhóm đến khoảng thời gian tự học và chuẩn bị cho định hướng nghề nghiệp.",
+                "blog_body": "Một ngày học của mình thường bắt đầu trước giờ vào lớp khoảng 20 phút. Mình mở lại mục tiêu của buổi học, xem phần nào còn chưa chắc và ghi ra vài câu hỏi ngắn. Cách này giúp mình không bị cuốn vào việc chép mọi thứ, mà tập trung quan sát cách giảng viên phân tích bài toán và đi từ yêu cầu đến giải pháp.\n\nTrong giờ thực hành, điều mình thấy khác nhất so với thời phổ thông là không phải lúc nào cũng có một đáp án mẫu duy nhất. Có bài cả nhóm phải thử vài hướng, đọc tài liệu, kiểm tra lỗi rồi quay lại sửa cách làm ban đầu. Khi bí, mình thường mô tả rõ đã thử gì, kết quả ra sao và đang mắc ở bước nào; câu hỏi càng cụ thể thì giảng viên và bạn bè càng dễ hỗ trợ.\n\nBuổi chiều thường dành cho bài tập hoặc đồ án nhóm. Nhóm mình chia đầu việc theo thế mạnh, nhưng vẫn dành một khoảng để cùng review code và giải thích phần mình làm. Nhờ vậy, mỗi người không chỉ hoàn thành nhiệm vụ riêng mà còn hiểu sản phẩm hoạt động như một hệ thống. Những buổi tranh luận về cách đặt tên, luồng dữ liệu hay trải nghiệm người dùng đôi khi kéo dài, nhưng đó lại là lúc mình học được nhiều nhất.\n\nNgoài giờ học, mình cố gắng duy trì một dự án cá nhân nhỏ thay vì chạy theo quá nhiều công nghệ cùng lúc. Có tuần mình chỉ sửa một tính năng hoặc viết lại phần tài liệu, nhưng việc nhìn thấy sản phẩm tốt lên từng chút giúp mình hiểu rõ hơn mình hợp với phát triển phần mềm, dữ liệu hay AI. Các câu chuyện nghề nghiệp từ sinh viên và cựu sinh viên CMCU cũng giúp mình hình dung cụ thể hơn con đường từ giảng đường đến môi trường doanh nghiệp.\n\nNếu bạn đang cân nhắc ngành CNTT, bạn không cần phải biết lập trình thật giỏi trước khi nhập học. Sự tò mò, thói quen tự học và khả năng phối hợp với người khác quan trọng hơn rất nhiều. Hãy bắt đầu bằng một bài toán bạn thấy thú vị, làm đến nơi đến chốn và đừng ngại hỏi khi chưa hiểu.",
+                "cover_image": "assets/img/content/cmc-ai-automation-alumni-2026.jpg",
+                "source_label": "Thông tin tham khảo từ CMCU"
+            },
+            {
+                "id": 4,
+                "campaign_id": 1,
+                "user_id": 5,
+                "content_url": "https://www.tiktok.com/@ua.cmc/video/7674889049940823316",
+                "caption": "Một màn “bay” đúng chất Gen Z tại CMCU — vui một chút giữa lịch học và deadline.",
+                "status": "approved",
+                "feedback": "Nội dung đã được duyệt để hiển thị trong widget.",
+                "submitted_at": "2026-09-09 22:11:17",
+                "ai_score": 0,
+                "views": 19700,
+                "comments": 51,
+                "bonus_points": 0,
+                "likes": 1560,
+                "shares": 84,
+                "platform": "TikTok",
+                "content_type": "social",
+                "blog_title": null,
+                "blog_excerpt": "Không chỉ có giờ học và đồ án, những khoảnh khắc ngẫu hứng cùng bạn bè cũng làm nên ký ức đại học.",
+                "blog_body": "",
+                "cover_image": "assets/img/content/tiktok-cmcu-7674889049940823316.jpg",
+                "source_label": "Xem trên TikTok"
+            },
+            {
+                "id": 5,
+                "campaign_id": 1,
+                "user_id": 3,
+                "content_url": "https://cmcu.edu.vn/an-tuong-voi-ngay-hoi-thuc-tap-va-viec-lam-cmc-career-fair-2026-truong-dai-hoc-cmc-ket-noi-he-sinh-thai-doanh-nghiep-dong-hanh-kien-tao-nguon-nhan-luc-chat-luong-cao-cho-ky-nguyen-ai/",
+                "caption": "Một ngày mình bước ra khỏi lớp học để trò chuyện trực tiếp với doanh nghiệp và nhìn rõ hơn các kỹ năng cần chuẩn bị.",
+                "status": "approved",
+                "feedback": "Nội dung đã được duyệt để hiển thị trong widget.",
+                "submitted_at": "2026-09-09 22:11:17",
+                "ai_score": 0,
+                "views": 6210,
+                "comments": 28,
+                "bonus_points": 0,
+                "likes": 487,
+                "shares": 61,
+                "platform": "Bài viết",
+                "content_type": "blog",
+                "blog_title": "Đi Career Fair khi còn là sinh viên: mình đã chuẩn bị gì?",
+                "blog_excerpt": "Một góc nhìn thực tế về cách chuẩn bị CV, mở đầu cuộc trò chuyện và biến một ngày hội việc làm thành cơ hội học hỏi.",
+                "blog_body": "Trước CMC Career Fair 2026, mình từng nghĩ ngày hội việc làm chủ yếu dành cho sinh viên sắp tốt nghiệp. Nhưng khi xem danh sách doanh nghiệp và các vị trí đang tìm kiếm, mình nhận ra đây còn là dịp rất tốt để sinh viên năm hai, năm ba kiểm tra xem những gì mình đang học có gần với nhu cầu thực tế hay chưa.\n\nMình chuẩn bị một bản CV một trang, không cố liệt kê mọi hoạt động mà chọn ba trải nghiệm có thể kể thành câu chuyện: một dự án nhóm, một chiến dịch nội dung và một lần phải xử lý tiến độ gấp. Mình cũng viết sẵn ba câu hỏi muốn hỏi nhà tuyển dụng, ví dụ sinh viên mới thường thiếu kỹ năng nào và một portfolio tốt nên cho thấy điều gì.\n\nKhi đến sự kiện, phần khó nhất không phải là đưa CV mà là bắt đầu cuộc trò chuyện. Câu mở đầu hiệu quả nhất với mình rất đơn giản: giới thiệu ngành học, năm học và điều đang muốn tìm hiểu. Sau đó mình lắng nghe, ghi chú lại từ khóa thay vì cố gây ấn tượng bằng những điều chưa thật sự hiểu.\n\nĐiều mình mang về không chỉ là thông tin thực tập. Mình thấy rõ hơn rằng kiến thức chuyên môn cần đi cùng khả năng trình bày vấn đề, làm việc nhóm và chủ động xin phản hồi. Có doanh nghiệp quan tâm tới sản phẩm mình đã làm hơn điểm số; có nơi lại hỏi rất kỹ về cách mình đo lường kết quả của một chiến dịch.\n\nNếu bạn chưa đến năm cuối, vẫn nên thử tham gia một ngày hội nghề nghiệp. Hãy coi đó là buổi quan sát có mục tiêu: chọn vài gian hàng phù hợp, chuẩn bị câu hỏi thật và dành thời gian tổng kết sau sự kiện. Bạn sẽ biết mình nên học thêm gì trong học kỳ tiếp theo, thay vì chờ đến lúc cần thực tập mới bắt đầu.",
+                "cover_image": "assets/img/content/cmc-career-fair-2026.jpg",
+                "source_label": "Đọc tin chính thức từ CMCU"
+            },
+            {
+                "id": 6,
+                "campaign_id": 1,
+                "user_id": 5,
+                "content_url": "https://cmcu.edu.vn/tu-giang-duong-cmcu-den-moi-truong-quoc-te-sinh-vien-truong-dai-hoc-cmc-san-sang-cho-hanh-trinh-trao-doi-hoc-tap-tai-trung-quoc/",
+                "caption": "Từ việc chuẩn bị ngoại ngữ, hồ sơ đến tâm lý sống xa nhà: những điều mình ghi lại từ hành trình trao đổi học tập của sinh viên CMCU.",
+                "status": "approved",
+                "feedback": "Nội dung đã được duyệt để hiển thị trong widget.",
+                "submitted_at": "2026-09-09 22:11:17",
+                "ai_score": 0,
+                "views": 4780,
+                "comments": 19,
+                "bonus_points": 0,
+                "likes": 356,
+                "shares": 43,
+                "platform": "Bài viết",
+                "content_type": "blog",
+                "blog_title": "Trước một kỳ trao đổi quốc tế, sinh viên nên chuẩn bị từ đâu?",
+                "blog_excerpt": "Một checklist gần gũi về ngoại ngữ, hồ sơ, tài chính và cách tận dụng trải nghiệm học tập ở môi trường mới.",
+                "blog_body": "Khi nghe về chương trình trao đổi học tập, nhiều bạn nghĩ trước tiên đến điểm đến và những bức ảnh đẹp. Nhưng qua những buổi chia sẻ với các bạn chuẩn bị sang Trung Quốc, mình thấy phần quan trọng nhất lại bắt đầu từ rất sớm: hiểu mục tiêu của bản thân và chuẩn bị từng việc nhỏ một cách có kế hoạch.\n\nNgoại ngữ là nền tảng, nhưng không chỉ để vượt qua yêu cầu hồ sơ. Bạn cần đủ tự tin để hỏi đường, trao đổi trong lớp, làm việc nhóm và xử lý những tình huống hàng ngày. Thay vì đợi đến gần ngày đi mới học cấp tốc, hãy tạo thói quen nghe và nói đều đặn, đồng thời ghi lại các cụm từ liên quan đến ngành học của mình.\n\nVới hồ sơ, mình khuyên nên làm một bảng theo dõi gồm giấy tờ cần có, người phụ trách, thời hạn và trạng thái hiện tại. Những việc như hộ chiếu, bảng điểm, xác nhận sinh viên hay bảo hiểm đều có thể mất nhiều thời gian hơn dự kiến. Lưu một bản số hóa có tên file rõ ràng cũng giúp bạn đỡ lúng túng khi cần bổ sung.\n\nTài chính và sinh hoạt nên được tính thực tế. Ngoài khoản cố định, hãy dự trù chi phí đi lại, sim, đồ dùng ban đầu và một quỹ nhỏ cho tình huống phát sinh. Trước khi đi, bạn cũng nên tìm hiểu văn hóa lớp học, phương tiện công cộng và cách liên hệ hỗ trợ khi cần.\n\nCuối cùng, đừng đặt áp lực rằng kỳ trao đổi phải hoàn hảo. Mục tiêu của trải nghiệm là bước ra khỏi vùng quen thuộc, học cách thích nghi và hiểu thêm về chính mình. Nếu còn băn khoăn, bạn có thể hỏi một đại sứ đã tham gia hoạt động quốc tế về lịch chuẩn bị, những điều bất ngờ và cách cân bằng việc học với khám phá.",
+                "cover_image": "assets/img/content/cmc-student-exchange-2026.jpg",
+                "source_label": "Đọc tin chính thức từ CMCU"
             }
         ],
         "affiliate_links": [
@@ -733,6 +904,90 @@
                 "official_answer": null,
                 "answered_by": null,
                 "answered_at": null
+            },
+            {
+                "id": 6,
+                "prospect_id": 23,
+                "ambassador_id": 17,
+                "status": "open",
+                "rating": null,
+                "last_message_at": "2026-09-08 18:20:36",
+                "created_at": "2026-09-08 18:20:36",
+                "quality_score": 0,
+                "crm_status": "new",
+                "public_token": null,
+                "clarity_rating": null,
+                "helpfulness_rating": null,
+                "feedback_note": null,
+                "is_escalated": 0,
+                "escalation_reason": null,
+                "escalation_status": "none",
+                "official_answer": null,
+                "answered_by": null,
+                "answered_at": null
+            },
+            {
+                "id": 7,
+                "prospect_id": 24,
+                "ambassador_id": 17,
+                "status": "open",
+                "rating": null,
+                "last_message_at": "2026-09-08 18:20:36",
+                "created_at": "2026-09-08 18:20:36",
+                "quality_score": 0,
+                "crm_status": "new",
+                "public_token": null,
+                "clarity_rating": null,
+                "helpfulness_rating": null,
+                "feedback_note": null,
+                "is_escalated": 0,
+                "escalation_reason": null,
+                "escalation_status": "none",
+                "official_answer": null,
+                "answered_by": null,
+                "answered_at": null
+            },
+            {
+                "id": 8,
+                "prospect_id": 25,
+                "ambassador_id": 17,
+                "status": "open",
+                "rating": null,
+                "last_message_at": "2026-09-09 09:26:53",
+                "created_at": "2026-09-09 09:26:53",
+                "quality_score": 0,
+                "crm_status": "new",
+                "public_token": null,
+                "clarity_rating": null,
+                "helpfulness_rating": null,
+                "feedback_note": null,
+                "is_escalated": 0,
+                "escalation_reason": null,
+                "escalation_status": "none",
+                "official_answer": null,
+                "answered_by": null,
+                "answered_at": null
+            },
+            {
+                "id": 9,
+                "prospect_id": 26,
+                "ambassador_id": 17,
+                "status": "open",
+                "rating": null,
+                "last_message_at": "2026-09-09 09:26:54",
+                "created_at": "2026-09-09 09:26:54",
+                "quality_score": 0,
+                "crm_status": "new",
+                "public_token": null,
+                "clarity_rating": null,
+                "helpfulness_rating": null,
+                "feedback_note": null,
+                "is_escalated": 0,
+                "escalation_reason": null,
+                "escalation_status": "none",
+                "official_answer": null,
+                "answered_by": null,
+                "answered_at": null
             }
         ],
         "messages": [
@@ -821,50 +1076,77 @@
             {
                 "key": "widget_ai_enabled",
                 "value": "1",
-                "updated_at": "2026-08-29 06:10:24"
+                "updated_at": "2026-09-08 18:12:59"
             },
             {
                 "key": "widget_ai_provider",
-                "value": "gemini",
-                "updated_at": "2026-08-29 06:10:24"
+                "value": "apinex",
+                "updated_at": "2026-09-08 18:12:59"
             },
             {
                 "key": "widget_ai_name",
                 "value": "CMCU AI",
-                "updated_at": "2026-08-29 06:10:24"
+                "updated_at": "2026-09-08 18:30:51"
             },
             {
                 "key": "widget_ai_welcome",
                 "value": "Chào bạn, mình là CMCU AI. Bạn đang quan tâm điều gì ở CMCU? Cứ nói tự nhiên nhé, chưa biết bắt đầu từ đâu cũng không sao.",
-                "updated_at": "2026-08-29 07:34:09"
+                "updated_at": "2026-09-08 18:30:51"
             },
             {
                 "key": "widget_ai_rules",
                 "value": "Chỉ trả lời từ dữ liệu được phê duyệt. Không suy đoán học phí, học bổng, điểm chuẩn, cam kết việc làm hoặc chính sách tuyển sinh. Khi thiếu dữ liệu, nói rõ và gợi ý đại sứ phù hợp.",
-                "updated_at": "2026-08-29 06:10:24"
+                "updated_at": "2026-09-08 18:12:59"
             },
             {
                 "key": "widget_theme_primary",
                 "value": "#008fd5",
-                "updated_at": "2026-08-29 06:10:24"
+                "updated_at": "2026-09-08 18:12:59"
             },
             {
                 "key": "widget_theme_navy",
                 "value": "#002757",
-                "updated_at": "2026-08-29 06:10:24"
+                "updated_at": "2026-09-08 18:12:59"
             },
             {
                 "key": "widget_theme_soft",
                 "value": "#f2f8fb",
-                "updated_at": "2026-08-29 06:10:24"
+                "updated_at": "2026-09-08 18:12:59"
             },
             {
                 "key": "widget_theme_accent",
                 "value": "#00dedf",
-                "updated_at": "2026-08-29 06:10:24"
+                "updated_at": "2026-09-08 18:12:59"
             }
         ],
-        "consultation_appointments": [],
+        "consultation_appointments": [
+            {
+                "id": 1,
+                "ambassador_id": 17,
+                "student_name": "Guest QA",
+                "email": "isolation-qa@example.test",
+                "phone": "",
+                "preferred_at": "2026-09-09 18:20:36",
+                "question": "",
+                "status": "pending",
+                "created_at": "2026-09-08 18:20:36",
+                "public_token": null,
+                "conversation_id": 6
+            },
+            {
+                "id": 2,
+                "ambassador_id": 17,
+                "student_name": "Guest QA",
+                "email": "isolation-qa@example.test",
+                "phone": "",
+                "preferred_at": "2026-09-10 09:26:54",
+                "question": "",
+                "status": "pending",
+                "created_at": "2026-09-09 09:26:54",
+                "public_token": null,
+                "conversation_id": 8
+            }
+        ],
         "ai_knowledge_entries": [
             {
                 "id": 1,
@@ -1145,6 +1427,21 @@
                 "advice": "Làm một phiên bản đơn giản trước. Sau đó xin một góp ý cụ thể và sửa từng điểm một.",
                 "sample_key": "campus-profile-12",
                 "updated_at": "2026-09-08 01:56:03"
+            }
+        ],
+        "rehearsal_scripts": [
+            {
+                "user_id": 1,
+                "step_key": "slide-27",
+                "content": "Luồng Outbound đi từ Nhà trường định hướng chủ đề, đại sứ kể trải nghiệm, nội dung được rà soát rồi lan tỏa.\n\nKhi học sinh muốn tìm hiểu sâu hơn, luồng Inbound bắt đầu: học sinh nêu nhu cầu, chọn đại sứ phù hợp để trao đổi; câu hỏi cần độ chính xác cao được chuyển cán bộ xác nhận.\n\nNội dung tạo ra câu hỏi, còn câu hỏi lại trở thành đầu vào cho nội dung tiếp theo.\n\nĐể minh họa vòng vận hành này, nhóm xây dựng bản mẫu CMC-eSA cho ba bên: học sinh, đại sứ và Nhà trường.",
+                "updated_at": "2026-09-09 21:02:05"
+            }
+        ],
+        "public_rehearsal_scripts": [
+            {
+                "step_key": "slide-27",
+                "content": "Luồng Outbound đi từ Nhà trường định hướng chủ đề, đại sứ kể trải nghiệm, nội dung được rà soát rồi lan tỏa.\n\nKhi học sinh muốn tìm hiểu sâu hơn, luồng Inbound bắt đầu: học sinh nêu nhu cầu, chọn đại sứ phù hợp để trao đổi; câu hỏi cần độ chính xác cao được chuyển cán bộ xác nhận.\n\nNội dung tạo ra câu hỏi, còn câu hỏi lại trở thành đầu vào cho nội dung tiếp theo.\n\nĐể minh họa vòng vận hành này, nhóm xây dựng bản mẫu CMC-eSA cho ba bên: học sinh, đại sứ và Nhà trường.",
+                "updated_at": "2026-09-09 21:02:05"
             }
         ]
     }
