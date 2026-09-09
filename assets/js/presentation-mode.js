@@ -507,7 +507,12 @@
     const go = async (direction) => {
         if (changing || overview.open) return;
         const wanted = Math.max(0, Math.min(scenes.length - 1, current + direction));
-        if (wanted === current) return;
+        if (wanted === current) {
+            if (config.embedded) {
+                window.parent.postMessage({ type: 'cmc-presentation-boundary', direction }, window.location.origin);
+            }
+            return;
+        }
         changing = true;
         if (direction > 0) await visualExit(scenes[current]);
         current = wanted;

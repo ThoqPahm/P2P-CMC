@@ -178,6 +178,15 @@ final class Database
                 updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
 
+            CREATE TABLE IF NOT EXISTS rehearsal_scripts (
+                user_id INTEGER NOT NULL,
+                step_key TEXT NOT NULL,
+                content TEXT NOT NULL,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY(user_id, step_key),
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
+
             CREATE TABLE IF NOT EXISTS ai_provider_configs (
                 provider TEXT PRIMARY KEY CHECK(provider IN ('gemini','deepseek','glm','qwen')),
                 endpoint TEXT NOT NULL,
