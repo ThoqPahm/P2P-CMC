@@ -5,7 +5,7 @@ final class Routes
 {
     public const PAGES = [
         'home'=>'trang-chu', 'login'=>'dang-nhap', 'dashboard'=>'tong-quan',
-        'ambassadors'=>'dai-su', 'widget'=>'widget',
+        'ambassadors'=>'dai-su', 'student-connect'=>'ket-noi-dai-su', 'widget'=>'widget',
         'admin-dashboard'=>'admin/tong-quan', 'admin-campaigns'=>'admin/chien-dich',
         'admin-submissions'=>'admin/bai-nop', 'admin-ambassadors'=>'admin/dai-su',
         'admin-performance'=>'admin/hieu-qua', 'admin-widget'=>'admin/widget',

@@ -222,6 +222,10 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .demo-accounts { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1.25rem; padding: .8rem; background: var(--surface-soft); border-radius: var(--radius-sm); }
 .demo-accounts strong { width: 100%; }
 .demo-accounts a, .demo-accounts button { padding: .35rem .5rem; color: var(--cmc-blue-dark); background: #fff; border: 1px solid var(--line); border-radius: 5px; font-size: .72rem; }
+.demo-accounts .demo-public-site { display: grid; grid-template-columns: 30px minmax(0,1fr); width: 100%; align-items: center; gap: .65rem; margin-top: .35rem; padding: .65rem .7rem; text-decoration: none; border-color: #a9d5e8; }
+.demo-accounts .demo-public-site > i { display: grid; width: 30px; height: 30px; place-items: center; color: #fff; background: var(--cmc-blue-dark); border-radius: 7px; }
+.demo-accounts .demo-public-site b, .demo-accounts .demo-public-site small { display: block; }
+.demo-accounts .demo-public-site small { margin-top: 2px; color: #617b8f; font-size: .65rem; }
 .login-mobile-brand { display: none; }
 .lead-form-card { padding: 2rem; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
 
@@ -275,6 +279,7 @@ h1, h2, h3, h4 { margin-top: 0; color: var(--cmc-navy); font-weight: 750; letter
 .login-theme-particles .internal-login-form .demo-accounts > strong { color: var(--danger); text-align: center; }
 .login-theme-particles .internal-login-form .demo-accounts > div { width: min(100%, 300px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin: .65rem auto 0; }
 .login-theme-particles .internal-login-form .demo-accounts a { justify-content: center; border-radius: 7px; }
+.login-theme-particles .internal-login-form .demo-accounts .demo-public-site { display: grid; width: min(100%,300px); justify-content: initial; margin: .55rem auto 0; }
 
 @media (min-width: 992px) and (max-height: 760px) {
     .login-theme-particles .internal-login-form { padding-block: 2rem; }

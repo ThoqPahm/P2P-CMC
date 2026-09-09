@@ -56,6 +56,7 @@
                 <strong>Tài khoản demo</strong>
                 <small>Mật khẩu: 123456</small>
                 <div><a href="index.php?page=login&demo=admin"><i class="bi bi-building"></i> Admin</a><a href="index.php?page=login&demo=student"><i class="bi bi-mortarboard"></i> Sinh viên</a><a href="index.php?page=login&demo=ambassador"><i class="bi bi-chat-square-text"></i> Đại sứ</a></div>
+                <a class="demo-public-site" href="index.php?page=student-connect"><i class="bi bi-box-arrow-up-right"></i><span><b>Website dành cho học sinh</b><small>Xem trang kết nối và widget</small></span></a>
             </div>
         </div>
     </section>
