@@ -365,12 +365,13 @@ SQL);
         // These records are matched by their canonical title/URL so administrator-created content is untouched.
         $db->prepare(<<<'SQL'
             UPDATE submissions
-            SET content_url = ?, caption = ?, platform = 'TikTok', cover_image = ?, source_label = 'Xem trên TikTok',
+            SET content_url = ?, caption = ?, blog_excerpt = ?, platform = 'TikTok', cover_image = ?, source_label = 'Xem trên TikTok',
                 views = 28600, likes = 2140, comments = 73, shares = 118
-            WHERE content_url = 'https://www.youtube.com/shorts/demo'
+            WHERE content_url IN ('https://www.youtube.com/shorts/demo', 'https://www.tiktok.com/@ua.cmc/video/7675607526141873429')
         SQL)->execute([
             'https://www.tiktok.com/@ua.cmc/video/7675607526141873429',
-            'Một khoảnh khắc rất CMCU: hội bạn thân, đồng phục xanh và năng lượng sinh viên sau giờ học.',
+            'Một chiếc áo polo xanh CMCU và màn đổi outfit của đôi bạn',
+            'Từ cuộc gặp trước sảnh đến màn catwalk bên logo trường: một khoảnh khắc vui về tình bạn và sắc xanh CMCU.',
             'assets/img/content/tiktok-cmcu-7675607526141873429.jpg',
         ]);
 
@@ -390,10 +391,10 @@ SQL);
         $editorialItems = [
             [
                 'social', 'https://www.tiktok.com/@ua.cmc/video/7674889049940823316',
-                'Một màn “bay” đúng chất Gen Z tại CMCU — vui một chút giữa lịch học và deadline.',
+                'Khi giảng viên bảo “idea chưa đủ bay”: sinh viên Marketing bay theo nghĩa đen',
                 'TikTok',
                 'Đời sống sinh viên CMCU: vui hết mình sau giờ học',
-                'Không chỉ có giờ học và đồ án, những khoảnh khắc ngẫu hứng cùng bạn bè cũng làm nên ký ức đại học.',
+                'Một màn bắt trend hài hước: lời nhận xét về ý tưởng được nhóm sinh viên biến thành cú “bay” ngay trước sảnh trường.',
                 '', 'assets/img/content/tiktok-cmcu-7674889049940823316.jpg', 'Xem trên TikTok',
                 'linh@cmc.edu.vn', 19700, 1560, 51, 84,
             ],
@@ -434,6 +435,7 @@ SQL);
                   WHERE (? <> '' AND s.content_url = ?) OR (? <> '' AND s.blog_title = ?)
               )
         SQL);
+        $refreshVideoCopy = $db->prepare("UPDATE submissions SET caption = ?, blog_excerpt = ?, platform = 'TikTok', source_label = 'Xem trên TikTok' WHERE content_url = ?");
         foreach ($editorialItems as $item) {
             [$type, $url, $caption, $platform, $title, $excerpt, $body, $cover, $sourceLabel, $email, $views, $likes, $comments, $shares] = $item;
             $insertEditorial->execute([
@@ -441,6 +443,7 @@ SQL);
                 $type === 'blog' ? $title : null, $excerpt, $body, $cover, $sourceLabel, $email,
                 $url, $url, $type === 'blog' ? $title : '', $type === 'blog' ? $title : '',
             ]);
+            if ($type === 'social') $refreshVideoCopy->execute([$caption, $excerpt, $url]);
         }
 
         self::migrateApinex($db);

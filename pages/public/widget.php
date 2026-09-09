@@ -37,9 +37,9 @@ $widgetData = array_map(static fn(array $item): array => [
 $contentData = array_map(static fn(array $item): array => [
     'id' => (int) $item['id'],
     'type' => $item['content_type'] === 'blog' ? 'blog' : 'social',
-    'format' => $item['content_type'] === 'blog' ? 'Bài viết' : ($item['platform'] ?: 'Nội dung UGC'),
+    'format' => $item['content_type'] === 'blog' ? 'Bài viết' : 'Video',
     'title' => $item['content_type'] === 'blog' ? ($item['blog_title'] ?: $item['campaign_title']) : ($item['caption'] ?: $item['campaign_title']),
-    'excerpt' => $item['content_type'] === 'blog' ? ($item['blog_excerpt'] ?: $item['caption']) : $item['campaign_title'],
+    'excerpt' => $item['content_type'] === 'blog' ? ($item['blog_excerpt'] ?: $item['caption']) : ($item['blog_excerpt'] ?: $item['campaign_title']),
     'body' => $item['content_type'] === 'blog' ? (string) $item['blog_body'] : '',
     'url' => $item['content_url'],
     'coverImage' => (string) ($item['cover_image'] ?? ''),
