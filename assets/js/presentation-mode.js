@@ -426,6 +426,14 @@
         next.disabled = true;
         stepLabel.textContent = `${index + 1} / ${scenes.length}`;
         titleLabel.textContent = scene.title;
+        window.parent.postMessage({
+            type: 'cmc-presentation-scene',
+            index,
+            step: index + 1,
+            total: scenes.length,
+            title: scene.title,
+            phase: 'start',
+        }, window.location.origin);
         next.innerHTML = index === scenes.length - 1 ? 'Kết thúc <span>✓</span>' : 'Tiếp theo <span>→</span>';
         const canReuse = reusePrevious && scene.continueFromPrevious;
         if (!canReuse) {
@@ -450,6 +458,14 @@
                 changing = false;
                 previous.disabled = index === 0;
                 next.disabled = false;
+                window.parent.postMessage({
+                    type: 'cmc-presentation-scene',
+                    index,
+                    step: index + 1,
+                    total: scenes.length,
+                    title: scene.title,
+                    phase: 'ready',
+                }, window.location.origin);
             }
         }
     };
@@ -545,6 +561,12 @@
     overviewButton.addEventListener('click', () => overview.showModal());
     overviewClose.addEventListener('click', () => overview.close());
     document.addEventListener('keydown', handleKeys);
+    window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin || event.source !== window.parent) return;
+        if (event.data?.type === 'cmc-presentation-go') {
+            go(Number(event.data.direction) < 0 ? -1 : 1);
+        }
+    });
     sceneList.innerHTML = scenes.map((scene) => `<li><strong>${scene.title}</strong><span>${scene.cue}</span></li>`).join('');
     renderScene(current);
 })();

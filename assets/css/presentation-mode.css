@@ -138,6 +138,9 @@ body.presentation-mode {
 .presentation-controls .is-primary { background: var(--present-navy); color: #fff; }
 .presentation-controls .is-primary:hover { background: #004077; }
 
+.is-rehearsal-embed .presentation-controls { display: none; }
+.is-rehearsal-embed .presentation-chapter { top: 10px; }
+
 .controls-hidden .presentation-controls,
 .controls-hidden .presentation-chapter { opacity: 0; pointer-events: none; transform: translateY(8px); }
 .controls-hidden .presentation-chapter { transform: translate(-50%, -8px); }

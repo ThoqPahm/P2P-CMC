@@ -7,6 +7,7 @@ require_once __DIR__ . '/app/PresentationMode.php';
 
 require_super_admin();
 $presentationToken = PresentationMode::issue((int)user()['id']);
+$isRehearsalEmbed = (string)($_GET['embedded'] ?? '') === 'rehearsal';
 ?>
 <!doctype html>
 <html lang="vi">
@@ -16,9 +17,9 @@ $presentationToken = PresentationMode::issue((int)user()['id']);
     <meta name="color-scheme" content="light">
     <title>Trình diễn Chương 4 · CMC-eSA</title>
     <link rel="icon" href="assets/img/cmc-university.svg" type="image/svg+xml">
-    <link href="assets/css/presentation-mode.css?v=3" rel="stylesheet">
+    <link href="assets/css/presentation-mode.css?v=4" rel="stylesheet">
 </head>
-<body class="presentation-mode">
+<body class="presentation-mode<?= $isRehearsalEmbed ? ' is-rehearsal-embed' : '' ?>">
     <main class="presentation-stage">
         <iframe id="presentationFrame" title="Bản mẫu CMC-eSA" allow="fullscreen"></iframe>
         <div class="presentation-transition" id="presentationTransition" aria-hidden="true">
@@ -58,8 +59,9 @@ $presentationToken = PresentationMode::issue((int)user()['id']);
         'action' => 'presentation-action.php',
         'api' => 'presentation-api.php',
         'routes' => Routes::PAGES,
+        'embedded' => $isRehearsalEmbed,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
     </script>
-    <script src="assets/js/presentation-mode.js?v=7"></script>
+    <script src="assets/js/presentation-mode.js?v=8"></script>
 </body>
 </html>
