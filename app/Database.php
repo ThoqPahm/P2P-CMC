@@ -370,8 +370,8 @@ SQL);
             WHERE content_url IN ('https://www.youtube.com/shorts/demo', 'https://www.tiktok.com/@ua.cmc/video/7675607526141873429')
         SQL)->execute([
             'https://www.tiktok.com/@ua.cmc/video/7675607526141873429',
-            'Một chiếc áo polo xanh CMCU và màn đổi outfit của đôi bạn',
-            'Từ cuộc gặp trước sảnh đến màn catwalk bên logo trường: một khoảnh khắc vui về tình bạn và sắc xanh CMCU.',
+            'Mượn áo polo CMCU của bạn và cái kết: mình có luôn một màn catwalk',
+            'Tụi mình gặp nhau trước sảnh, thấy chiếc áo xanh CMCU hợp quá nên đổi outfit rồi tranh thủ quay một đoạn thật vui bên logo trường.',
             'assets/img/content/tiktok-cmcu-7675607526141873429.jpg',
         ]);
 
@@ -391,12 +391,12 @@ SQL);
         $editorialItems = [
             [
                 'social', 'https://www.tiktok.com/@ua.cmc/video/7674889049940823316',
-                'Khi giảng viên bảo “idea chưa đủ bay”: sinh viên Marketing bay theo nghĩa đen',
+                'Giảng viên bảo idea chưa đủ “bay”, tụi mình quyết định bay theo nghĩa đen',
                 'TikTok',
                 'Đời sống sinh viên CMCU: vui hết mình sau giờ học',
-                'Một màn bắt trend hài hước: lời nhận xét về ý tưởng được nhóm sinh viên biến thành cú “bay” ngay trước sảnh trường.',
+                'Một câu góp ý trong giờ Marketing được tụi mình biến thành màn bắt trend vui trước sảnh — vừa đúng brief, vừa có thêm kỷ niệm cùng nhau.',
                 '', 'assets/img/content/tiktok-cmcu-7674889049940823316.jpg', 'Xem trên TikTok',
-                'linh@cmc.edu.vn', 19700, 1560, 51, 84,
+                'ambassador@cmc.edu.vn', 19700, 1560, 51, 84,
             ],
             [
                 'blog', 'https://cmcu.edu.vn/an-tuong-voi-ngay-hoi-thuc-tap-va-viec-lam-cmc-career-fair-2026-truong-dai-hoc-cmc-ket-noi-he-sinh-thai-doanh-nghiep-dong-hanh-kien-tao-nguon-nhan-luc-chat-luong-cao-cho-ky-nguyen-ai/',
@@ -435,7 +435,7 @@ SQL);
                   WHERE (? <> '' AND s.content_url = ?) OR (? <> '' AND s.blog_title = ?)
               )
         SQL);
-        $refreshVideoCopy = $db->prepare("UPDATE submissions SET caption = ?, blog_excerpt = ?, platform = 'TikTok', source_label = 'Xem trên TikTok' WHERE content_url = ?");
+        $refreshVideoCopy = $db->prepare("UPDATE submissions SET caption = ?, blog_excerpt = ?, platform = 'TikTok', source_label = 'Xem trên TikTok', user_id = (SELECT id FROM users WHERE email = ? AND role = 'ambassador') WHERE content_url = ?");
         foreach ($editorialItems as $item) {
             [$type, $url, $caption, $platform, $title, $excerpt, $body, $cover, $sourceLabel, $email, $views, $likes, $comments, $shares] = $item;
             $insertEditorial->execute([
@@ -443,7 +443,7 @@ SQL);
                 $type === 'blog' ? $title : null, $excerpt, $body, $cover, $sourceLabel, $email,
                 $url, $url, $type === 'blog' ? $title : '', $type === 'blog' ? $title : '',
             ]);
-            if ($type === 'social') $refreshVideoCopy->execute([$caption, $excerpt, $url]);
+            if ($type === 'social') $refreshVideoCopy->execute([$caption, $excerpt, $email, $url]);
         }
 
         self::migrateApinex($db);

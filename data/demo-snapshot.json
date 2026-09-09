@@ -646,7 +646,7 @@
                 "campaign_id": 2,
                 "user_id": 3,
                 "content_url": "https://www.tiktok.com/@ua.cmc/video/7675607526141873429",
-                "caption": "Một chiếc áo polo xanh CMCU và màn đổi outfit của đôi bạn",
+                "caption": "Mượn áo polo CMCU của bạn và cái kết: mình có luôn một màn catwalk",
                 "status": "approved",
                 "feedback": "Nội dung tự nhiên, đúng brief.",
                 "submitted_at": "2026-08-22 19:13:19",
@@ -659,7 +659,7 @@
                 "platform": "TikTok",
                 "content_type": "social",
                 "blog_title": null,
-                "blog_excerpt": "Từ cuộc gặp trước sảnh đến màn catwalk bên logo trường: một khoảnh khắc vui về tình bạn và sắc xanh CMCU.",
+                "blog_excerpt": "Tụi mình gặp nhau trước sảnh, thấy chiếc áo xanh CMCU hợp quá nên đổi outfit rồi tranh thủ quay một đoạn thật vui bên logo trường.",
                 "blog_body": null,
                 "cover_image": "assets/img/content/tiktok-cmcu-7675607526141873429.jpg",
                 "source_label": "Xem trên TikTok"
@@ -690,9 +690,9 @@
             {
                 "id": 4,
                 "campaign_id": 1,
-                "user_id": 5,
+                "user_id": 3,
                 "content_url": "https://www.tiktok.com/@ua.cmc/video/7674889049940823316",
-                "caption": "Khi giảng viên bảo “idea chưa đủ bay”: sinh viên Marketing bay theo nghĩa đen",
+                "caption": "Giảng viên bảo idea chưa đủ “bay”, tụi mình quyết định bay theo nghĩa đen",
                 "status": "approved",
                 "feedback": "Nội dung đã được duyệt để hiển thị trong widget.",
                 "submitted_at": "2026-09-09 22:11:17",
@@ -705,7 +705,7 @@
                 "platform": "TikTok",
                 "content_type": "social",
                 "blog_title": null,
-                "blog_excerpt": "Một màn bắt trend hài hước: lời nhận xét về ý tưởng được nhóm sinh viên biến thành cú “bay” ngay trước sảnh trường.",
+                "blog_excerpt": "Một câu góp ý trong giờ Marketing được tụi mình biến thành màn bắt trend vui trước sảnh — vừa đúng brief, vừa có thêm kỷ niệm cùng nhau.",
                 "blog_body": "",
                 "cover_image": "assets/img/content/tiktok-cmcu-7674889049940823316.jpg",
                 "source_label": "Xem trên TikTok"
