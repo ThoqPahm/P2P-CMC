@@ -31,11 +31,17 @@ final class Database
     {
         foreach (['ai_provider_configs', 'ai_provider_keys'] as $table) {
             $sql = (string)$db->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'")->fetchColumn();
-            if ($sql === '' || str_contains($sql, "'apinex'")) continue;
+            if ($sql === '' || (str_contains($sql, "'apinex'") && str_contains($sql, "'xkiro'"))) continue;
             $db->beginTransaction();
             try {
                 $indexes = $db->query("SELECT sql FROM sqlite_master WHERE type IN ('index','trigger') AND tbl_name='$table' AND sql IS NOT NULL")->fetchAll(PDO::FETCH_COLUMN);
-                $expanded = str_replace("'qwen'", "'qwen','apinex'", $sql);
+                $expanded = preg_replace_callback("~CHECK\\s*\\(provider\\s+IN\\s*\\(([^)]*)\\)\\)~i", static function(array $match): string {
+                    $providers = $match[1];
+                    foreach (["'apinex'", "'xkiro'"] as $provider) {
+                        if (!str_contains($providers, $provider)) $providers .= ',' . $provider;
+                    }
+                    return 'CHECK(provider IN (' . $providers . '))';
+                }, $sql) ?? $sql;
                 $expanded = str_replace($table, $table . '_expanded', $expanded);
                 $db->exec($expanded);
                 $db->exec("INSERT INTO {$table}_expanded SELECT * FROM $table");
@@ -331,6 +337,7 @@ final class Database
         $db->exec(<<<'SQL'
             INSERT OR IGNORE INTO ai_provider_configs (provider, endpoint, model) VALUES
                 ('apinex', 'https://api.apinex.bond/v1/chat/completions', ''),
+                ('xkiro', 'https://api.xkiro.com/v1/chat/completions', 'openai/gpt-5.6-sol'),
                 ('gemini', 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', 'gemini-2.5-flash'),
                 ('deepseek', 'https://api.deepseek.com/chat/completions', 'deepseek-chat'),
                 ('glm', 'https://open.bigmodel.cn/api/paas/v4/chat/completions', 'glm-5.2'),

@@ -42,7 +42,7 @@ $activeLoginTheme = active_login_theme();
         </section>
 
         <section class="super-section" id="providers">
-            <div class="super-section-heading"><div><h3>Nhà cung cấp mô hình</h3><p>Gemini, DeepSeek, GLM, Qwen và APINEX dùng cấu hình Chat Completions.</p></div><span class="super-secure"><i class="bi bi-lock-fill"></i> Key mã hóa AES-256-GCM</span></div>
+            <div class="super-section-heading"><div><h3>Nhà cung cấp mô hình</h3><p>Gemini, DeepSeek, GLM, Qwen, APINEX và xKiro dùng cấu hình Chat Completions.</p></div><span class="super-secure"><i class="bi bi-lock-fill"></i> Key mã hóa AES-256-GCM</span></div>
             <div class="provider-stack">
                 <?php foreach ($providers as $key => $provider): ?>
                     <article class="provider-row">

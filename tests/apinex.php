@@ -10,6 +10,7 @@ Database::migrateApinex($db);
 if ($db->query("SELECT api_key_encrypted FROM ai_provider_configs WHERE provider='gemini'")->fetchColumn()!=='encrypted-test') throw new RuntimeException('Config lost');
 if ($db->query('SELECT api_key_encrypted FROM ai_provider_keys WHERE id=42')->fetchColumn()!=='encrypted-slot') throw new RuntimeException('Slot lost');
 $db->exec("INSERT INTO ai_provider_configs VALUES('apinex',''); INSERT INTO ai_provider_keys(provider,api_key_encrypted) VALUES('apinex','test')");
+$db->exec("INSERT INTO ai_provider_configs VALUES('xkiro',''); INSERT INTO ai_provider_keys(provider,api_key_encrypted) VALUES('xkiro','test')");
 $url=AiProviderManager::normalizeEndpoint('apinex','https://api.apinex.bond/v1/');
 if ($url!=='https://api.apinex.bond/v1/chat/completions') throw new RuntimeException('URL not normalized');
 $validate=new ReflectionMethod(AiProviderManager::class,'assertEndpoint');
@@ -19,6 +20,15 @@ foreach(['https://evil.example/v1/chat/completions','https://api.apinex.bond.evi
     throw new RuntimeException('Unsafe endpoint accepted');
 }
 echo "PASS APINEX registration, idempotent migration, key preservation, URL normalization and host restrictions.\n";
+$xkiroUrl=AiProviderManager::normalizeEndpoint('xkiro','https://api.xkiro.com/v1/');
+if ($xkiroUrl!=='https://api.xkiro.com/v1/chat/completions') throw new RuntimeException('xKiro URL not normalized');
+$validate->invoke(null,'xkiro',$xkiroUrl);
+foreach(['https://evil.example/v1/chat/completions','https://api.xkiro.com.evil.example/v1/chat/completions','http://api.xkiro.com/v1/chat/completions','https://api.xkiro.com:444/v1/chat/completions'] as $bad) {
+    try { $validate->invoke(null,'xkiro',$bad); } catch(InvalidArgumentException) { continue; }
+    throw new RuntimeException('Unsafe xKiro endpoint accepted');
+}
+if (!isset(AiProviderManager::registry()['xkiro'])) throw new RuntimeException('xKiro missing from registry');
+echo "PASS xKiro registration, migration, URL normalization and host restrictions.\n";
 $source=file_get_contents(__DIR__.'/../app/AiProviderManager.php');
 if (!str_contains($source, "=== 'apinex' ? 60000 : 15000") || !str_contains($source, "'stream' => false")) throw new RuntimeException('APINEX timeout or non-streaming request missing');
 echo "PASS APINEX uses a 60-second timeout and explicit non-streaming responses.\n";

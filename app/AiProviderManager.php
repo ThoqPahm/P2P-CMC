@@ -16,6 +16,7 @@ final class AiProviderManager
     {
         return [
             'apinex' => ['name' => 'APINEX', 'endpoint' => 'https://api.apinex.bond/v1/chat/completions', 'model' => '', 'host_suffix' => 'api.apinex.bond', 'hint' => 'Nhập API key APINEX và tên model được tài khoản của bạn hỗ trợ. Đây là nhà cung cấp bên thứ ba; không dùng key Gemini hoặc nhà cung cấp khác.'],
+            'xkiro' => ['name' => 'xKiro', 'endpoint' => 'https://api.xkiro.com/v1/chat/completions', 'model' => 'openai/gpt-5.6-sol', 'host_suffix' => 'api.xkiro.com', 'hint' => 'API key từ xKiro. Model dùng định dạng vendor/model; có thể thay model mặc định bằng model được tài khoản hỗ trợ.'],
             'gemini' => ['name' => 'Google Gemini', 'endpoint' => 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', 'model' => 'gemini-2.5-flash', 'host_suffix' => 'generativelanguage.googleapis.com', 'hint' => 'API key từ Google AI Studio.'],
             'deepseek' => ['name' => 'DeepSeek', 'endpoint' => 'https://api.deepseek.com/chat/completions', 'model' => 'deepseek-chat', 'host_suffix' => 'api.deepseek.com', 'hint' => 'API key từ DeepSeek Platform.'],
             'glm' => ['name' => 'Zhipu GLM', 'endpoint' => 'https://open.bigmodel.cn/api/paas/v4/chat/completions', 'model' => 'glm-5.2', 'host_suffix' => 'open.bigmodel.cn', 'hint' => 'API key từ Zhipu BigModel.'],
@@ -398,6 +399,9 @@ final class AiProviderManager
     {
         $endpoint = rtrim(trim($endpoint), '/');
         if ($provider === 'apinex' && $endpoint === 'https://api.apinex.bond/v1') {
+            return $endpoint . '/chat/completions';
+        }
+        if ($provider === 'xkiro' && $endpoint === 'https://api.xkiro.com/v1') {
             return $endpoint . '/chat/completions';
         }
         return $endpoint;
