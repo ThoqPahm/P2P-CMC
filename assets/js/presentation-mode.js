@@ -19,6 +19,9 @@
     let changing = false;
     let runVersion = 0;
     let manualMode = false;
+    let queuedDirection = 0;
+    let fastForward = false;
+    const activeDelays = new Set();
     const MANUAL_ABORT = Symbol('manual-control');
 
     const scenes = [
@@ -87,7 +90,27 @@
         },
     ];
 
-    const delay = (milliseconds) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+    const delay = (milliseconds) => {
+        if (fastForward) return Promise.resolve();
+        return new Promise((resolve) => {
+            let settled = false;
+            let timeoutId;
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+                window.clearTimeout(timeoutId);
+                activeDelays.delete(finish);
+                resolve();
+            };
+            timeoutId = window.setTimeout(finish, milliseconds);
+            activeDelays.add(finish);
+        });
+    };
+
+    const fastForwardCurrentScene = () => {
+        fastForward = true;
+        [...activeDelays].forEach((finish) => finish());
+    };
     const doc = () => frame.contentDocument;
     const assertAutomating = () => { if (manualMode) throw MANUAL_ABORT; };
 
@@ -466,6 +489,10 @@
                     title: scene.title,
                     phase: 'ready',
                 }, window.location.origin);
+                const direction = queuedDirection;
+                queuedDirection = 0;
+                fastForward = false;
+                if (direction) window.setTimeout(() => requestGo(direction), 0);
             }
         }
     };
@@ -485,6 +512,16 @@
         if (direction > 0) await visualExit(scenes[current]);
         current = wanted;
         await renderScene(current, direction > 0);
+    };
+
+    const requestGo = (direction) => {
+        if (overview.open) return;
+        if (changing) {
+            queuedDirection = direction < 0 ? -1 : 1;
+            fastForwardCurrentScene();
+            return;
+        }
+        void go(direction < 0 ? -1 : 1);
     };
 
     const routeFromHref = (href) => {
@@ -541,22 +578,29 @@
 
     const handleKeys = (event) => {
         const isField = ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target?.tagName);
-        if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') {
-            if (isField && event.key === ' ') return;
+        const key = event.key || '';
+        const code = event.code || '';
+        const legacyCode = Number(event.keyCode || event.which || 0);
+        const nextKeys = ['ArrowRight', 'Right', 'PageDown', ' ', 'Space', 'Spacebar', 'Enter', 'MediaTrackNext', 'BrowserForward'];
+        const previousKeys = ['ArrowLeft', 'Left', 'PageUp', 'MediaTrackPrevious', 'BrowserBack'];
+        const isNext = nextKeys.includes(key) || nextKeys.includes(code) || [13, 32, 34, 39, 167, 176].includes(legacyCode);
+        const isPrevious = previousKeys.includes(key) || previousKeys.includes(code) || [33, 37, 166, 177].includes(legacyCode);
+        if (isNext) {
+            if (isField && ([' ', 'Space', 'Spacebar', 'Enter'].includes(key) || ['Space', 'Enter'].includes(code))) return;
             event.preventDefault();
-            go(1);
-        } else if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+            requestGo(1);
+        } else if (isPrevious) {
             event.preventDefault();
-            go(-1);
-        } else if (event.key.toLowerCase() === 'f') {
+            requestGo(-1);
+        } else if (key.toLowerCase() === 'f') {
             document.documentElement.requestFullscreen?.();
-        } else if (event.key.toLowerCase() === 'h') {
+        } else if (key.toLowerCase() === 'h') {
             document.body.classList.toggle('controls-hidden');
         }
     };
 
-    previous.addEventListener('click', () => go(-1));
-    next.addEventListener('click', () => go(1));
+    previous.addEventListener('click', () => requestGo(-1));
+    next.addEventListener('click', () => requestGo(1));
     fullscreen.addEventListener('click', () => document.documentElement.requestFullscreen?.());
     overviewButton.addEventListener('click', () => overview.showModal());
     overviewClose.addEventListener('click', () => overview.close());
@@ -564,7 +608,7 @@
     window.addEventListener('message', (event) => {
         if (event.origin !== window.location.origin || event.source !== window.parent) return;
         if (event.data?.type === 'cmc-presentation-go') {
-            go(Number(event.data.direction) < 0 ? -1 : 1);
+            requestGo(Number(event.data.direction) < 0 ? -1 : 1);
         }
     });
     sceneList.innerHTML = scenes.map((scene) => `<li><strong>${scene.title}</strong><span>${scene.cue}</span></li>`).join('');

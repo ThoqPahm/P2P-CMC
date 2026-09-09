@@ -66,6 +66,6 @@ require_super_admin();
             </footer>
         </aside>
     </main>
-    <script src="assets/js/rehearsal.js?v=1"></script>
+    <script src="assets/js/rehearsal.js?v=2"></script>
 </body>
 </html>

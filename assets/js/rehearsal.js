@@ -112,7 +112,7 @@
     };
 
     const requestMove = (direction) => {
-        if (!ready || (direction < 0 && current === 0) || (direction > 0 && current === steps.length - 1)) return;
+        if ((direction < 0 && current === 0) || (direction > 0 && current === steps.length - 1)) return;
         ready = false;
         previous.disabled = true;
         next.disabled = true;
