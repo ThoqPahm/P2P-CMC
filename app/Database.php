@@ -187,6 +187,12 @@ final class Database
                 FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
             );
 
+            CREATE TABLE IF NOT EXISTS public_rehearsal_scripts (
+                step_key TEXT PRIMARY KEY,
+                content TEXT NOT NULL,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+
             CREATE TABLE IF NOT EXISTS ai_provider_configs (
                 provider TEXT PRIMARY KEY CHECK(provider IN ('gemini','deepseek','glm','qwen')),
                 endpoint TEXT NOT NULL,
@@ -247,6 +253,17 @@ final class Database
                 ambassador_ids TEXT NOT NULL DEFAULT '[]',
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
+SQL);
+
+        $db->exec(<<<'SQL'
+            INSERT OR IGNORE INTO public_rehearsal_scripts(step_key, content, updated_at)
+            SELECT source.step_key, source.content, source.updated_at
+            FROM rehearsal_scripts AS source
+            WHERE source.updated_at = (
+                SELECT MAX(candidate.updated_at)
+                FROM rehearsal_scripts AS candidate
+                WHERE candidate.step_key = source.step_key
+            )
         SQL);
 
         self::addColumn($db, 'users', 'ambassador_tier', "TEXT NOT NULL DEFAULT 'junior'");

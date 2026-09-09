@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/app/bootstrap.php';
-require_super_admin();
-$savedStatement = $db->prepare('SELECT step_key, content FROM rehearsal_scripts WHERE user_id = ?');
-$savedStatement->execute([(int) user()['id']]);
+$savedStatement = $db->query('SELECT step_key, content FROM public_rehearsal_scripts');
 $savedScripts = [];
 foreach ($savedStatement->fetchAll() as $savedScript) {
     $savedScripts[(string) $savedScript['step_key']] = (string) $savedScript['content'];

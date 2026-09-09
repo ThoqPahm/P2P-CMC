@@ -5,8 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/app/bootstrap.php';
 require_once __DIR__ . '/app/PresentationMode.php';
 
-require_super_admin();
-$presentationToken = PresentationMode::issue((int)user()['id']);
+$presentationToken = PresentationMode::issue(0);
 $isRehearsalEmbed = (string)($_GET['embedded'] ?? '') === 'rehearsal';
 ?>
 <!doctype html>

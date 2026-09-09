@@ -14,9 +14,6 @@ function rehearsal_json(array $payload, int $status = 200): never
     exit;
 }
 
-if (!is_super_admin()) {
-    rehearsal_json(['ok' => false, 'message' => 'Phiên quản trị không còn hợp lệ.'], 404);
-}
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     rehearsal_json(['ok' => false, 'message' => 'Phương thức không hợp lệ.'], 405);
 }
@@ -38,11 +35,11 @@ if (!in_array($stepKey, $allowedKeys, true) || $content === '' || mb_strlen($con
 }
 
 $statement = $db->prepare(<<<'SQL'
-    INSERT INTO rehearsal_scripts(user_id, step_key, content, updated_at)
-    VALUES(?, ?, ?, CURRENT_TIMESTAMP)
-    ON CONFLICT(user_id, step_key)
+    INSERT INTO public_rehearsal_scripts(step_key, content, updated_at)
+    VALUES(?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(step_key)
     DO UPDATE SET content = excluded.content, updated_at = CURRENT_TIMESTAMP
 SQL);
-$statement->execute([(int) user()['id'], $stepKey, $content]);
+$statement->execute([$stepKey, $content]);
 
 rehearsal_json(['ok' => true, 'content' => $content]);
