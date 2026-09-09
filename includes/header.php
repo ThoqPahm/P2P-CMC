@@ -36,7 +36,7 @@ $workspaceLabel = match ($currentUser['role'] ?? '') {
     <link href="assets/css/typography.css?v=2" rel="stylesheet">
     <?php if (in_array($page ?? '', ['admin-submissions', 'admin-ambassadors'], true)): ?><link href="assets/css/admin-records.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (in_array($page ?? '', ['admin-rewards', 'admin-performance'], true)): ?><link href="assets/css/admin-analytics.css?v=1" rel="stylesheet"><?php endif; ?>
-    <?php if ($isStudentWorkspace): ?><link href="assets/css/student-layout.css?v=6" rel="stylesheet"><?php endif; ?>
+    <?php if ($isStudentWorkspace): ?><link href="assets/css/student-layout.css?v=7" rel="stylesheet"><?php endif; ?>
 </head>
 <body class="<?= $isLogin ? 'login-layout' : ($isPublic ? 'public-layout' : 'app-layout') ?><?= $isStudentWorkspace ? ' student-workspace' : '' ?>">
 <!--

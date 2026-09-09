@@ -392,7 +392,7 @@
                 const time = new Date(message.created_at.replace(' ', 'T')).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
                 const bubble = `<p>${escapeHtml(message.content)}</p>`;
                 const messageContent = askAiEligible
-                    ? `<div class="message-bubble-row">${bubble}<button class="message-ai-trigger" type="button" data-ask-ai="${Number(message.id)}" aria-expanded="false" aria-label="Nhờ AI gợi ý hướng phản hồi cho tin nhắn này"><i class="bi bi-magic" aria-hidden="true"></i><span>Ask AI</span></button></div><div class="message-ai-host" data-ai-callout-host></div>`
+                    ? `<div class="message-bubble-row">${bubble}<button class="message-ai-trigger" type="button" data-ask-ai="${Number(message.id)}" aria-expanded="false" aria-label="Nhờ AI gợi ý hướng phản hồi cho tin nhắn này" title="Ask AI"><i class="bi bi-magic" aria-hidden="true"></i><span class="visually-hidden">Ask AI</span></button></div><div class="message-ai-host" data-ai-callout-host></div>`
                     : bubble;
                 return `<div class="message${mine ? ' mine' : participantClass}" data-message-id="${Number(message.id)}"><b>${escapeHtml(message.sender_name)}</b>${messageContent}<time>${time}</time></div>`;
             }).join('') || '<div class="empty-state compact">Hãy gửi lời chào đầu tiên nhé.</div>';
