@@ -370,8 +370,8 @@ SQL);
             WHERE content_url IN ('https://www.youtube.com/shorts/demo', 'https://www.tiktok.com/@ua.cmc/video/7675607526141873429')
         SQL)->execute([
             'https://www.tiktok.com/@ua.cmc/video/7675607526141873429',
-            'Mượn áo polo CMCU của bạn và cái kết: mình có luôn một màn catwalk',
-            'Tụi mình gặp nhau trước sảnh, thấy chiếc áo xanh CMCU hợp quá nên đổi outfit rồi tranh thủ quay một đoạn thật vui bên logo trường.',
+            'Gặp lại bạn thân, thấy chiếc áo CMCU và cái kết mình nhập học luôn',
+            'Tụi mình chỉ vô tình gặp nhau, nhưng logo CMCU trên áo bạn lại đập vào mắt mình. Từ một lời chào, mình quyết định trở thành sinh viên cùng trường — một tiểu phẩm vui tụi mình quay ở sảnh.',
             'assets/img/content/tiktok-cmcu-7675607526141873429.jpg',
         ]);
 

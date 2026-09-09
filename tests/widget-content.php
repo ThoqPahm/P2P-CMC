@@ -25,7 +25,7 @@ content_check(str_contains($script, "image ? '' : `<i class=\"bi \${icon}\"></i>
 content_check(str_contains($script, '<small>Sở thích</small>'), 'Ambassador cards must label interest data correctly.');
 content_check(!str_contains($script, '<small>Có thể chia sẻ</small>'), 'Ambassador cards must not mislabel interests as consultation topics.');
 content_check(str_contains($schema, '7675607526141873429') && str_contains($schema, '7674889049940823316'), 'Both approved TikTok fixtures must ship with the demo.');
-content_check(str_contains($schema, 'mình có luôn một màn catwalk'), 'The first TikTok title must keep the student voice.');
+content_check(str_contains($schema, 'cái kết mình nhập học luôn'), 'The first TikTok title must reflect its CMCU enrollment punchline.');
 content_check(str_contains($schema, 'tụi mình quyết định bay theo nghĩa đen'), 'The second TikTok title must keep the student voice.');
 content_check(str_contains($schema, 'Một câu góp ý trong giờ Marketing được tụi mình'), 'Video descriptions must read as student-authored stories.');
 content_check(substr_count($schema, 'assets/img/content/') >= 5, 'The demo needs real visual assets for its editorial feed.');
