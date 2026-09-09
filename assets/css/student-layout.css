@@ -284,6 +284,12 @@
 .student-workspace .inbox-row.active { background: #eef8fc; box-shadow: inset 3px 0 0 var(--cmc-blue); }
 .student-workspace .inbox-room-head { min-height: 72px; padding: 12px 16px; }
 .student-workspace .inbox-messages { padding: 20px 18px; }
+.student-workspace .inbox-messages .message { align-items: flex-start; }
+.student-workspace .inbox-messages .message p { color: #304e63; background: #edf3f6; border-color: #d9e5eb; border-radius: 14px 14px 14px 4px; }
+.student-workspace .inbox-messages .message.mine { align-items: flex-end; }
+.student-workspace .inbox-messages .message.mine p { color: #fff; background: var(--cmc-blue); border-color: var(--cmc-blue); border-radius: 14px 14px 4px 14px; }
+.student-workspace .inbox-messages .message.participant b,
+.student-workspace .inbox-messages .message.participant time { color: #647d8f; }
 .student-workspace .inbox-room .message-bubble { max-width: min(78%, 620px); padding: 11px 14px; border-radius: 14px; line-height: 1.55; }
 .student-workspace .chat-composer { gap: 10px; padding: 12px; background: #fff; border-top: 1px solid #dfe8ed; }
 .student-workspace .chat-composer textarea { min-height: 44px; padding: 11px 14px; border: 1px solid #cbdbe4; border-radius: 12px; }

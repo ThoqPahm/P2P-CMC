@@ -210,10 +210,14 @@
             const data = await response.json();
             if (!data.ok) return;
             const nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
+            const ambassadorPerspective = Boolean(document.querySelector('.inbox-shell'));
             list.innerHTML = data.messages.map((message) => {
-                const mine = Number(message.sender_id) === Number(data.current_user_id);
+                const mine = ambassadorPerspective
+                    ? message.sender_role === 'ambassador' && Number(message.sender_id) === Number(data.current_user_id)
+                    : Number(message.sender_id) === Number(data.current_user_id);
+                const participantClass = ambassadorPerspective && !mine ? ' participant' : '';
                 const time = new Date(message.created_at.replace(' ', 'T')).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-                return `<div class="message ${mine ? 'mine' : ''}"><b>${escapeHtml(message.sender_name)}</b><p>${escapeHtml(message.content)}</p><time>${time}</time></div>`;
+                return `<div class="message${mine ? ' mine' : participantClass}"><b>${escapeHtml(message.sender_name)}</b><p>${escapeHtml(message.content)}</p><time>${time}</time></div>`;
             }).join('') || '<div class="empty-state compact">Hãy gửi lời chào đầu tiên nhé.</div>';
             if (nearBottom || !list.dataset.loaded) list.scrollTop = list.scrollHeight;
             list.dataset.loaded = 'true';
