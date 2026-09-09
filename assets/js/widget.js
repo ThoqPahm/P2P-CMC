@@ -27,6 +27,42 @@
     const aiSuggestionCache = new Map();
     const assistantPanel = $('#widgetAiAssistant');
     const assistantToggle = $('#widgetAiToggle');
+    const consentKey = 'eambassador.widget.consent.v1';
+    const consentNotice = $('#widgetConsent');
+    const policyDialog = $('#widgetPolicyDialog');
+    const policyCopy = {
+        terms: {
+            title: 'Điều khoản sử dụng',
+            html: '<p>Hãy sử dụng widget để trao đổi về học tập và trải nghiệm sinh viên một cách tôn trọng. Không gửi nội dung quấy rối, spam, trái pháp luật hoặc thông tin nhạy cảm không cần thiết.</p><p>Đại sứ chia sẻ trải nghiệm cá nhân; thông tin tuyển sinh và chính sách chính thức cần được xác nhận với nhà trường.</p>'
+        },
+        privacy: {
+            title: 'Quyền riêng tư',
+            html: '<p>Tên, email và nội dung trò chuyện bạn cung cấp được sử dụng để duy trì cuộc trao đổi, gửi phản hồi và hỗ trợ đảm bảo an toàn.</p><p>Lịch sử phiên được lưu trên trình duyệt này để bạn có thể quay lại. Chỉ cung cấp những thông tin cần thiết cho câu hỏi của bạn.</p>'
+        }
+    };
+
+    const showPolicy = (type) => {
+        const copy = policyCopy[type];
+        if (!copy || !policyDialog) return;
+        $('#widgetPolicyTitle').textContent = copy.title;
+        $('#widgetPolicyContent').innerHTML = copy.html;
+        policyDialog.showModal();
+    };
+
+    const initializeConsent = () => {
+        if (!consentNotice) return;
+        let accepted = false;
+        try { accepted = window.localStorage.getItem(consentKey) === 'accepted'; } catch (_) {}
+        consentNotice.classList.toggle('is-hidden', accepted);
+        $$('[data-policy]').forEach((button) => button.addEventListener('click', () => showPolicy(button.dataset.policy)));
+        $('#widgetConsentAccept')?.addEventListener('click', () => {
+            try { window.localStorage.setItem(consentKey, 'accepted'); } catch (_) {}
+            consentNotice.classList.add('is-hidden');
+        });
+        const closePolicy = () => policyDialog?.close();
+        $('#widgetPolicyClose')?.addEventListener('click', closePolicy);
+        $('#widgetPolicyDone')?.addEventListener('click', closePolicy);
+    };
 
     const markAssistantDiscovered = () => {
         if (!assistantToggle || !assistantToggle.classList.contains('is-discoverable')) return;
@@ -953,6 +989,7 @@
     const minimumDate = new Date(Date.now() + (60 * 60 * 1000));
     minimumDate.setMinutes(minimumDate.getMinutes() - minimumDate.getTimezoneOffset());
     $('#preferredAt').min = minimumDate.toISOString().slice(0, 16);
+    initializeConsent();
     renderAmbassadors();
     renderContent();
     renderInbox();

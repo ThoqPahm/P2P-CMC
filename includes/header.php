@@ -24,11 +24,10 @@ $workspaceLabel = match ($currentUser['role'] ?? '') {
     <link rel="preload" href="assets/fonts/inter/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&amp;display=swap" rel="stylesheet">
-    <link href="assets/css/app.css?v=73" rel="stylesheet">
+    <link href="assets/css/app.css?v=74" rel="stylesheet">
     <?php if (($page ?? '') === 'ambassador-program'): ?><link href="assets/css/program.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'admin-widget'): ?><link href="assets/css/widget-admin.css?v=2" rel="stylesheet"><?php endif; ?>
     <?php if (($page ?? '') === 'super-admin'): ?><link href="assets/css/super-admin.css?v=2" rel="stylesheet"><?php endif; ?>
-    <?php if (($page ?? '') === 'student-connect'): ?><link href="assets/css/student-connect.css?v=1" rel="stylesheet"><?php endif; ?>
     <?php if (!in_array($page ?? '', ['admin-dashboard','admin-campaigns','admin-moderation','widget','login'],true)): ?><link href="assets/css/ui-refinements.css?v=1" rel="stylesheet"><?php endif; ?>
     <link href="assets/icons/animateicons.css?v=1" rel="stylesheet">
     <link href="assets/css/icon-system.css?v=3" rel="stylesheet">
@@ -59,7 +58,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
             <div class="collapse navbar-collapse" id="publicNavbar">
                 <div class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                     <a class="nav-link" href="index.php?page=home#about">Về nền tảng</a>
-                    <a class="nav-link" href="index.php?page=student-connect">Kết nối sinh viên</a>
+                    <a class="nav-link" href="index.php?page=ambassadors">Gặp đại sứ</a>
                     <a class="nav-link" href="index.php?page=home#how-it-works">Cách hoạt động</a>
                     <?php if ($currentUser && $currentUser['role'] !== 'prospect'): ?>
                         <a class="btn btn-brand ms-lg-2" href="index.php?page=dashboard">Vào hệ thống <i class="bi bi-arrow-up-right"></i></a>

@@ -567,6 +567,31 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .feedback-error { font-size: .68rem; color: var(--widget-danger); margin-bottom: 8px; }
 
+/* Compact first-visit consent notice */
+.widget-consent { position: fixed; z-index: 70; right: 14px; bottom: 14px; left: 14px; display: grid; grid-template-columns: 34px minmax(0,1fr) auto; width: min(620px,calc(100% - 28px)); align-items:center; gap:10px; margin-inline:auto; padding:11px 12px; background:rgba(255,255,255,.97); border:1px solid #bfd8e5; border-radius:12px; box-shadow:0 14px 38px rgba(0,39,87,.18); backdrop-filter:blur(12px); }
+.widget-consent-icon { display:grid; width:34px; height:34px; place-items:center; color:var(--widget-success); background:#e8f7f2; border-radius:9px; font-size:.9rem; }
+.widget-consent strong { display:block; margin-bottom:2px; color:var(--widget-navy); font-size:.7rem; }
+.widget-consent p { margin:0; color:var(--widget-muted); font-size:.61rem; line-height:1.45; }
+.widget-consent p button { padding:0; color:var(--widget-blue-strong); background:none; border:0; font-size:inherit; font-weight:750; text-decoration:underline; text-underline-offset:2px; }
+.widget-consent-accept,.widget-policy-done { padding:7px 11px; color:#fff; background:var(--widget-blue); border:0; border-radius:8px; font-size:.64rem; font-weight:750; white-space:nowrap; }
+.widget-consent-accept:hover,.widget-policy-done:hover { background:var(--widget-blue-strong); }
+.widget-policy-dialog { position:fixed; inset:0; z-index:80; width:100%; height:100%; max-width:none; max-height:none; margin:0; padding:16px; background:rgba(0,39,87,.42); border:0; place-items:center; backdrop-filter:blur(3px); }
+.widget-policy-dialog[open] { display:grid; }
+.widget-policy-dialog:not([open]) { display:none; }
+.widget-policy-card { position:relative; width:min(410px,100%); padding:22px; background:#fff; border:1px solid var(--widget-line); border-radius:14px; box-shadow:var(--widget-shadow); }
+.widget-policy-card > span { display:grid; width:38px; height:38px; place-items:center; margin-bottom:12px; color:var(--widget-success); background:#e8f7f2; border-radius:10px; }
+.widget-policy-card h2 { margin:0 42px 8px 0; color:var(--widget-navy); font-size:.95rem; }
+.widget-policy-card div { color:var(--widget-muted); font-size:.7rem; line-height:1.65; }
+.widget-policy-card div p { margin:0 0 8px; }
+.widget-policy-close { position:absolute; top:14px; right:14px; display:grid; width:30px; height:30px; place-items:center; padding:0; color:var(--widget-muted); background:var(--widget-soft); border:0; border-radius:8px; }
+.widget-policy-done { margin-top:10px; }
+
+@media (max-width:520px) {
+    .widget-consent { grid-template-columns:30px minmax(0,1fr); }
+    .widget-consent-icon { width:30px; height:30px; }
+    .widget-consent-accept { grid-column:2; justify-self:start; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }

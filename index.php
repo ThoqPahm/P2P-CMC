@@ -30,7 +30,7 @@ if ($page === 'widget') {
     exit;
 }
 
-$publicPages = ['home', 'ambassadors', 'student-connect', 'login'];
+$publicPages = ['home', 'ambassadors', 'login'];
 
 if ($page === 'dashboard' && user()) {
     $page = user()['role'] === 'admin' ? 'admin-dashboard' : (user()['role'] === 'prospect' ? 'ambassadors' : 'student-dashboard');
@@ -39,7 +39,6 @@ if ($page === 'dashboard' && user()) {
 $routes = [
     'home' => 'pages/public/home.php',
     'ambassadors' => 'pages/public/ambassadors.php',
-    'student-connect' => 'pages/public/student-connect.php',
     'login' => 'pages/public/login.php',
     'admin-dashboard' => 'pages/admin/dashboard.php',
     'admin-campaigns' => 'pages/admin/campaigns.php',

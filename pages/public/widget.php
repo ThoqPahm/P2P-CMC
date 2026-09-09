@@ -215,13 +215,21 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
             </div>
         </div>
     </dialog>
+    <section class="widget-consent is-hidden" id="widgetConsent" role="dialog" aria-labelledby="widgetConsentTitle" aria-describedby="widgetConsentText">
+        <span class="widget-consent-icon"><i class="bi bi-shield-check"></i></span>
+        <div><strong id="widgetConsentTitle">Trước khi bắt đầu</strong><p id="widgetConsentText">Bằng việc tiếp tục, bạn đồng ý với <button type="button" data-policy="terms">Điều khoản sử dụng</button> và xác nhận đã đọc <button type="button" data-policy="privacy">Quyền riêng tư</button>.</p></div>
+        <button class="widget-consent-accept" id="widgetConsentAccept" type="button">Đồng ý</button>
+    </section>
+    <dialog class="widget-policy-dialog" id="widgetPolicyDialog">
+        <div class="widget-policy-card"><button class="widget-policy-close" id="widgetPolicyClose" type="button" aria-label="Đóng"><i class="bi bi-x-lg"></i></button><span><i class="bi bi-shield-check"></i></span><h2 id="widgetPolicyTitle"></h2><div id="widgetPolicyContent"></div><button class="widget-policy-done" id="widgetPolicyDone" type="button">Đã hiểu</button></div>
+    </dialog>
     <footer class="widget-footer"><span class="widget-trust"><i class="bi bi-shield-check"></i> Kết nối an toàn · Thông tin được bảo vệ</span></footer>
     <div class="widget-toast is-hidden" id="widgetToast" role="status"></div>
  </main>
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData, 'ai' => ['enabled' => $widgetAiEnabled, 'name' => $widgetSettings['widget_ai_name'], 'welcome' => $widgetSettings['widget_ai_welcome']]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=28"></script>
+<script src="assets/js/widget.js?v=29"></script>
 <script src="assets/js/animateicons.js?v=2" defer></script>
 </body>
 </html>
