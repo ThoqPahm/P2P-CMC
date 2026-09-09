@@ -57,7 +57,7 @@ foreach ($savedStatement->fetchAll() as $savedScript) {
             <article class="script-card" id="scriptCard" aria-live="polite">
                 <div class="step-meta">
                     <span class="role-badge" id="roleBadge"></span>
-                    <span id="stepCounter">PHẦN 1 / 10</span>
+                    <span id="stepCounter">SLIDE 22</span>
                 </div>
                 <h2 id="scriptTitle"></h2>
                 <p class="screen-cue"><span>Trên màn hình</span><strong id="screenCue"></strong></p>
@@ -89,6 +89,6 @@ foreach ($savedStatement->fetchAll() as $savedScript) {
         'savedScripts' => $savedScripts,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
     </script>
-    <script src="assets/js/rehearsal.js?v=3"></script>
+    <script src="assets/js/rehearsal.js?v=5"></script>
 </body>
 </html>

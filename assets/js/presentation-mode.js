@@ -52,16 +52,30 @@
         {
             target: 'widget',
             continueFromPrevious: true,
-            title: 'Học sinh tìm đúng đại sứ',
-            cue: 'Nội dung chung dẫn đến nhu cầu riêng; học sinh lọc ngành và xem hồ sơ người có trải nghiệm phù hợp.',
-            action: findAmbassador,
+            title: 'Học sinh thu hẹp nhu cầu bằng bộ lọc',
+            cue: 'Học sinh dùng ngành, quê quán, khóa và từ khóa để thu hẹp danh sách đại sứ đã xác minh.',
+            action: showAmbassadorFilters,
         },
         {
             target: 'widget',
             continueFromPrevious: true,
-            title: 'Trao đổi trải nghiệm, nhận diện giới hạn',
-            cue: 'Đại sứ trả lời trải nghiệm; câu hỏi học bổng mở ra nhu cầu chuyển đúng thẩm quyền.',
-            action: playProspectChat,
+            title: 'Học sinh chọn đại sứ phù hợp',
+            cue: 'Sau khi lọc theo ngành, học sinh xem hồ sơ và chọn người có trải nghiệm liên quan.',
+            action: selectAmbassadorProfile,
+        },
+        {
+            target: 'widget',
+            continueFromPrevious: true,
+            title: 'Đại sứ chia sẻ trải nghiệm cá nhân',
+            cue: 'Học sinh hỏi về mức độ phù hợp; đại sứ trả lời từ trải nghiệm học tập của mình.',
+            action: playProspectExperience,
+        },
+        {
+            target: 'widget',
+            continueFromPrevious: true,
+            title: 'Câu hỏi học bổng cần được xác nhận',
+            cue: 'Khi học sinh hỏi về học bổng, cuộc trò chuyện chạm tới giới hạn thẩm quyền của đại sứ.',
+            action: playScholarshipQuestion,
         },
         {
             target: 'student-dashboard',
@@ -287,12 +301,23 @@
         await pointTo(title?.closest('.content-card'), true);
     }
 
-    async function findAmbassador() {
+    async function showAmbassadorFilters() {
         const back = doc().querySelector('#widgetBack:not(.is-hidden)');
         if (back) await pointTo(back, true);
         const ambassadorsTab = doc().querySelector('[data-availability="all"]');
         await pointTo(ambassadorsTab, true);
         await delay(350);
+        const search = doc().querySelector('#widgetSearch');
+        const major = doc().querySelector('#majorFilter');
+        const hometown = doc().querySelector('#hometownFilter');
+        const year = doc().querySelector('#yearFilter');
+        await pointTo(search);
+        await pointTo(hometown);
+        await pointTo(year);
+        await pointTo(major);
+    }
+
+    async function selectAmbassadorProfile() {
         const major = doc().querySelector('#majorFilter');
         await pointTo(major);
         major.value = 'Digital Marketing';
@@ -305,6 +330,7 @@
     }
 
     async function openMinhAnhChat() {
+        if (!doc().querySelector('#chatView')?.classList.contains('is-hidden')) return;
         if (doc().querySelector('#profileName')?.textContent.trim() !== 'Trần Minh Anh' || doc().querySelector('#profileView')?.classList.contains('is-hidden')) {
             const major = doc().querySelector('#majorFilter');
             major.value = 'Digital Marketing';
@@ -317,7 +343,28 @@
         await delay(350);
     }
 
-    async function playProspectChat() {
+    const addChatBubble = async (list, className, content, author, animate = true) => {
+        const bubble = doc().createElement('div');
+        bubble.className = `widget-message ${className}`;
+        const paragraph = doc().createElement('p');
+        const small = doc().createElement('small');
+        small.textContent = author;
+        bubble.append(paragraph, small);
+        list.appendChild(bubble);
+        if (animate) await typeText(paragraph, content, className ? 10 : 7);
+        else paragraph.textContent = content;
+        list.scrollTop = list.scrollHeight;
+        if (animate) await delay(280);
+        return bubble;
+    };
+
+    const seedExperienceMessages = async (list) => {
+        list.innerHTML = '';
+        await addChatBubble(list, 'mine', 'Em là người hướng nội, liệu học Digital Marketing có phù hợp không ạ?', 'Bạn', false);
+        await addChatBubble(list, '', 'Có em nhé. Ngành có phần phân tích số liệu và nhiều bài tập nhóm, nhưng người hướng nội vẫn có lợi thế ở khả năng quan sát, lắng nghe và chuẩn bị nội dung kỹ.', 'Trần Minh Anh', false);
+    };
+
+    async function playProspectExperience() {
         await openMinhAnhChat();
         const list = doc().querySelector('#widgetMessages');
         if (!list) return;
@@ -327,7 +374,6 @@
         const messages = [
             ['mine', 'Em là người hướng nội, liệu học Digital Marketing có phù hợp không ạ?', 'Bạn'],
             ['', 'Có em nhé. Ngành có phần phân tích số liệu và nhiều bài tập nhóm, nhưng người hướng nội vẫn có lợi thế ở khả năng quan sát, lắng nghe và chuẩn bị nội dung kỹ.', 'Trần Minh Anh'],
-            ['mine', 'Với kết quả học tập hiện tại, em có chắc chắn nhận được học bổng không ạ?', 'Bạn'],
         ];
         for (const [className, content, author] of messages) {
             if (className) {
@@ -345,16 +391,27 @@
                 await delay(650);
                 typing.remove();
             }
-            const bubble = doc().createElement('div');
-            bubble.className = `widget-message ${className}`;
-            bubble.innerHTML = `<p></p><small>${author}</small>`;
-            list.appendChild(bubble);
-            await typeText(bubble.querySelector('p'), content, className ? 10 : 7);
-            list.scrollTop = list.scrollHeight;
-            await delay(280);
+            await addChatBubble(list, className, content, author);
         }
         const latest = list.lastElementChild;
         await pointTo(latest);
+    }
+
+    async function playScholarshipQuestion() {
+        await openMinhAnhChat();
+        const list = doc().querySelector('#widgetMessages');
+        if (!list) return;
+        if (!list.textContent.includes('người hướng nội')) await seedExperienceMessages(list);
+        const input = doc().querySelector('#widgetMessageInput');
+        const send = doc().querySelector('#widgetMessageForm button[type="submit"]');
+        const question = 'Với kết quả học tập hiện tại, em có chắc chắn nhận được học bổng không ạ?';
+        await pointTo(input);
+        await typeInto(input, question, 9);
+        await pointTo(send);
+        await visualClick(send);
+        input.value = '';
+        const bubble = await addChatBubble(list, 'mine', question, 'Bạn');
+        await pointTo(bubble);
     }
 
     async function injectInboxMessages() {

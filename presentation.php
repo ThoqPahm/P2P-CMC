@@ -31,7 +31,7 @@ $isRehearsalEmbed = (string)($_GET['embedded'] ?? '') === 'rehearsal';
             </div>
         </div>
         <div class="presentation-chapter" id="presentationChapter" aria-live="polite">
-            <span id="presentationStep">1 / 8</span>
+            <span id="presentationStep">1 / 10</span>
             <strong id="presentationTitle">Nhà trường định hướng chủ đề</strong>
         </div>
     </main>
@@ -62,6 +62,6 @@ $isRehearsalEmbed = (string)($_GET['embedded'] ?? '') === 'rehearsal';
         'embedded' => $isRehearsalEmbed,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
     </script>
-    <script src="assets/js/presentation-mode.js?v=10"></script>
+    <script src="assets/js/presentation-mode.js?v=12"></script>
 </body>
 </html>

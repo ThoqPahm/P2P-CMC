@@ -29,7 +29,7 @@ $payload = json_decode((string) file_get_contents('php://input'), true);
 $stepKey = is_array($payload) ? trim((string) ($payload['stepKey'] ?? '')) : '';
 $content = is_array($payload) ? trim((string) ($payload['content'] ?? '')) : '';
 $allowedKeys = ['slide-22', 'slide-27'];
-for ($index = 1; $index <= 8; $index++) {
+for ($index = 1; $index <= 10; $index++) {
     $allowedKeys[] = 'prototype-' . $index;
 }
 

@@ -27,6 +27,7 @@
     const next = document.querySelector('#nextStep');
     let current = 0;
     let prototypeIndex = 0;
+    let prototypeTotal = 10;
     let prototypeActive = false;
     let editing = false;
 
@@ -75,31 +76,43 @@
             outline: ['Nội dung đã duyệt tiếp cận học sinh.', 'Tạo hình dung ban đầu về ngành học.', 'Nội dung chung gợi ra câu hỏi riêng.'],
         },
         {
-            key: 'prototype-4', kind: 'prototype', role: 'HỌC SINH', roleClass: 'role-student', title: 'Học sinh tìm đúng đại sứ',
-            screen: 'Quay lại danh sách → lọc Digital Marketing → mở hồ sơ Trần Minh Anh.',
-            paragraphs: ['Ví dụ, một học sinh hướng nội muốn biết mình có phù hợp với ngành Digital Marketing hay không.', 'Trên bản mẫu, học sinh có thể chọn ngành, xem hồ sơ và chủ đề mà từng đại sứ có thể chia sẻ, từ đó tìm người có trải nghiệm phù hợp để trao đổi. Nếu đại sứ chưa trực tuyến, học sinh có thể để lại lời nhắn hoặc đặt lịch.', 'Điểm quan trọng là học sinh không chỉ có thêm một kênh hỏi đáp, mà biết mình đang hỏi ai và người đó có trải nghiệm gì liên quan.'],
-            outline: ['Học sinh có băn khoăn cá nhân.', 'Lọc theo ngành và xem hồ sơ.', 'Chọn người có trải nghiệm phù hợp.', 'Biết rõ mình đang hỏi ai.'],
+            key: 'prototype-4', kind: 'prototype', role: 'HỌC SINH', roleClass: 'role-student', title: 'Học sinh thu hẹp nhu cầu bằng bộ lọc',
+            screen: 'Quay lại danh sách đại sứ → giới thiệu ô tìm kiếm và ba bộ lọc.',
+            paragraphs: ['Từ nội dung chung, học sinh có thể muốn tìm một người phù hợp hơn với băn khoăn của mình.', 'Tại đây, học sinh có thể tìm theo điều đang quan tâm, đồng thời lọc đại sứ theo ngành, quê quán và khóa học. Bộ lọc giúp thu hẹp danh sách đã xác minh trước khi lựa chọn người để trao đổi.'],
+            outline: ['Nội dung chung dẫn tới nhu cầu riêng.', 'Tìm theo điều quan tâm.', 'Lọc theo ngành, quê quán và khóa.', 'Thu hẹp danh sách đại sứ đã xác minh.'],
         },
         {
-            key: 'prototype-5', kind: 'prototype', role: 'HỌC SINH', roleClass: 'role-student', title: 'Trao đổi trải nghiệm, nhận diện giới hạn',
-            screen: 'Từ hồ sơ đại sứ → Gửi tin nhắn → theo dõi cuộc hội thoại.',
-            paragraphs: ['Tuy nhiên, tìm đúng người mới chỉ là bước đầu; giải pháp còn phải xác định người đó được trả lời đến đâu.', 'Với câu hỏi về việc một người hướng nội học ngành này sẽ gặp khó khăn gì, đại sứ có thể chia sẻ trải nghiệm, cách mình thích nghi và những điều học sinh nên chuẩn bị.'],
-            outline: ['Tìm đúng người chưa đủ.', 'Đại sứ trả lời bằng trải nghiệm cá nhân.', 'Chia sẻ khó khăn, cách thích nghi và điều cần chuẩn bị.'],
+            key: 'prototype-5', kind: 'prototype', role: 'HỌC SINH', roleClass: 'role-student', title: 'Học sinh chọn đại sứ phù hợp',
+            screen: 'Chọn ngành Digital Marketing → mở hồ sơ Trần Minh Anh.',
+            paragraphs: ['Ví dụ, một học sinh hướng nội muốn biết mình có phù hợp với ngành Digital Marketing hay không. Sau khi chọn ngành, học sinh xem hồ sơ và chủ đề mà từng đại sứ có thể chia sẻ, rồi chọn người có trải nghiệm liên quan.', 'Điểm quan trọng là học sinh biết mình đang hỏi ai và người đó có trải nghiệm gì phù hợp với câu hỏi của mình. Nếu đại sứ chưa trực tuyến, học sinh vẫn có thể để lại lời nhắn hoặc đặt lịch.'],
+            outline: ['Lọc ngành Digital Marketing.', 'Xem hồ sơ và chủ đề có thể chia sẻ.', 'Chọn người có trải nghiệm phù hợp.', 'Có thể nhắn lại hoặc đặt lịch.'],
         },
         {
-            key: 'prototype-6', kind: 'prototype', role: 'ĐẠI SỨ', roleClass: 'role-ambassador', title: 'Đại sứ chuyển câu hỏi cần xác nhận',
+            key: 'prototype-6', kind: 'prototype', role: 'HỌC SINH', roleClass: 'role-student', title: 'Đại sứ chia sẻ trải nghiệm cá nhân',
+            screen: 'Từ hồ sơ → Gửi tin nhắn → hỏi về người hướng nội → nhận câu trả lời.',
+            paragraphs: ['Tìm đúng người mới chỉ là bước đầu; tiếp theo là cuộc trao đổi dựa trên trải nghiệm thật.', 'Với câu hỏi một người hướng nội có phù hợp với Digital Marketing hay không, đại sứ có thể chia sẻ những khó khăn, cách mình thích nghi và điều học sinh nên chuẩn bị. Đây là phần sinh viên có thể trả lời bằng chính trải nghiệm của mình.'],
+            outline: ['Học sinh hỏi về mức độ phù hợp.', 'Đại sứ trả lời bằng trải nghiệm cá nhân.', 'Chia sẻ khó khăn, cách thích nghi và điều cần chuẩn bị.'],
+        },
+        {
+            key: 'prototype-7', kind: 'prototype', role: 'HỌC SINH', roleClass: 'role-student', title: 'Câu hỏi học bổng cần được xác nhận',
+            screen: 'Trong cùng hội thoại → học sinh gửi thêm câu hỏi về học bổng.',
+            paragraphs: ['Nhưng nếu học sinh hỏi tiếp: “Với kết quả của em, em có chắc chắn nhận được học bổng không?”, trách nhiệm trả lời sẽ khác.', 'Đây là thông tin cần độ chính xác và thẩm quyền xác nhận. Vì vậy, đại sứ không tự kết luận mà chuyển nguyên câu hỏi đến cán bộ phụ trách.'],
+            outline: ['Học sinh chuyển sang hỏi học bổng.', 'Câu hỏi vượt phạm vi trải nghiệm cá nhân.', 'Cần chuyển đúng người có thẩm quyền.'],
+        },
+        {
+            key: 'prototype-8', kind: 'prototype', role: 'ĐẠI SỨ', roleClass: 'role-ambassador', title: 'Đại sứ chuyển câu hỏi cần xác nhận',
             screen: 'Tổng quan sinh viên → Hộp thư → Mai Thu → Chuyển Ban Tuyển sinh.',
-            paragraphs: ['Nhưng nếu học sinh hỏi tiếp: “Với kết quả của em, em có chắc chắn nhận được học bổng không?”, trách nhiệm trả lời sẽ khác. Đại sứ không tự kết luận mà chuyển câu hỏi đến cán bộ phụ trách.', 'Trong quá trình này, AI hỗ trợ tìm nguồn đã được duyệt, gợi ý phản hồi và phân loại câu hỏi. Đại sứ chia sẻ trải nghiệm; cán bộ xác nhận thông tin chính thức. Nhờ vậy, tốc độ phản hồi được cải thiện nhưng trách nhiệm vẫn thuộc về con người.'],
+            paragraphs: ['Ở phía đại sứ, câu hỏi học bổng được chuyển đến Ban Tuyển sinh thay vì tự trả lời.', 'Trong quá trình này, AI hỗ trợ tìm nguồn đã được duyệt, gợi ý phản hồi và phân loại câu hỏi. Đại sứ chia sẻ trải nghiệm; cán bộ xác nhận thông tin chính thức. Nhờ vậy, tốc độ phản hồi được cải thiện nhưng trách nhiệm vẫn thuộc về con người.'],
             outline: ['Học bổng cần độ chính xác cao.', 'Đại sứ không tự kết luận.', 'Chuyển nguyên câu hỏi cho cán bộ.', 'AI hỗ trợ; con người chịu trách nhiệm.'],
         },
         {
-            key: 'prototype-7', kind: 'prototype', role: 'NHÀ TRƯỜNG', roleClass: 'role-school', title: 'Nhà trường tiếp nhận và xác nhận',
+            key: 'prototype-9', kind: 'prototype', role: 'NHÀ TRƯỜNG', roleClass: 'role-school', title: 'Nhà trường tiếp nhận và xác nhận',
             screen: 'Tổng quan quản trị → Kiểm duyệt chat → vụ việc Mai Thu → nhập xác nhận.',
             paragraphs: ['Và cuộc trao đổi này không kết thúc sau khi học sinh nhận được câu trả lời.', 'Ở phía Nhà trường, cán bộ có thể theo dõi bài nộp, các nội dung cần rà soát và những câu hỏi đang chờ xác nhận. Cán bộ đối chiếu nguồn trước khi đưa ra thông tin chính thức.'],
             outline: ['Cán bộ tiếp nhận câu hỏi chuyển tuyến.', 'Theo dõi nội dung cần rà soát.', 'Đối chiếu nguồn.', 'Xác nhận thông tin chính thức.'],
         },
         {
-            key: 'prototype-8', kind: 'prototype', role: 'NHÀ TRƯỜNG', roleClass: 'role-school', title: 'Phản hồi quay lại cải thiện truyền thông',
+            key: 'prototype-10', kind: 'prototype', role: 'NHÀ TRƯỜNG', roleClass: 'role-school', title: 'Phản hồi quay lại cải thiện truyền thông',
             screen: 'Từ Kiểm duyệt chat → mở sidebar → Tổng quan → nhìn lại luồng Chiến dịch.',
             paragraphs: ['Nếu nhiều học sinh cùng băn khoăn về người hướng nội có phù hợp với ngành Digital Marketing hay không, Nhà trường có thể đưa vấn đề này thành chủ đề cho chiến dịch tiếp theo và giao cho đại sứ có trải nghiệm phù hợp.', 'Như vậy, phản hồi từ tư vấn quay trở lại cải thiện nội dung truyền thông. Đây chính là điểm nối giữa hai luồng mà nhóm vừa trình bày.', 'Qua tình huống trên, CMC-eSA minh họa cách kết nối nhu cầu của học sinh, trải nghiệm của sinh viên và thông tin chính thức của Nhà trường trong cùng một quy trình. Tuy nhiên, đây mới là bản mẫu với dữ liệu mô phỏng; Chương 5 sẽ trình bày lộ trình, nguồn lực và điều kiện để đưa giải pháp vào thí điểm.'],
             outline: ['Câu hỏi lặp lại trở thành dữ liệu đầu vào.', 'Nhà trường tạo chủ đề cho chiến dịch tiếp theo.', 'Inbound quay lại cải thiện Outbound.', 'Chuyển sang lộ trình thí điểm ở Chương 5.'],
@@ -148,7 +161,7 @@
         const step = steps[current];
         roleBadge.className = `role-badge ${step.roleClass}`;
         roleBadge.textContent = step.role;
-        stepCounter.textContent = `PHẦN ${current + 1} / ${steps.length}`;
+        stepCounter.textContent = step.kind === 'slide' ? `SLIDE ${step.slide}` : `STEP ${current - 1} / ${prototypeTotal}`;
         title.textContent = step.title;
         screenCue.textContent = step.screen;
         replaceTextItems(copy, step.paragraphs, 'p');
@@ -157,7 +170,7 @@
         progress.style.width = `${((current + 1) / steps.length) * 100}%`;
         previous.disabled = editing || current === 0;
         next.disabled = editing || current === steps.length - 1;
-        next.textContent = current === steps.length - 1 ? 'Đã hết 10 phần' : 'Phần tiếp →';
+        next.textContent = current === steps.length - 1 ? `Đã hết ${prototypeTotal} step` : 'Phần tiếp →';
         document.querySelector('#scriptCard').scrollTop = 0;
         saveStatus.textContent = '';
         saveStatus.classList.remove('is-error');
@@ -198,7 +211,8 @@
             return;
         }
         if (event.data?.type !== 'cmc-presentation-scene') return;
-        prototypeIndex = Math.max(0, Math.min(7, Number(event.data.index) || 0));
+        prototypeTotal = Math.max(1, Number(event.data.total) || prototypeTotal);
+        prototypeIndex = Math.max(0, Math.min(prototypeTotal - 1, Number(event.data.index) || 0));
         if (!prototypeActive) return;
         if (editing) endEditing();
         render(prototypeIndex + 2);
