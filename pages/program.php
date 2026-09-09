@@ -2,6 +2,7 @@
 require_auth(['admin','student','ambassador']);
 if (user()['status'] !== 'active') { http_response_code(403); exit('Tài khoản hiện không hoạt động.'); }
 $admin = user()['role'] === 'admin';
+$student = user()['role'] === 'student';
 $pageTitle = $admin ? 'Vận hành đại sứ' : 'Chương trình đại sứ';
 $section = $admin && in_array($_GET['tab']??'', ['knowledge','quality','reports'],true) ? $_GET['tab'] : 'members';
 $form = static function(string $action, int $id=0) use ($section): void { ?>
@@ -11,7 +12,7 @@ $label = static fn(string $key): string => AmbassadorProgram::LABELS[$key] ?? $k
 ?>
 <div class="program-workspace">
     <header class="program-heading">
-        <div><p class="program-eyebrow"><?= $admin ? 'QUẢN LÝ CHƯƠNG TRÌNH' : 'CHƯƠNG TRÌNH ĐẠI SỨ SINH VIÊN' ?></p><h2><?= $admin ? 'Quản lý thành viên và hoạt động đại sứ' : 'Hồ sơ và hoạt động đại sứ' ?></h2><p><?= $admin ? 'Xét hồ sơ tham gia, phân công nhiệm vụ và theo dõi chất lượng hoạt động.' : 'Quản lý hồ sơ tham gia, hoàn thành nội dung định hướng và theo dõi công việc được giao.' ?></p></div>
+        <div><p class="program-eyebrow"><?= $admin ? 'QUẢN LÝ CHƯƠNG TRÌNH' : 'CHƯƠNG TRÌNH ĐẠI SỨ SINH VIÊN' ?></p><h2><?= $admin ? 'Quản lý thành viên và hoạt động đại sứ' : ($student ? 'Tham gia chương trình đại sứ' : 'Hoạt động đại sứ của bạn') ?></h2><p><?= $admin ? 'Xét hồ sơ tham gia, phân công nhiệm vụ và theo dõi chất lượng hoạt động.' : ($student ? 'Gửi hồ sơ tham gia, hoàn thành nội dung định hướng và theo dõi kết quả xét duyệt.' : 'Theo dõi nội dung định hướng, công việc được giao và phản hồi từ người điều phối.') ?></p></div>
     </header>
     <?php if ($admin): ?>
     <nav class="program-tabs" aria-label="Vận hành đại sứ">
@@ -96,11 +97,11 @@ $label = static fn(string $key): string => AmbassadorProgram::LABELS[$key] ?? $k
         $completed=array_column(rows('SELECT module FROM ambassador_training WHERE user_id=?',[user()['id']]),'module');
         $tasks=rows('SELECT t.*,u.name AS mentor FROM ambassador_tasks t JOIN users u ON u.id=t.mentor_id WHERE t.user_id=? ORDER BY t.id DESC',[user()['id']]);
     ?>
-    <div class="program-steps" aria-label="Các bước tham gia"><span>01 · Hồ sơ</span><span>02 · Định hướng <?= count($completed) ?>/3</span><span>03 · Công việc</span><span>04 · Phản hồi</span></div>
-    <details class="program-record" <?= !$application?'open':'' ?>><summary><span><strong>Hồ sơ tham gia</strong><small><?= $application?e($label($application['status'])):'Chưa gửi hồ sơ' ?></small></span><i class="bi bi-chevron-down"></i></summary><div class="program-record-body">
+    <div class="program-steps" aria-label="Các bước tham gia"><span>01 · <?= $student ? 'Hồ sơ' : 'Hồ sơ đã duyệt' ?></span><span>02 · Định hướng <?= count($completed) ?>/3</span><span>03 · Công việc</span><span>04 · Phản hồi</span></div>
+    <?php if ($student): ?><details class="program-record" <?= !$application?'open':'' ?>><summary><span><strong>Hồ sơ tham gia</strong><small><?= $application?e($label($application['status'])):'Chưa gửi hồ sơ' ?></small></span><i class="bi bi-chevron-down"></i></summary><div class="program-record-body">
         <?php if ($application && $application['review_note']): ?><p class="program-note">Phản hồi hồ sơ: <?= e($application['review_note']) ?></p><?php endif; ?>
         <form action="program-actions.php" method="post" class="program-form"><?php $form('apply'); ?><label>Vì sao bạn muốn tham gia?<textarea class="form-control" name="motivation" required maxlength="2000" rows="3"><?= e($application['motivation']??'') ?></textarea></label><div class="program-fields"><?php foreach (['topics'=>'Chủ đề bạn có thể chia sẻ','skills'=>'Kỹ năng và kinh nghiệm','availability'=>'Thời gian có thể tham gia'] as $key=>$name): ?><label><?= $name ?><input class="form-control" name="<?= $key ?>" required maxlength="500" value="<?= e($application[$key]??'') ?>"></label><?php endforeach; ?></div><label class="program-check"><input type="checkbox" name="consent" value="1" required><span>Tôi đồng ý dùng hồ sơ này để xét tham gia và điều phối hoạt động đại sứ. Chỉ bản thân tôi và quản trị viên được xem. Không nhập giấy tờ định danh hoặc dữ liệu nhạy cảm.</span></label><button class="btn btn-brand"><?= $application?'Cập nhật hồ sơ':'Gửi hồ sơ tham gia' ?></button></form>
-    </div></details>
+    </div></details><?php endif; ?>
     <div class="program-section-title"><h3>Nội dung định hướng bắt buộc</h3><span><?= count($completed) ?>/3 hoàn thành</span></div>
     <div class="program-list"><?php foreach (AmbassadorProgram::MODULES as $key=>[$title,$content,$question,$answers]): ?>
         <details class="program-record"><summary><span><strong><?= e($title) ?></strong></span><span class="program-status <?= in_array($key,$completed,true)?'is-complete':'' ?>"><?= in_array($key,$completed,true)?'Đã hoàn thành':'Bắt đầu học' ?></span></summary><div class="program-record-body"><p class="program-prose"><?= e($content) ?></p><?php if (!in_array($key,$completed,true)): ?><form action="program-actions.php" method="post" class="program-form"><?php $form('complete_training'); ?><input type="hidden" name="module" value="<?= e($key) ?>"><fieldset><legend><?= e($question) ?></legend><?php $order=[1,0,2]; if ($key==='privacy') $order=[2,1,0]; foreach ($order as $answer): ?><label class="program-check"><input type="radio" name="answer" value="<?= $answer ?>" required><span><?= e($answers[$answer]) ?></span></label><?php endforeach; ?></fieldset><button class="btn btn-brand">Kiểm tra & hoàn thành</button></form><?php endif; ?></div></details>

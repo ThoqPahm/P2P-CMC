@@ -228,7 +228,7 @@ try {
             redirect('index.php?page=my-submissions');
 
         case 'submit_blog':
-            require_auth(['ambassador']);
+            require_auth(['student', 'ambassador']);
             $campaignId = (int) ($_POST['campaign_id'] ?? 0);
             $title = trim((string) ($_POST['blog_title'] ?? ''));
             $excerpt = trim((string) ($_POST['blog_excerpt'] ?? ''));

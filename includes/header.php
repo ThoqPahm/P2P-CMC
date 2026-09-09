@@ -6,8 +6,7 @@ $isStudentWorkspace = in_array($page ?? '', ['student-dashboard', 'campaigns', '
     || (($page ?? '') === 'ambassador-program' && in_array($currentUser['role'] ?? '', ['student', 'ambassador'], true));
 $workspaceLabel = match ($currentUser['role'] ?? '') {
     'admin' => 'Khu vực quản trị',
-    'ambassador' => 'Khu vực đại sứ',
-    'student' => 'Khu vực sinh viên',
+    'ambassador', 'student' => 'Không gian sinh viên',
     default => 'eAmbassador',
 };
 ?>
