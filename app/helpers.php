@@ -60,7 +60,13 @@ function require_super_admin(): void
 
 function redirect(string $url): never
 {
-    header('Location: ' . Routes::legacy($url));
+    $destination = Routes::legacy($url);
+    if (defined('PRESENTATION_RUNTIME') && PRESENTATION_RUNTIME) {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['ok' => true, 'redirect' => $destination], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+    header('Location: ' . $destination);
     exit;
 }
 
