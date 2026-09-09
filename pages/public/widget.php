@@ -118,9 +118,9 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
     </section>
 
     <section class="widget-view widget-content is-hidden" id="contentView">
-        <div class="content-heading"><div><h1>Câu chuyện từ đại sứ CMCU</h1><p>Trải nghiệm học tập và đời sống sinh viên được chia sẻ bởi người đang học.</p></div><span><strong><?= count($contentData) ?></strong> nội dung đã duyệt</span></div>
+        <div class="content-heading"><div><h1>Câu chuyện từ đại sứ CMCU</h1><p>Trải nghiệm học tập và đời sống sinh viên được chia sẻ bởi người đang học.</p></div></div>
         <label class="widget-search content-search"><i class="bi bi-search"></i><input id="contentSearch" type="search" placeholder="Tìm chủ đề, ngành học hoặc đại sứ..."></label>
-        <div class="content-filter" role="group" aria-label="Loại nội dung"><button class="is-active" type="button" data-content-type="all">Tất cả</button><button type="button" data-content-type="blog">Bài viết</button><button type="button" data-content-type="social">Video &amp; UGC</button></div>
+        <div class="content-filter" role="group" aria-label="Loại nội dung"><button class="is-active" type="button" data-content-type="all">Tất cả</button><button type="button" data-content-type="blog">Bài viết</button><button type="button" data-content-type="social">Video</button></div>
         <div class="content-grid" id="contentGrid"></div>
         <div class="widget-empty is-hidden" id="contentEmpty"><i class="bi bi-journal-text"></i><h2>Chưa có nội dung phù hợp</h2><p>Thử một từ khóa khác hoặc xem toàn bộ nội dung.</p><button type="button" id="clearContentFilters">Xem tất cả</button></div>
     </section>
@@ -232,7 +232,7 @@ $widgetAiEnabled = ($widgetSettings['widget_ai_enabled'] ?? '1') === '1';
 <script>
 window.eAmbassadorWidget = <?= json_encode(['token' => $widgetToken, 'ambassadors' => $widgetData, 'content' => $contentData, 'ai' => ['enabled' => $widgetAiEnabled, 'name' => $widgetSettings['widget_ai_name'], 'welcome' => $widgetSettings['widget_ai_welcome']]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 </script>
-<script src="assets/js/widget.js?v=31"></script>
+<script src="assets/js/widget.js?v=32"></script>
 <script src="assets/js/animateicons.js?v=2" defer></script>
 </body>
 </html>

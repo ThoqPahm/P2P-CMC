@@ -421,7 +421,7 @@
     const contentCoverMarkup = (item) => {
         const image = safeContentImage(item.coverImage);
         const icon = item.type === 'blog' ? 'bi-journal-richtext' : 'bi-play-circle';
-        return `${image ? `<img src="${escapeHtml(image)}" alt="" loading="lazy">` : ''}<span>${escapeHtml(item.format)}</span><i class="bi ${icon}"></i>`;
+        return `${image ? `<img src="${escapeHtml(image)}" alt="" loading="lazy">` : ''}<span>${escapeHtml(item.format)}</span>${image ? '' : `<i class="bi ${icon}"></i>`}`;
     };
     const tiktokVideoId = (url) => String(url || '').match(/^https?:\/\/(?:www\.)?tiktok\.com\/@[^/]+\/video\/(\d+)/i)?.[1] || '';
     const renderAmbassadors = () => {
