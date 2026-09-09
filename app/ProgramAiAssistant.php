@@ -113,6 +113,69 @@ PROMPT, ['HISTORY' => $history, 'KNOWLEDGE' => $knowledge]);
         return $result;
     }
 
+    public static function messageGuidance(PDO $db, int $actorId, int $conversationId, int $messageId): array
+    {
+        $statement = $db->prepare("SELECT c.id FROM conversations c JOIN users u ON u.id=c.ambassador_id WHERE c.id=? AND c.ambassador_id=? AND u.role='ambassador' AND u.status='active'");
+        $statement->execute([$conversationId, $actorId]);
+        if (!$statement->fetchColumn()) {
+            throw new InvalidArgumentException('Bạn không có quyền dùng AI trong hội thoại này.');
+        }
+
+        $statement = $db->prepare("SELECT m.id,m.content FROM messages m JOIN users u ON u.id=m.sender_id WHERE m.id=? AND m.conversation_id=? AND m.is_flagged=0 AND u.role IN ('prospect','student')");
+        $statement->execute([$messageId, $conversationId]);
+        $focusMessage = $statement->fetch(PDO::FETCH_ASSOC);
+        if (!$focusMessage) {
+            throw new InvalidArgumentException('Tin nhắn cần hỗ trợ không còn khả dụng.');
+        }
+
+        $statement = $db->prepare('SELECT m.id,m.content,m.sender_id,u.role AS sender_role FROM messages m JOIN users u ON u.id=m.sender_id WHERE m.conversation_id=? AND m.is_flagged=0 ORDER BY m.id');
+        $statement->execute([$conversationId]);
+        $history = array_map(static fn(array $message): array => [
+            'id' => (int) $message['id'],
+            'role' => (int) $message['sender_id'] === $actorId
+                ? 'ambassador'
+                : (in_array($message['sender_role'], ['prospect', 'student'], true) ? 'student' : 'staff'),
+            'content' => self::redact(mb_substr((string) $message['content'], 0, 1200)),
+        ], $statement->fetchAll(PDO::FETCH_ASSOC));
+        if (!$history) {
+            throw new InvalidArgumentException('Hội thoại chưa có nội dung để phân tích.');
+        }
+
+        $knowledge = self::knowledge($db);
+        $ai = self::request(<<<'PROMPT'
+Bạn là trợ lý suy nghĩ cho đại sứ sinh viên, không phải người trả lời thay.
+Đọc toàn bộ HISTORY để hiểu mạch trò chuyện. Tập trung đặc biệt vào FOCUS_MESSAGE, nhưng không bỏ qua những chi tiết học sinh hoặc đại sứ đã nói trước đó.
+Chỉ đưa ra hướng phản hồi. Không viết một tin nhắn hoàn chỉnh, không xưng hô thay đại sứ, không tạo câu có thể sao chép và gửi nguyên văn.
+focus nêu ngắn gọn học sinh thực sự đang cần gì trong lượt này, không suy diễn tâm lý.
+directions gồm 2 đến 4 hành động cụ thể mà đại sứ nên làm trong phản hồi tiếp theo. Mỗi mục bắt đầu bằng động từ và không trùng ý.
+clarifying_question chỉ mô tả điều đại sứ nên hỏi thêm khi thông tin chưa rõ. Để rỗng nếu không cần hỏi lại.
+caution nêu điều cần tránh hoặc nội dung cần cán bộ xác nhận. Để rỗng nếu không có rủi ro thực tế.
+Nếu câu hỏi liên quan học phí, học bổng, tuyển sinh, hồ sơ hoặc chính sách, không tự kết luận. Hướng đại sứ xác nhận bằng KNOWLEDGE hoặc chuyển cán bộ phụ trách.
+Giọng văn tự nhiên, ngắn gọn, hữu ích. Không dùng các cụm như "câu trả lời mẫu", "bạn có thể trả lời rằng" hoặc "hãy gửi".
+JSON: {"focus":"", "directions":[""], "clarifying_question":"", "caution":"", "source_ids":[]}
+PROMPT, [
+            'HISTORY' => $history,
+            'FOCUS_MESSAGE' => [
+                'id' => (int) $focusMessage['id'],
+                'content' => self::redact(mb_substr((string) $focusMessage['content'], 0, 1200)),
+            ],
+            'KNOWLEDGE' => $knowledge,
+        ]);
+
+        $result = [
+            'message_id' => (int) $focusMessage['id'],
+            'focus' => self::text($ai['focus'] ?? '', 500),
+            'directions' => self::texts($ai['directions'] ?? [], 4),
+            'clarifying_question' => self::text($ai['clarifying_question'] ?? '', 500),
+            'caution' => self::text($ai['caution'] ?? '', 500),
+            'sources' => self::sources($ai['source_ids'] ?? [], $knowledge),
+        ];
+        if (!$result['focus'] || count($result['directions']) < 2) {
+            throw new InvalidArgumentException('AI chưa tạo được hướng hỗ trợ rõ ràng. Hãy thử lại.');
+        }
+        return $result;
+    }
+
     public static function insights(PDO $db): array
     {
         // Aggregate only: do not read private messages or send raw reports to a provider.

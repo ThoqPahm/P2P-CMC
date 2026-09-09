@@ -202,6 +202,176 @@
         }
     });
 
+    const messageAiState = {
+        activeMessageId: 0,
+        status: 'idle',
+        result: null,
+        error: '',
+        requestId: 0,
+        typingId: 0
+    };
+
+    const wait = (milliseconds) => new Promise(resolve => setTimeout(resolve, milliseconds));
+
+    async function typeAiGuidance(callout, messageId) {
+        const typingId = ++messageAiState.typingId;
+        const slots = $$('[data-ai-typing]', callout);
+        for (const slot of slots) {
+            const text = slot.dataset.aiTyping || '';
+            if (reduceMotion) {
+                slot.textContent = text;
+                continue;
+            }
+            slot.textContent = '';
+            slot.classList.add('is-typing');
+            for (let index = 0; index < text.length; index += 2) {
+                if (typingId !== messageAiState.typingId || messageAiState.activeMessageId !== messageId || !slot.isConnected) return;
+                slot.textContent = text.slice(0, index + 2);
+                await wait(8);
+            }
+            slot.textContent = text;
+            slot.classList.remove('is-typing');
+        }
+    }
+
+    function mountMessageAiCallout(animate = false) {
+        if (!messageAiState.activeMessageId) return;
+        const message = $(`.message[data-message-id="${messageAiState.activeMessageId}"]`);
+        const host = $('[data-ai-callout-host]', message);
+        if (!host) return;
+
+        const callout = document.createElement('aside');
+        callout.className = `message-ai-callout${animate ? ' is-opening' : ''}`;
+        callout.setAttribute('aria-live', 'polite');
+        callout.setAttribute('aria-label', 'AI hỗ trợ hướng phản hồi');
+        const header = document.createElement('header');
+        header.innerHTML = '<span><i class="bi bi-magic" aria-hidden="true"></i> Hướng hỗ trợ</span><button type="button" data-ai-callout-close aria-label="Đóng gợi ý AI"><i class="bi bi-x-lg" aria-hidden="true"></i></button>';
+        callout.append(header);
+
+        if (messageAiState.status === 'loading') {
+            const loading = document.createElement('div');
+            loading.className = 'message-ai-thinking';
+            loading.innerHTML = '<span></span><span></span><span></span><p>Đang đọc mạch hội thoại và xem kỹ tin nhắn này...</p>';
+            callout.append(loading);
+        } else if (messageAiState.status === 'error') {
+            const error = document.createElement('div');
+            error.className = 'message-ai-error';
+            const copy = document.createElement('p');
+            copy.textContent = messageAiState.error;
+            const retry = document.createElement('button');
+            retry.type = 'button';
+            retry.dataset.askAi = String(messageAiState.activeMessageId);
+            retry.textContent = 'Thử lại';
+            error.append(copy, retry);
+            callout.append(error);
+        } else if (messageAiState.result) {
+            const result = messageAiState.result;
+            const focus = document.createElement('p');
+            focus.className = 'message-ai-focus';
+            focus.dataset.aiTyping = result.focus || '';
+            callout.append(focus);
+
+            const list = document.createElement('ol');
+            list.className = 'message-ai-directions';
+            (result.directions || []).forEach(direction => {
+                const item = document.createElement('li');
+                const copy = document.createElement('span');
+                copy.dataset.aiTyping = direction;
+                item.append(copy);
+                list.append(item);
+            });
+            callout.append(list);
+
+            if (result.clarifying_question) {
+                const clarification = document.createElement('div');
+                clarification.className = 'message-ai-note';
+                clarification.innerHTML = '<i class="bi bi-chat-dots" aria-hidden="true"></i><div><strong>Cần hỏi rõ thêm</strong><p data-ai-typing></p></div>';
+                $('[data-ai-typing]', clarification).dataset.aiTyping = result.clarifying_question;
+                callout.append(clarification);
+            }
+            if (result.caution) {
+                const caution = document.createElement('div');
+                caution.className = 'message-ai-note is-caution';
+                caution.innerHTML = '<i class="bi bi-shield-check" aria-hidden="true"></i><div><strong>Lưu ý</strong><p data-ai-typing></p></div>';
+                $('[data-ai-typing]', caution).dataset.aiTyping = result.caution;
+                callout.append(caution);
+            }
+
+            const footer = document.createElement('footer');
+            footer.textContent = 'AI gợi ý cách tiếp cận. Đại sứ vẫn là người viết và gửi phản hồi.';
+            callout.append(footer);
+        }
+
+        host.replaceChildren(callout);
+        const trigger = $('[data-ask-ai]', message);
+        trigger?.setAttribute('aria-expanded', 'true');
+        if (messageAiState.status === 'ready' && messageAiState.result) {
+            typeAiGuidance(callout, messageAiState.activeMessageId);
+        }
+    }
+
+    function closeMessageAiCallout() {
+        const activeId = messageAiState.activeMessageId;
+        if (!activeId) return;
+        const message = $(`.message[data-message-id="${activeId}"]`);
+        const callout = $('.message-ai-callout', message);
+        messageAiState.typingId += 1;
+        $('[data-ask-ai]', message)?.setAttribute('aria-expanded', 'false');
+        if (callout && !reduceMotion) {
+            callout.classList.add('is-closing');
+            setTimeout(() => callout.remove(), 180);
+        } else {
+            callout?.remove();
+        }
+        messageAiState.activeMessageId = 0;
+        messageAiState.status = 'idle';
+        messageAiState.result = null;
+        messageAiState.error = '';
+    }
+
+    async function requestMessageAiGuidance(messageId) {
+        const conversationId = Number($('#conversationId')?.value || $('.inbox-shell')?.dataset.inboxConversation || 0);
+        if (!conversationId || !messageId) return;
+        if (messageAiState.activeMessageId && messageAiState.activeMessageId !== messageId) closeMessageAiCallout();
+        messageAiState.activeMessageId = messageId;
+        messageAiState.status = 'loading';
+        messageAiState.result = null;
+        messageAiState.error = '';
+        const requestId = ++messageAiState.requestId;
+        mountMessageAiCallout(true);
+        try {
+            const data = await api('ambassador_message_ai_guidance', {
+                method: 'POST',
+                body: JSON.stringify({ conversation_id: conversationId, message_id: messageId })
+            });
+            if (requestId !== messageAiState.requestId || messageAiState.activeMessageId !== messageId) return;
+            messageAiState.status = 'ready';
+            messageAiState.result = data.result;
+            mountMessageAiCallout();
+        } catch (error) {
+            if (requestId !== messageAiState.requestId || messageAiState.activeMessageId !== messageId) return;
+            messageAiState.status = 'error';
+            messageAiState.error = error.message || 'Chưa tạo được hướng hỗ trợ. Hãy thử lại.';
+            mountMessageAiCallout();
+        }
+    }
+
+    $('#messageList')?.addEventListener('click', event => {
+        const close = event.target.closest('[data-ai-callout-close]');
+        if (close) {
+            closeMessageAiCallout();
+            return;
+        }
+        const trigger = event.target.closest('[data-ask-ai]');
+        if (!trigger) return;
+        const messageId = Number(trigger.dataset.askAi || 0);
+        if (messageAiState.activeMessageId === messageId && messageAiState.status !== 'error') {
+            closeMessageAiCallout();
+            return;
+        }
+        requestMessageAiGuidance(messageId);
+    });
+
     async function loadMessages(conversationId) {
         const list = $('#messageList');
         if (!list || !conversationId) return;
@@ -211,14 +381,23 @@
             if (!data.ok) return;
             const nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
             const ambassadorPerspective = Boolean(document.querySelector('.inbox-shell'));
+            const signature = data.messages.map(message => `${message.id}:${message.content}:${message.created_at}`).join('|');
+            if (list.dataset.messageSignature === signature) return;
             list.innerHTML = data.messages.map((message) => {
                 const mine = ambassadorPerspective
                     ? message.sender_role === 'ambassador' && Number(message.sender_id) === Number(data.current_user_id)
                     : Number(message.sender_id) === Number(data.current_user_id);
                 const participantClass = ambassadorPerspective && !mine ? ' participant' : '';
+                const askAiEligible = ambassadorPerspective && ['prospect', 'student'].includes(message.sender_role);
                 const time = new Date(message.created_at.replace(' ', 'T')).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-                return `<div class="message${mine ? ' mine' : participantClass}"><b>${escapeHtml(message.sender_name)}</b><p>${escapeHtml(message.content)}</p><time>${time}</time></div>`;
+                const bubble = `<p>${escapeHtml(message.content)}</p>`;
+                const messageContent = askAiEligible
+                    ? `<div class="message-bubble-row">${bubble}<button class="message-ai-trigger" type="button" data-ask-ai="${Number(message.id)}" aria-expanded="false" aria-label="Nhờ AI gợi ý hướng phản hồi cho tin nhắn này"><i class="bi bi-magic" aria-hidden="true"></i><span>Ask AI</span></button></div><div class="message-ai-host" data-ai-callout-host></div>`
+                    : bubble;
+                return `<div class="message${mine ? ' mine' : participantClass}" data-message-id="${Number(message.id)}"><b>${escapeHtml(message.sender_name)}</b>${messageContent}<time>${time}</time></div>`;
             }).join('') || '<div class="empty-state compact">Hãy gửi lời chào đầu tiên nhé.</div>';
+            list.dataset.messageSignature = signature;
+            mountMessageAiCallout();
             if (nearBottom || !list.dataset.loaded) list.scrollTop = list.scrollHeight;
             list.dataset.loaded = 'true';
         } catch (_) {

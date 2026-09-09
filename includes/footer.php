@@ -12,7 +12,7 @@
     </footer>
 <?php endif; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/app.js?v=46"></script>
+<script src="assets/js/app.js?v=47"></script>
 <?php if (in_array($page ?? '', ['inbox', 'ambassador-program'], true)): ?>
 <script src="assets/js/program-ai.js?v=2" defer></script>
 <?php endif; ?>

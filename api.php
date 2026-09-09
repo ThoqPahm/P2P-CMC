@@ -346,6 +346,22 @@ try {
             enforce_widget_ai_rate_limit();
             json_response(['ok'=>true, 'result'=>ProgramAiAssistant::conversation($db, (int)$current['id'], (int)($_POST['conversation_id'] ?? 0))]);
 
+        case 'ambassador_message_ai_guidance':
+            $current = user();
+            if (!$current || $current['role'] !== 'ambassador' || $current['status'] !== 'active') {
+                json_response(['ok'=>false, 'message'=>'Chỉ đại sứ phụ trách được dùng hỗ trợ này.'], 403);
+            }
+            enforce_widget_ai_rate_limit();
+            json_response([
+                'ok' => true,
+                'result' => ProgramAiAssistant::messageGuidance(
+                    $db,
+                    (int) $current['id'],
+                    (int) ($_POST['conversation_id'] ?? 0),
+                    (int) ($_POST['message_id'] ?? 0)
+                ),
+            ]);
+
         case 'program_ai_insights':
             $current = user();
             if (!$current || $current['role'] !== 'admin' || $current['status'] !== 'active') {

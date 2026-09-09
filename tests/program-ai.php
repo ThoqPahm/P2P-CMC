@@ -32,6 +32,15 @@ $result=ProgramAiAssistant::conversation($db,(int)$c['ambassador_id'],(int)$c['i
 $check($result['category']==='policy'&&$result['sources']===[],'classification and unknown source filtering');
 $check((int)$db->query('SELECT COUNT(*) FROM messages')->fetchColumn()===$before,'AI draft does not send message');
 $check(!isset(AiProviderManager::$context['email']),'minimal context has no account record');
+AiProviderManager::$result=['focus'=>'Học sinh cần hiểu rõ lựa chọn phù hợp.', 'directions'=>['Làm rõ tiêu chí học sinh ưu tiên.','Liên hệ với trải nghiệm thực tế đã trao đổi.'], 'clarifying_question'=>'Hỏi thêm về mục tiêu học tập.', 'caution'=>'Không khẳng định chính sách khi chưa có nguồn.', 'source_ids'=>[]];
+$studentMessage=(int)$db->query("SELECT m.id FROM messages m JOIN users u ON u.id=m.sender_id WHERE m.conversation_id=".(int)$c['id']." AND u.role IN ('prospect','student') LIMIT 1")->fetchColumn();
+$guidance=ProgramAiAssistant::messageGuidance($db,(int)$c['ambassador_id'],(int)$c['id'],$studentMessage);
+$check(count($guidance['directions'])===2&&$guidance['message_id']===$studentMessage,'selected student message gets guidance');
+$check(count(AiProviderManager::$context['HISTORY'])===(int)$db->query('SELECT COUNT(*) FROM messages WHERE conversation_id='.(int)$c['id'].' AND is_flagged=0')->fetchColumn(),'guidance reads full visible conversation');
+$check((int)AiProviderManager::$context['FOCUS_MESSAGE']['id']===$studentMessage,'selected message is emphasized');
+$check(!str_contains(json_encode(AiProviderManager::$context,JSON_UNESCAPED_UNICODE),'sender_id'),'guidance context omits account identifiers');
+$ambassadorMessage=(int)$db->query("SELECT m.id FROM messages m JOIN users u ON u.id=m.sender_id WHERE m.conversation_id=".(int)$c['id']." AND u.role='ambassador' LIMIT 1")->fetchColumn();
+$reject(fn()=>ProgramAiAssistant::messageGuidance($db,(int)$c['ambassador_id'],(int)$c['id'],$ambassadorMessage),'AI trigger rejects ambassador messages');
 AiProviderManager::$result=['summary'=>'Chưa đủ dữ liệu.', 'actions'=>['Rà soát nguồn hết hạn.'], 'limitations'=>'Không suy ra nhu cầu từng học sinh.'];
 ProgramAiAssistant::insights($db);
 $check(!isset(AiProviderManager::$context['HISTORY'])&&!str_contains(json_encode(AiProviderManager::$context),'sender_id'),'admin insights aggregate only');
