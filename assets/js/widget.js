@@ -442,7 +442,7 @@
             <button class="widget-ambassador" type="button" data-ambassador-id="${item.id}">
                 <span class="ambassador-card-head"><span class="ambassador-avatar">${avatarMarkup(item)}</span><span class="ambassador-copy"><strong>${escapeHtml(item.name)} <i class="bi bi-patch-check-fill"></i></strong><span>${escapeHtml(item.major)} · Năm ${item.study_year}</span></span><span class="availability ${item.online ? 'online' : 'offline'}"><i></i>${item.online ? 'Online' : 'Offline'}</span></span>
                 <span class="ambassador-bio">${escapeHtml(item.bio || 'Sẵn sàng chia sẻ trải nghiệm học tập và đời sống tại CMC.')}</span>
-                <span class="ambassador-facts"><span><small>Quê quán</small><strong>${escapeHtml(item.hometown)}</strong></span><span><small>Có thể chia sẻ</small><strong>${escapeHtml((item.interests || []).slice(0, 2).join(', ') || 'Đời sống CMC')}</strong></span></span>
+                <span class="ambassador-facts"><span><small>Quê quán</small><strong>${escapeHtml(item.hometown)}</strong></span><span><small>Sở thích</small><strong>${escapeHtml((item.interests || []).slice(0, 2).join(', ') || 'Đời sống sinh viên')}</strong></span></span>
                 <span class="ambassador-cta">Gửi tin nhắn <i class="bi bi-arrow-right"></i></span>
             </button>`).join('');
         $('#widgetEmpty').classList.toggle('is-hidden', filtered.length > 0);
