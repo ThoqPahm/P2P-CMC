@@ -338,9 +338,9 @@
         const list = doc().querySelector('#messageList');
         if (!list) return;
         list.innerHTML = `
-            <div class="message mine"><p>Em là người hướng nội, liệu học Digital Marketing có phù hợp không ạ?</p><small>Mai Thu</small></div>
-            <div class="message"><p>Có em nhé. Người hướng nội vẫn có lợi thế ở khả năng quan sát, lắng nghe và chuẩn bị nội dung kỹ.</p><small>Trần Minh Anh</small></div>
-            <div class="message mine"><p>Với kết quả học tập hiện tại, em có chắc chắn nhận được học bổng không ạ?</p><small>Mai Thu</small></div>`;
+            <div class="message participant"><p>Em là người hướng nội, liệu học Digital Marketing có phù hợp không ạ?</p><small>Mai Thu</small></div>
+            <div class="message mine"><p>Có em nhé. Người hướng nội vẫn có lợi thế ở khả năng quan sát, lắng nghe và chuẩn bị nội dung kỹ.</p><small>Trần Minh Anh</small></div>
+            <div class="message participant"><p>Với kết quả học tập hiện tại, em có chắc chắn nhận được học bổng không ạ?</p><small>Mai Thu</small></div>`;
     }
 
     async function playAmbassadorHandoff() {
