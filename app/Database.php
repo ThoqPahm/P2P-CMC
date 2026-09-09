@@ -363,30 +363,76 @@ SQL);
 
         // Keep the public demo's editorial feed useful on fresh installs and existing demo databases.
         // These records are matched by their canonical title/URL so administrator-created content is untouched.
+        $firstVideo = [
+            'https://www.tiktok.com/@ua.cmc/video/7675607526141873429',
+            'Gặp lại bạn thân, thấy chiếc áo CMCU và cái kết mình nhập học luôn',
+            'Tụi mình chỉ vô tình gặp nhau, nhưng logo CMCU trên áo bạn lại đập vào mắt mình. Từ một lời chào, mình quyết định trở thành sinh viên cùng trường — một tiểu phẩm vui tụi mình quay ở sảnh.',
+            'assets/img/content/tiktok-cmcu-7675607526141873429.jpg',
+        ];
         $db->prepare(<<<'SQL'
             UPDATE submissions
             SET content_url = ?, caption = ?, blog_excerpt = ?, platform = 'TikTok', cover_image = ?, source_label = 'Xem trên TikTok',
                 views = 28600, likes = 2140, comments = 73, shares = 118
             WHERE content_url IN ('https://www.youtube.com/shorts/demo', 'https://www.tiktok.com/@ua.cmc/video/7675607526141873429')
-        SQL)->execute([
-            'https://www.tiktok.com/@ua.cmc/video/7675607526141873429',
-            'Gặp lại bạn thân, thấy chiếc áo CMCU và cái kết mình nhập học luôn',
-            'Tụi mình chỉ vô tình gặp nhau, nhưng logo CMCU trên áo bạn lại đập vào mắt mình. Từ một lời chào, mình quyết định trở thành sinh viên cùng trường — một tiểu phẩm vui tụi mình quay ở sảnh.',
-            'assets/img/content/tiktok-cmcu-7675607526141873429.jpg',
-        ]);
+        SQL)->execute($firstVideo);
 
+        $db->prepare(<<<'SQL'
+            INSERT INTO submissions (
+                campaign_id, user_id, content_url, caption, status, feedback, platform,
+                views, likes, comments, shares, content_type, blog_excerpt, cover_image, source_label
+            )
+            SELECT c.id, u.id, ?, ?, 'approved', 'Nội dung đã được duyệt để hiển thị trong widget.', 'TikTok',
+                   28600, 2140, 73, 118, 'social', ?, ?, 'Xem trên TikTok'
+            FROM campaigns c
+            JOIN users u ON u.id = COALESCE(
+                (SELECT id FROM users WHERE email = 'ambassador@cmc.edu.vn' AND role = 'ambassador' LIMIT 1),
+                (SELECT MIN(id) FROM users WHERE role = 'ambassador')
+            )
+            WHERE c.id = COALESCE(
+                (SELECT MIN(id) FROM campaigns WHERE status = 'active'),
+                (SELECT MIN(id) FROM campaigns)
+            )
+              AND NOT EXISTS (SELECT 1 FROM submissions WHERE content_url = ?)
+        SQL)->execute([$firstVideo[0], $firstVideo[1], $firstVideo[2], $firstVideo[3], $firstVideo[0]]);
+
+        $itArticle = [
+            'Theo chân một sinh viên CNTT từ tiết học buổi sáng, giờ làm đồ án nhóm đến khoảng thời gian tự học và chuẩn bị cho định hướng nghề nghiệp.',
+            "Một ngày học của mình thường bắt đầu trước giờ vào lớp khoảng 20 phút. Mình mở lại mục tiêu của buổi học, xem phần nào còn chưa chắc và ghi ra vài câu hỏi ngắn. Cách này giúp mình không bị cuốn vào việc chép mọi thứ, mà tập trung quan sát cách giảng viên phân tích bài toán và đi từ yêu cầu đến giải pháp.\n\nTrong giờ thực hành, điều mình thấy khác nhất so với thời phổ thông là không phải lúc nào cũng có một đáp án mẫu duy nhất. Có bài cả nhóm phải thử vài hướng, đọc tài liệu, kiểm tra lỗi rồi quay lại sửa cách làm ban đầu. Khi bí, mình thường mô tả rõ đã thử gì, kết quả ra sao và đang mắc ở bước nào; câu hỏi càng cụ thể thì giảng viên và bạn bè càng dễ hỗ trợ.\n\nBuổi chiều thường dành cho bài tập hoặc đồ án nhóm. Nhóm mình chia đầu việc theo thế mạnh, nhưng vẫn dành một khoảng để cùng review code và giải thích phần mình làm. Nhờ vậy, mỗi người không chỉ hoàn thành nhiệm vụ riêng mà còn hiểu sản phẩm hoạt động như một hệ thống. Những buổi tranh luận về cách đặt tên, luồng dữ liệu hay trải nghiệm người dùng đôi khi kéo dài, nhưng đó lại là lúc mình học được nhiều nhất.\n\nNgoài giờ học, mình cố gắng duy trì một dự án cá nhân nhỏ thay vì chạy theo quá nhiều công nghệ cùng lúc. Có tuần mình chỉ sửa một tính năng hoặc viết lại phần tài liệu, nhưng việc nhìn thấy sản phẩm tốt lên từng chút giúp mình hiểu rõ hơn mình hợp với phát triển phần mềm, dữ liệu hay AI. Các câu chuyện nghề nghiệp từ sinh viên và cựu sinh viên CMCU cũng giúp mình hình dung cụ thể hơn con đường từ giảng đường đến môi trường doanh nghiệp.\n\nNếu bạn đang cân nhắc ngành CNTT, bạn không cần phải biết lập trình thật giỏi trước khi nhập học. Sự tò mò, thói quen tự học và khả năng phối hợp với người khác quan trọng hơn rất nhiều. Hãy bắt đầu bằng một bài toán bạn thấy thú vị, làm đến nơi đến chốn và đừng ngại hỏi khi chưa hiểu.",
+            'https://cmcu.edu.vn/nganh-cong-nghe-thong-tin/',
+            'assets/img/content/cmc-ai-automation-alumni-2026.jpg',
+        ];
         $db->prepare(<<<'SQL'
             UPDATE submissions
             SET blog_excerpt = ?, blog_body = ?, content_url = ?, cover_image = ?, source_label = 'Thông tin tham khảo từ CMCU',
                 views = CASE WHEN views = 0 THEN 3840 ELSE views END,
                 likes = CASE WHEN likes = 0 THEN 268 ELSE likes END
             WHERE content_type = 'blog' AND blog_title = 'Một ngày học Công nghệ thông tin tại CMC diễn ra như thế nào?'
-        SQL)->execute([
-            'Theo chân một sinh viên CNTT từ tiết học buổi sáng, giờ làm đồ án nhóm đến khoảng thời gian tự học và chuẩn bị cho định hướng nghề nghiệp.',
-            "Một ngày học của mình thường bắt đầu trước giờ vào lớp khoảng 20 phút. Mình mở lại mục tiêu của buổi học, xem phần nào còn chưa chắc và ghi ra vài câu hỏi ngắn. Cách này giúp mình không bị cuốn vào việc chép mọi thứ, mà tập trung quan sát cách giảng viên phân tích bài toán và đi từ yêu cầu đến giải pháp.\n\nTrong giờ thực hành, điều mình thấy khác nhất so với thời phổ thông là không phải lúc nào cũng có một đáp án mẫu duy nhất. Có bài cả nhóm phải thử vài hướng, đọc tài liệu, kiểm tra lỗi rồi quay lại sửa cách làm ban đầu. Khi bí, mình thường mô tả rõ đã thử gì, kết quả ra sao và đang mắc ở bước nào; câu hỏi càng cụ thể thì giảng viên và bạn bè càng dễ hỗ trợ.\n\nBuổi chiều thường dành cho bài tập hoặc đồ án nhóm. Nhóm mình chia đầu việc theo thế mạnh, nhưng vẫn dành một khoảng để cùng review code và giải thích phần mình làm. Nhờ vậy, mỗi người không chỉ hoàn thành nhiệm vụ riêng mà còn hiểu sản phẩm hoạt động như một hệ thống. Những buổi tranh luận về cách đặt tên, luồng dữ liệu hay trải nghiệm người dùng đôi khi kéo dài, nhưng đó lại là lúc mình học được nhiều nhất.\n\nNgoài giờ học, mình cố gắng duy trì một dự án cá nhân nhỏ thay vì chạy theo quá nhiều công nghệ cùng lúc. Có tuần mình chỉ sửa một tính năng hoặc viết lại phần tài liệu, nhưng việc nhìn thấy sản phẩm tốt lên từng chút giúp mình hiểu rõ hơn mình hợp với phát triển phần mềm, dữ liệu hay AI. Các câu chuyện nghề nghiệp từ sinh viên và cựu sinh viên CMCU cũng giúp mình hình dung cụ thể hơn con đường từ giảng đường đến môi trường doanh nghiệp.\n\nNếu bạn đang cân nhắc ngành CNTT, bạn không cần phải biết lập trình thật giỏi trước khi nhập học. Sự tò mò, thói quen tự học và khả năng phối hợp với người khác quan trọng hơn rất nhiều. Hãy bắt đầu bằng một bài toán bạn thấy thú vị, làm đến nơi đến chốn và đừng ngại hỏi khi chưa hiểu.",
-            'https://cmcu.edu.vn/nganh-cong-nghe-thong-tin/',
-            'assets/img/content/cmc-ai-automation-alumni-2026.jpg',
-        ]);
+        SQL)->execute($itArticle);
+
+        $db->prepare(<<<'SQL'
+            INSERT INTO submissions (
+                campaign_id, user_id, content_url, caption, status, feedback, platform,
+                views, likes, comments, shares, content_type, blog_title, blog_excerpt, blog_body,
+                cover_image, source_label
+            )
+            SELECT c.id, u.id, ?, 'Một góc nhìn thật về nhịp học, đồ án và cách chủ động hỏi khi chưa hiểu bài.',
+                   'approved', 'Bài viết rõ ràng, gần gũi và phù hợp để chia sẻ trong widget.', 'Bài viết',
+                   3840, 268, 0, 0, 'blog', 'Một ngày học Công nghệ thông tin tại CMC diễn ra như thế nào?',
+                   ?, ?, ?, 'Thông tin tham khảo từ CMCU'
+            FROM campaigns c
+            JOIN users u ON u.id = COALESCE(
+                (SELECT id FROM users WHERE email = 'nam@cmc.edu.vn' AND role = 'ambassador' LIMIT 1),
+                (SELECT MIN(id) FROM users WHERE role = 'ambassador')
+            )
+            WHERE c.id = COALESCE(
+                (SELECT MIN(id) FROM campaigns WHERE status = 'active'),
+                (SELECT MIN(id) FROM campaigns)
+            )
+              AND NOT EXISTS (
+                  SELECT 1 FROM submissions
+                  WHERE content_type = 'blog' AND blog_title = 'Một ngày học Công nghệ thông tin tại CMC diễn ra như thế nào?'
+              )
+        SQL)->execute([$itArticle[2], $itArticle[0], $itArticle[1], $itArticle[3]]);
 
         $editorialItems = [
             [
@@ -427,15 +473,21 @@ SQL);
             )
             SELECT c.id, u.id, ?, ?, 'approved', 'Nội dung đã được duyệt để hiển thị trong widget.', ?,
                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-            FROM campaigns c, users u
-            WHERE c.id = (SELECT MIN(id) FROM campaigns WHERE status = 'active')
-              AND u.email = ? AND u.role = 'ambassador'
+            FROM campaigns c
+            JOIN users u ON u.id = COALESCE(
+                (SELECT id FROM users WHERE email = ? AND role = 'ambassador' LIMIT 1),
+                (SELECT MIN(id) FROM users WHERE role = 'ambassador')
+            )
+            WHERE c.id = COALESCE(
+                (SELECT MIN(id) FROM campaigns WHERE status = 'active'),
+                (SELECT MIN(id) FROM campaigns)
+            )
               AND NOT EXISTS (
                   SELECT 1 FROM submissions s
                   WHERE (? <> '' AND s.content_url = ?) OR (? <> '' AND s.blog_title = ?)
               )
         SQL);
-        $refreshVideoCopy = $db->prepare("UPDATE submissions SET caption = ?, blog_excerpt = ?, platform = 'TikTok', source_label = 'Xem trên TikTok', user_id = (SELECT id FROM users WHERE email = ? AND role = 'ambassador') WHERE content_url = ?");
+        $refreshVideoCopy = $db->prepare("UPDATE submissions SET caption = ?, blog_excerpt = ?, platform = 'TikTok', source_label = 'Xem trên TikTok', user_id = COALESCE((SELECT id FROM users WHERE email = ? AND role = 'ambassador' LIMIT 1), user_id) WHERE content_url = ?");
         foreach ($editorialItems as $item) {
             [$type, $url, $caption, $platform, $title, $excerpt, $body, $cover, $sourceLabel, $email, $views, $likes, $comments, $shares] = $item;
             $insertEditorial->execute([

@@ -29,5 +29,7 @@ content_check(str_contains($schema, 'cái kết mình nhập học luôn'), 'The
 content_check(str_contains($schema, 'tụi mình quyết định bay theo nghĩa đen'), 'The second TikTok title must keep the student voice.');
 content_check(str_contains($schema, 'Một câu góp ý trong giờ Marketing được tụi mình'), 'Video descriptions must read as student-authored stories.');
 content_check(substr_count($schema, 'assets/img/content/') >= 5, 'The demo needs real visual assets for its editorial feed.');
+content_check(substr_count($schema, "SELECT MIN(id) FROM users WHERE role = 'ambassador'") >= 3, 'Editorial fixtures must fall back to an available ambassador on deployed databases.');
+content_check(str_contains($schema, "SELECT MIN(id) FROM campaigns"), 'Editorial fixtures must fall back to an available campaign.');
 
 echo "PASS widget Content has long-form stories, local imagery and both CMCU TikTok embeds.\n";
