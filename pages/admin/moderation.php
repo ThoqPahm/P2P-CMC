@@ -160,15 +160,30 @@ $questionInsights = [
                     <p class="insight-modal-intro">Nhận diện nhu cầu lặp lại để bổ sung dữ liệu tư vấn và phát triển chủ đề truyền thông phù hợp.</p>
                 </div>
                 <div class="insight-head-meta">
-                    <span><i class="bi bi-calendar3" aria-hidden="true"></i> <?= e($questionInsights['period']) ?></span>
+                    <label class="insight-period-control" for="insightPeriod">
+                        <i class="bi bi-calendar3" aria-hidden="true"></i>
+                        <span class="visually-hidden">Khoảng thời gian tổng hợp</span>
+                        <select id="insightPeriod" aria-label="Khoảng thời gian tổng hợp">
+                            <option value="7">7 ngày gần đây</option>
+                            <option value="30" selected>30 ngày gần đây</option>
+                            <option value="90">90 ngày gần đây</option>
+                        </select>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </label>
                     <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Đóng"></button>
                 </div>
             </div>
             <div class="modal-body insight-modal-body">
+                <div class="insight-loading" hidden aria-hidden="true">
+                    <div class="insight-loading-status"><span class="insight-loading-mark"><i></i><i></i><i></i></span><strong>Đang tổng hợp câu hỏi học sinh…</strong></div>
+                    <div class="insight-skeleton-summary"><i></i><i></i><i></i></div>
+                    <div class="insight-skeleton-columns"><div><i></i><i></i><i></i><i></i></div><div><i></i><i></i><i></i></div></div>
+                </div>
+                <div class="insight-results" aria-live="polite">
                 <div class="insight-summary" aria-label="Tổng quan câu hỏi">
-                    <article><span>Tổng câu hỏi</span><strong><?= (int) $questionInsights['total'] ?></strong><small>đã tổng hợp</small></article>
+                    <article><span>Tổng câu hỏi</span><strong data-insight-total><?= (int) $questionInsights['total'] ?></strong><small>đã tổng hợp</small></article>
                     <article><span>Nhóm lặp lại</span><strong><?= (int) $questionInsights['repeat_groups'] ?></strong><small>chủ đề nổi bật</small></article>
-                    <article class="needs-action"><span>Chưa giải đáp</span><strong><?= (int) $questionInsights['unanswered'] ?></strong><small>cần bổ sung dữ liệu</small></article>
+                    <article class="needs-action"><span>Chưa giải đáp</span><strong data-insight-unanswered><?= (int) $questionInsights['unanswered'] ?></strong><small>cần bổ sung dữ liệu</small></article>
                 </div>
 
                 <div class="insight-columns">
@@ -179,13 +194,13 @@ $questionInsights = [
                         </div>
                         <div class="repeated-question-list">
                             <?php foreach ($questionInsights['repeated'] as $index => $insight): ?>
-                                <article class="question-insight-row">
+                                <article class="question-insight-row" data-question-index="<?= $index ?>">
                                     <span class="question-rank"><?= $index + 1 ?></span>
                                     <div class="question-insight-copy">
                                         <h4><?= e($insight['question']) ?></h4>
                                         <p><i class="bi bi-megaphone" aria-hidden="true"></i> Chủ đề đề xuất: <strong><?= e($insight['topic']) ?></strong></p>
                                     </div>
-                                    <div class="question-volume"><strong><?= (int) $insight['count'] ?></strong><span>lượt hỏi</span><em><?= e($insight['trend']) ?></em></div>
+                                    <div class="question-volume"><strong data-repeat-count><?= (int) $insight['count'] ?></strong><span>lượt hỏi</span><em data-repeat-trend><?= e($insight['trend']) ?></em></div>
                                 </article>
                             <?php endforeach; ?>
                         </div>
@@ -194,7 +209,7 @@ $questionInsights = [
                     <section class="insight-section unresolved-section">
                         <div class="insight-section-head">
                             <div><span class="section-kicker">CẦN PHỐI HỢP</span><h3>Câu hỏi chưa thể giải đáp</h3></div>
-                            <span class="section-count is-warning"><?= (int) $questionInsights['unanswered'] ?> câu</span>
+                            <span class="section-count is-warning"><b data-insight-unanswered><?= (int) $questionInsights['unanswered'] ?></b> câu</span>
                         </div>
                         <div class="unresolved-question-list">
                             <?php foreach ($questionInsights['unresolved'] as $item): ?>
@@ -206,6 +221,7 @@ $questionInsights = [
                         </div>
                         <p class="unresolved-more"><i class="bi bi-info-circle" aria-hidden="true"></i> Còn 4 câu hỏi đơn lẻ đang chờ phân loại.</p>
                     </section>
+                </div>
                 </div>
             </div>
             <div class="modal-footer insight-modal-footer">

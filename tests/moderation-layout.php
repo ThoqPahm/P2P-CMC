@@ -37,6 +37,8 @@ check(str_contains($empty, 'Câu hỏi lặp lại nhiều'), 'repeated student 
 check(str_contains($empty, 'Câu hỏi chưa thể giải đáp'), 'unanswered questions surfaced');
 check(str_contains($empty, 'index.php?page=admin-campaigns'), 'insights connect to campaign workflow');
 check(str_contains($empty, 'không hiển thị danh tính hoặc toàn bộ hội thoại'), 'aggregated insight privacy explained');
+check(str_contains($empty, 'id="insightPeriod"') && str_contains($empty, '90 ngày gần đây'), 'working period selector rendered');
+check(str_contains($empty, 'Đang tổng hợp câu hỏi học sinh'), 'aggregation loading state rendered');
 $conversation = ['id'=>1, 'prospect_name'=>'Người hỏi', 'ambassador_name'=>'Đại sứ', 'message_count'=>1, 'flagged_count'=>1, 'quality_score'=>150, 'crm_status'=>'active'];
 $noMessages = renderModeration([$conversation], []);
 check(str_contains($noMessages, 'Chưa có tin nhắn'), 'empty message state');

@@ -17,6 +17,9 @@
 <script src="assets/js/program-ai.js?v=2" defer></script>
 <?php endif; ?>
 <script src="assets/js/animateicons.js?v=1" defer></script>
+<?php if (($page ?? '') === 'admin-moderation'): ?>
+<script src="assets/js/moderation-insights.js?v=1" defer></script>
+<?php endif; ?>
 <?php
 $loginThemeScript = null;
 if ($isLogin ?? false) {
