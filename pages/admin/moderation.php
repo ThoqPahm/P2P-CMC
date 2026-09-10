@@ -32,7 +32,32 @@ $moderationCategoryLabels = [
     'spam' => 'Spam / lừa đảo',
     'personal-data' => 'Dữ liệu cá nhân',
 ];
+$questionInsights = [
+    'period' => '30 ngày gần đây',
+    'total' => 126,
+    'repeat_groups' => 4,
+    'unanswered' => 7,
+    'repeated' => [
+        ['question' => 'Người hướng nội có phù hợp với ngành Digital Marketing không?', 'count' => 18, 'trend' => '+38%', 'topic' => 'Marketing có cần hướng ngoại?'],
+        ['question' => 'Chưa biết lập trình thì có học Công nghệ thông tin được không?', 'count' => 15, 'trend' => '+25%', 'topic' => 'Bắt đầu ngành CNTT từ con số 0'],
+        ['question' => 'Học phí và học bổng năm 2026 được áp dụng như thế nào?', 'count' => 13, 'trend' => '+18%', 'topic' => 'Giải đáp học phí và học bổng 2026'],
+        ['question' => 'Sinh viên năm nhất có cơ hội tham gia dự án hoặc thực tập chưa?', 'count' => 9, 'trend' => '+12%', 'topic' => 'Cơ hội trải nghiệm nghề nghiệp từ năm nhất'],
+    ],
+    'unresolved' => [
+        ['question' => 'Điểm chuẩn năm 2026 chính thức là bao nhiêu?', 'reason' => 'Nhà trường chưa công bố dữ liệu chính thức', 'owner' => 'Ban Tuyển sinh'],
+        ['question' => 'Sinh viên có được chuyển ngành sau học kỳ đầu tiên không?', 'reason' => 'Thiếu quy định chuyển ngành trong kho dữ liệu', 'owner' => 'Phòng Đào tạo'],
+        ['question' => 'Chính sách ký túc xá áp dụng cho cơ sở nào?', 'reason' => 'Thông tin hiện có chưa đủ để kết luận', 'owner' => 'Phòng Công tác sinh viên'],
+    ],
+];
 ?>
+<div class="moderation-page-actions">
+    <p>Tập trung xử lý nội dung được đánh dấu và các câu hỏi cần nhà trường xác nhận.</p>
+    <button class="btn btn-brand insight-launcher" type="button" data-bs-toggle="modal" data-bs-target="#questionInsightsModal">
+        <i class="bi bi-lightbulb" aria-hidden="true"></i>
+        Insight câu hỏi
+        <span><?= (int) $questionInsights['unanswered'] ?></span>
+    </button>
+</div>
 <div class="moderation-shell">
     <aside class="conversation-list">
         <div class="conversation-list-head"><p class="eyebrow">HỘI THOẠI</p><h3><?= count($conversations) ?> cuộc trò chuyện</h3></div>
@@ -118,4 +143,75 @@ $moderationCategoryLabels = [
         </div>
         <div class="safety-note"><i class="bi bi-shield-lock-fill"></i><p><strong>Quyền riêng tư & an toàn</strong><small>Chỉ hiển thị tối đa 5 tin bị đánh dấu, mỗi tin kèm 2 tin trước và 2 tin sau. Truy cập được ghi nhật ký; không có quyền mở toàn bộ lịch sử.</small></p></div>
     </section>
+</div>
+
+<div class="modal fade question-insights-modal" id="questionInsightsModal" tabindex="-1" aria-labelledby="questionInsightsTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header insight-modal-head">
+                <div>
+                    <div class="insight-heading-line">
+                        <span class="insight-heading-icon"><i class="bi bi-lightbulb" aria-hidden="true"></i></span>
+                        <div>
+                            <p class="eyebrow mb-1">PHẢN HỒI TỪ HỌC SINH</p>
+                            <h2 class="modal-title" id="questionInsightsTitle">Insight câu hỏi</h2>
+                        </div>
+                    </div>
+                    <p class="insight-modal-intro">Nhận diện nhu cầu lặp lại để bổ sung dữ liệu tư vấn và phát triển chủ đề truyền thông phù hợp.</p>
+                </div>
+                <div class="insight-head-meta">
+                    <span><i class="bi bi-calendar3" aria-hidden="true"></i> <?= e($questionInsights['period']) ?></span>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+            </div>
+            <div class="modal-body insight-modal-body">
+                <div class="insight-summary" aria-label="Tổng quan câu hỏi">
+                    <article><span>Tổng câu hỏi</span><strong><?= (int) $questionInsights['total'] ?></strong><small>đã tổng hợp</small></article>
+                    <article><span>Nhóm lặp lại</span><strong><?= (int) $questionInsights['repeat_groups'] ?></strong><small>chủ đề nổi bật</small></article>
+                    <article class="needs-action"><span>Chưa giải đáp</span><strong><?= (int) $questionInsights['unanswered'] ?></strong><small>cần bổ sung dữ liệu</small></article>
+                </div>
+
+                <div class="insight-columns">
+                    <section class="insight-section">
+                        <div class="insight-section-head">
+                            <div><span class="section-kicker">NHU CẦU NỔI BẬT</span><h3>Câu hỏi lặp lại nhiều</h3></div>
+                            <span class="section-count"><?= count($questionInsights['repeated']) ?> nhóm</span>
+                        </div>
+                        <div class="repeated-question-list">
+                            <?php foreach ($questionInsights['repeated'] as $index => $insight): ?>
+                                <article class="question-insight-row">
+                                    <span class="question-rank"><?= $index + 1 ?></span>
+                                    <div class="question-insight-copy">
+                                        <h4><?= e($insight['question']) ?></h4>
+                                        <p><i class="bi bi-megaphone" aria-hidden="true"></i> Chủ đề đề xuất: <strong><?= e($insight['topic']) ?></strong></p>
+                                    </div>
+                                    <div class="question-volume"><strong><?= (int) $insight['count'] ?></strong><span>lượt hỏi</span><em><?= e($insight['trend']) ?></em></div>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    </section>
+
+                    <section class="insight-section unresolved-section">
+                        <div class="insight-section-head">
+                            <div><span class="section-kicker">CẦN PHỐI HỢP</span><h3>Câu hỏi chưa thể giải đáp</h3></div>
+                            <span class="section-count is-warning"><?= (int) $questionInsights['unanswered'] ?> câu</span>
+                        </div>
+                        <div class="unresolved-question-list">
+                            <?php foreach ($questionInsights['unresolved'] as $item): ?>
+                                <article class="unresolved-question">
+                                    <span class="unresolved-icon"><i class="bi bi-exclamation-circle" aria-hidden="true"></i></span>
+                                    <div><h4><?= e($item['question']) ?></h4><p><?= e($item['reason']) ?></p><span><i class="bi bi-arrow-up-right" aria-hidden="true"></i> Chuyển đến <?= e($item['owner']) ?></span></div>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                        <p class="unresolved-more"><i class="bi bi-info-circle" aria-hidden="true"></i> Còn 4 câu hỏi đơn lẻ đang chờ phân loại.</p>
+                    </section>
+                </div>
+            </div>
+            <div class="modal-footer insight-modal-footer">
+                <p><i class="bi bi-shield-check" aria-hidden="true"></i> Insight chỉ dùng dữ liệu đã tổng hợp, không hiển thị danh tính hoặc toàn bộ hội thoại.</p>
+                <div><button class="btn btn-light border" type="button" data-bs-dismiss="modal">Đóng</button><a class="btn btn-brand" href="index.php?page=admin-campaigns"><i class="bi bi-megaphone" aria-hidden="true"></i> Mở quản lý chiến dịch</a></div>
+            </div>
+        </div>
+    </div>
 </div>

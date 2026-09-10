@@ -32,6 +32,11 @@ function check(bool $ok, string $label): void {
 $empty = renderModeration([], []);
 check(str_contains($empty, 'Không có tin nhắn bị đánh dấu'), 'empty conversation list');
 check(!str_contains($empty, 'trò chuyện #0'), 'no misleading conversation zero');
+check(str_contains($empty, 'data-bs-target="#questionInsightsModal"'), 'question insight launcher available');
+check(str_contains($empty, 'Câu hỏi lặp lại nhiều'), 'repeated student questions summarized');
+check(str_contains($empty, 'Câu hỏi chưa thể giải đáp'), 'unanswered questions surfaced');
+check(str_contains($empty, 'index.php?page=admin-campaigns'), 'insights connect to campaign workflow');
+check(str_contains($empty, 'không hiển thị danh tính hoặc toàn bộ hội thoại'), 'aggregated insight privacy explained');
 $conversation = ['id'=>1, 'prospect_name'=>'Người hỏi', 'ambassador_name'=>'Đại sứ', 'message_count'=>1, 'flagged_count'=>1, 'quality_score'=>150, 'crm_status'=>'active'];
 $noMessages = renderModeration([$conversation], []);
 check(str_contains($noMessages, 'Chưa có tin nhắn'), 'empty message state');
